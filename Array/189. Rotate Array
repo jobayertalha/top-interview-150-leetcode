@@ -1,0 +1,75 @@
+# 189. Rotate Array
+# Difficulty: Medium
+# Topic: Array
+# LeetCode: https://leetcode.com/problems/rotate-array/
+
+"""
+Problem
+Rotate the array to the right by k steps.
+
+Definition
+Each element moves k positions to the right.
+Elements that go past the end wrap around to the beginning.
+
+Example
+nums = [1,2,3,4,5,6,7], k = 3
+
+After rotation:
+[5,6,7,1,2,3,4]
+
+Idea
+Use the reverse technique.
+
+Instead of shifting elements one by one,
+we reverse parts of the array.
+
+Key Insight
+Rotating right by k steps can be done by:
+1. Reverse the entire array
+2. Reverse the first k elements
+3. Reverse the remaining elements
+
+Rename (Pointer Meaning)
+start → beginning index for reversing
+end → ending index for reversing
+
+Approach
+1. Compute k % n to handle cases where k > array size.
+2. Reverse the whole array.
+3. Reverse the first k elements.
+4. Reverse the rest of the array.
+
+Example Walkthrough
+nums = [1,2,3,4,5,6,7], k = 3
+
+Step 1 (reverse all):
+[7,6,5,4,3,2,1]
+
+Step 2 (reverse first k):
+[5,6,7,4,3,2,1]
+
+Step 3 (reverse rest):
+[5,6,7,1,2,3,4]
+
+Time Complexity
+O(n)
+
+Space Complexity
+O(1)
+"""
+
+class Solution(object):
+    def rotate(self, nums, k):
+
+        n = len(nums)
+        k = k % n
+
+        def reverse(start, end):
+            while start < end:
+                nums[start], nums[end] = nums[end], nums[start]
+                start += 1
+                end -= 1
+
+        reverse(0, n-1)
+        reverse(0, k-1)
+        reverse(k, n-1)
