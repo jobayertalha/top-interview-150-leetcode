@@ -1,0 +1,62 @@
+# 80. Remove Duplicates from Sorted Array II
+# Difficulty: Medium
+# Topic: Array, Two Pointers
+# LeetCode: https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/
+
+"""
+Problem
+Given a sorted array nums, remove duplicates in-place so that each element
+appears at most twice.
+
+Return the number of remaining elements.
+
+Definition
+The array is sorted, so duplicate numbers appear next to each other.
+We allow each number to appear only two times.
+
+Idea
+Use two pointers:
+- i → scans the array
+- k → position where the next valid element should go
+
+Key Insight
+To allow at most two duplicates, compare nums[i] with nums[k-2].
+
+If they are different → we can safely keep nums[i].
+
+Approach
+1. Start k = 2 because the first two elements are always valid.
+2. Traverse the array from index 2 using pointer i.
+3. If nums[i] is NOT equal to nums[k-2]:
+   place nums[i] at nums[k].
+4. Move k forward.
+
+After the loop, the first k elements contain the valid values.
+
+Example
+nums = [1,1,1,2,2,3]
+
+Step result:
+[1,1,2,2,3]
+
+Return → 5
+
+Time Complexity
+O(n)
+
+Space Complexity
+O(1)
+"""
+
+class Solution(object):
+    def removeDuplicates(self, nums):
+
+        k = 2
+
+        for i in range(2, len(nums)):
+
+            if nums[i] != nums[k-2]:
+                nums[k] = nums[i]
+                k += 1
+
+        return k
