@@ -1,0 +1,85 @@
+# 121. Best Time to Buy and Sell Stock
+# Difficulty: Easy
+# Topic: Array, Greedy
+# LeetCode: https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+
+"""
+Problem
+Given an array prices where prices[i] is the price of a stock
+on the ith day, choose one day to buy and a different future day
+to sell.
+
+Return the maximum profit.
+
+If no profit is possible, return 0.
+
+Idea
+We need to:
+- Buy at the lowest price seen so far.
+- Sell at the current price.
+- Keep track of the maximum profit.
+
+We only move from left to right because the selling day
+must always come after the buying day.
+
+Approach
+1. Set min_price = prices[0].
+   This stores the lowest price seen so far.
+
+2. Set max_profit = 0.
+   This stores the best profit found so far.
+
+3. Traverse every price in the array.
+
+4. If the current price is smaller than min_price:
+   update min_price.
+
+5. Otherwise:
+   calculate the profit:
+       profit = price - min_price
+
+6. Update max_profit with the larger profit.
+
+7. Return max_profit.
+
+Example
+prices = [7,1,5,3,6,4]
+
+Step by step:
+- 7 → min_price = 7
+- 1 → min_price = 1
+- 5 → profit = 5 - 1 = 4
+- 3 → profit = 3 - 1 = 2
+- 6 → profit = 6 - 1 = 5
+- 4 → profit = 4 - 1 = 3
+
+Maximum profit = 5
+
+Buy at 1
+Sell at 6
+
+Return → 5
+
+Time Complexity
+O(n)
+
+Space Complexity
+O(1)
+"""
+
+class Solution(object):
+    def maxProfit(self, prices):
+
+        min_price = prices[0]
+        max_profit = 0
+
+        for price in prices:
+
+            if price < min_price:
+                min_price = price
+
+            else:
+                profit = price - min_price
+                max_profit = max(max_profit, profit)
+
+        return max_profit
