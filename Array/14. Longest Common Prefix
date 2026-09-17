@@ -1,0 +1,122 @@
+# 14. Longest Common Prefix
+# Difficulty: Easy
+# Topic: String, Array
+# LeetCode: https://leetcode.com/problems/longest-common-prefix/
+
+"""
+Problem
+Given an array of strings strs, find the longest common prefix
+shared by all the strings.
+
+A prefix is the beginning part of a string.
+
+Example:
+strs = ["flower", "flow", "flight"]
+
+Common prefix = "fl"
+
+Return → "fl"
+
+Idea
+Take the first word as the initial prefix.
+
+Then compare each character of this prefix with the same
+position in every other word.
+
+If:
+- The position does not exist in another word, OR
+- The characters are different
+
+then the common prefix ends there.
+
+Approach
+1. Take the first word as the prefix:
+       prefix = strs[0]
+
+2. Go through every character of prefix using index i.
+
+3. For each character, compare it with the character at
+   the same index in every other word.
+
+4. If i is outside the other word:
+       return prefix[:i]
+
+5. If the characters are different:
+       return prefix[:i]
+
+6. If all characters match, return the entire prefix.
+
+Example
+strs = ["flower", "flow", "flight"]
+
+Start:
+prefix = "flower"
+
+i = 0
+Compare:
+f == f
+f == f
+→ match
+
+i = 1
+l == l
+l == l
+→ match
+
+i = 2
+o == o
+o != i
+→ mismatch
+
+So return:
+prefix[:2]
+
+"flower"[:2] = "fl"
+
+Return → "fl"
+
+Important
+prefix[:i] means:
+take characters from index 0 up to (but NOT including) i.
+
+Example:
+prefix = "flower"
+
+prefix[:2] → "fl"
+prefix[:3] → "flo"
+prefix[:4] → "flow"
+
+Time Complexity
+O(n × m)
+
+where:
+n = number of strings
+m = length of the shortest relevant prefix
+
+Space Complexity
+O(1)
+
+Apart from the returned prefix, we use only a few variables.
+"""
+
+class Solution(object):
+    def longestCommonPrefix(self, strs):
+
+        # Take the first string as the initial prefix
+        prefix = strs[0]
+
+        # Check every character of the first string
+        for i in range(len(prefix)):
+
+            # Compare with every other string
+            for word in strs[1:]:
+
+                # If this position doesn't exist
+                # OR the characters are different
+                if i >= len(word) or word[i] != prefix[i]:
+
+                    # Return everything before position i
+                    return prefix[:i]
+
+        # If everything matched, return the whole prefix
+        return prefix
