@@ -1,0 +1,133 @@
+# 13. Roman to Integer
+# Difficulty: Easy
+# Topic: Hash Table, String
+# LeetCode: https://leetcode.com/problems/roman-to-integer/
+
+"""
+Problem
+Given a string s containing a Roman numeral, convert it into
+an integer.
+
+Roman numeral values:
+
+I = 1
+V = 5
+X = 10
+L = 50
+C = 100
+D = 500
+M = 1000
+
+Some Roman numerals use subtraction.
+
+For example:
+IV = 4   → 5 - 1
+IX = 9   → 10 - 1
+XL = 40  → 50 - 10
+CM = 900 → 1000 - 100
+
+Idea
+Normally, we ADD the value of each symbol.
+
+But if the current symbol is smaller than the next symbol,
+we SUBTRACT the current value.
+
+Example:
+IV
+
+I = 1, V = 5
+
+Since 1 < 5:
+1 should be subtracted.
+
+So:
+-1 + 5 = 4
+
+Approach
+1. Create a dictionary containing the value of each Roman symbol.
+
+2. Start total = 0.
+
+3. Traverse the string from left to right.
+
+4. For each character:
+   - Check if there is a next character.
+   - If the current value is smaller than the next value:
+       subtract the current value.
+   - Otherwise:
+       add the current value.
+
+5. Return total.
+
+Example
+s = "MCMIV"
+
+Step by step:
+
+M = 1000
+C = 100, next is M = 1000
+Since 100 < 1000 → subtract 100
+
+M = 1000 → add
+
+I = 1, next is V = 5
+Since 1 < 5 → subtract 1
+
+V = 5 → add
+
+Calculation:
+
+1000 - 100 + 1000 - 1 + 5
+= 1904
+
+Return → 1904
+
+Why do we check the NEXT value?
+
+Because Roman numerals use subtraction when a smaller
+symbol comes before a larger symbol.
+
+Example:
+
+VI
+V = 5, I = 1
+5 > 1 → ADD 5
+
+IV
+I = 1, V = 5
+1 < 5 → SUBTRACT 1
+
+Time Complexity
+O(n)
+
+Space Complexity
+O(1)
+
+The dictionary contains only 7 fixed Roman symbols,
+so its space usage is constant.
+"""
+
+class Solution(object):
+    def romanToInt(self, s):
+
+        values = {
+            'I': 1,
+            'V': 5,
+            'X': 10,
+            'L': 50,
+            'C': 100,
+            'D': 500,
+            'M': 1000
+        }
+
+        total = 0
+
+        for i in range(len(s)):
+
+            if i + 1 < len(s) and values[s[i]] < values[s[i + 1]]:
+                total -= values[s[i]]
+
+            else:
+                total += values[s[i]]
+
+        return total
