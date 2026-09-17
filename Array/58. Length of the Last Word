@@ -1,0 +1,116 @@
+# 58. Length of Last Word
+# Difficulty: Easy
+# Topic: String
+# LeetCode: https://leetcode.com/problems/length-of-last-word/
+
+"""
+Problem
+Given a string s consisting of words and spaces, return the length
+of the last word in the string.
+
+A word is a sequence of non-space characters.
+
+Example:
+s = "Hello World"
+
+Last word = "World"
+Length = 5
+
+Idea
+Start from the END of the string.
+
+Why?
+
+Because we only need the last word.
+
+There may be spaces after the last word, so:
+1. First skip all trailing spaces.
+2. Then count characters until we reach another space.
+
+Approach
+1. Start i at the last index:
+       i = len(s) - 1
+
+2. Skip spaces from the end.
+
+3. Set length = 0.
+
+4. Move backwards and count characters while they are not spaces.
+
+5. When a space is found, the last word has ended.
+
+6. Return length.
+
+Example
+s = "Hello World   "
+
+First, skip the spaces:
+
+"Hello World   "
+          ↑
+        start here
+
+Move left until 'd':
+
+"Hello World"
+           ↑
+
+Now count:
+
+d → 1
+l → 2
+r → 3
+o → 4
+W → 5
+
+Return → 5
+
+Example 2
+s = " fly me to the moon "
+
+Skip trailing space
+        ↓
+" fly me to the moon"
+
+Count:
+
+moon → 4
+
+Return → 4
+
+Why do we move backwards?
+
+Because the problem asks for the LAST word.
+
+Instead of checking every word, we directly start from the end
+and find the last word.
+
+Time Complexity
+O(n)
+
+In the worst case, we may scan the entire string.
+
+Space Complexity
+O(1)
+
+We only use a few variables.
+"""
+
+class Solution(object):
+    def lengthOfLastWord(self, s):
+
+        # Start from the last character
+        i = len(s) - 1
+
+        # Skip spaces at the end
+        while i >= 0 and s[i] == ' ':
+            i -= 1
+
+        # Count the characters of the last word
+        length = 0
+
+        while i >= 0 and s[i] != ' ':
+            length += 1
+            i -= 1
+
+        return length
