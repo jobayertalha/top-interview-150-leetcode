@@ -1,0 +1,146 @@
+# 28. Find the Index of the First Occurrence in a String
+# Difficulty: Easy
+# Topic: String, Sliding Window
+# LeetCode: https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/
+
+"""
+Problem
+Given two strings:
+- haystack → the main string
+- needle → the string we want to find
+
+Return the index of the FIRST occurrence of needle in haystack.
+
+If needle does not exist, return -1.
+
+Example
+haystack = "sadbutsad"
+needle = "sad"
+
+The first "sad" starts at index 0.
+
+Return → 0
+
+Idea
+Try every possible starting position in haystack.
+
+At each position:
+- Take a substring with the same length as needle.
+- Compare it with needle.
+
+If they are equal, we found the answer.
+
+Approach
+1. Use a loop to check every possible starting index.
+
+2. The loop is:
+       range(len(haystack) - len(needle) + 1)
+
+   We add 1 because range() does NOT include its ending value.
+
+3. At each index i, take:
+       haystack[i : i + len(needle)]
+
+4. Compare that substring with needle.
+
+5. If they are equal:
+       return i
+
+6. If the loop finishes without finding needle:
+       return -1
+
+Example
+haystack = "hello"
+needle = "ll"
+
+len(haystack) = 5
+len(needle) = 2
+
+Possible starting positions:
+
+i = 0 → "he" ≠ "ll"
+i = 1 → "el" ≠ "ll"
+i = 2 → "ll" = "ll"
+
+Therefore:
+
+return 2
+
+Answer → 2
+
+Why:
+range(len(haystack) - len(needle) + 1)?
+
+For:
+
+haystack = "hello"  → length 5
+needle = "ll"       → length 2
+
+5 - 2 + 1 = 4
+
+So:
+
+range(4)
+
+gives:
+
+0, 1, 2, 3
+
+These are all possible starting positions.
+
+Why not 4?
+
+Because starting at index 4 would leave only:
+
+"o"
+
+There aren't enough characters to form "ll".
+
+Important
+haystack[i : i + len(needle)]
+
+means:
+
+Start at index i
+and take exactly len(needle) characters.
+
+Example:
+
+haystack = "hello"
+needle = "ll"
+
+i = 2
+
+haystack[2 : 2 + 2]
+        ↓
+haystack[2 : 4]
+
+= "ll"
+
+Time Complexity
+O(n × m)
+
+where:
+n = length of haystack
+m = length of needle
+
+Space Complexity
+O(m)
+
+because a substring of length m is created for comparison.
+"""
+
+class Solution(object):
+    def strStr(self, haystack, needle):
+
+        # Try every possible starting position
+        for i in range(len(haystack) - len(needle) + 1):
+
+            # Take a substring of the same length as needle
+            if haystack[i:i + len(needle)] == needle:
+
+                # Found the first occurrence
+                return i
+
+        # needle was not found
+        return -1
