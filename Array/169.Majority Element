@@ -1,0 +1,74 @@
+# 169. Majority Element
+# Difficulty: Easy
+# Topic: Array, Boyer-Moore Voting Algorithm
+# LeetCode: https://leetcode.com/problems/majority-element/
+
+"""
+Problem
+Given an array nums, find the majority element.
+
+Definition
+The majority element is the element that appears more than
+half of the array length.
+
+The problem guarantees that a majority element always exists.
+
+Idea
+Use the Boyer-Moore Voting Algorithm.
+
+Keep two variables:
+- candidate → current possible majority element
+- count → strength of the candidate
+
+Approach
+1. Start with no candidate and count = 0.
+2. Traverse the array.
+3. If count becomes 0, choose the current element as candidate.
+4. If the current element equals candidate:
+   increase count.
+5. Otherwise:
+   decrease count.
+6. The majority element cannot be completely cancelled because
+   it appears more than half of the time.
+7. Return the final candidate.
+
+Example
+nums = [2,2,1,1,1,2,2]
+
+The majority element is 2 because it appears 4 times out of 7.
+
+Step result:
+2 → count 1
+2 → count 2
+1 → count 1
+1 → count 0
+1 → new candidate, count 1
+2 → count 0
+2 → new candidate, count 1
+
+Return → 2
+
+Time Complexity
+O(n)
+
+Space Complexity
+O(1)
+"""
+
+class Solution(object):
+    def majorityElement(self, nums):
+
+        candidate = None
+        count = 0
+
+        for i in nums:
+
+            if count == 0:
+                candidate = i
+
+            if i == candidate:
+                count += 1
+            else:
+                count -= 1
+
+        return candidate
