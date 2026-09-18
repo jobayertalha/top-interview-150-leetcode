@@ -1,0 +1,199 @@
+# 55. Jump Game
+# Difficulty: Medium
+# Topic: Array, Greedy
+# LeetCode: https://leetcode.com/problems/jump-game/
+
+"""
+Problem
+You are given an array nums.
+
+nums[i] tells you the maximum number of steps you can jump
+forward from index i.
+
+You start at index 0.
+
+Return True if you can reach the last index.
+Otherwise, return False.
+
+Example 1
+nums = [2,3,1,1,4]
+
+Answer → True
+
+From index 0, we can jump to index 1 or 2.
+Eventually, we can reach the last index.
+
+Example 2
+nums = [3,2,1,0,4]
+
+Answer → False
+
+We eventually reach index 3, where nums[3] = 0.
+We cannot move any further, so index 4 cannot be reached.
+
+Idea
+We don't need to actually make the jumps.
+
+Instead, keep track of the FARTHest index we can reach.
+
+Variable:
+    farthest
+
+farthest = the maximum index we can currently reach.
+
+As we move through the array:
+    i + nums[i]
+
+tells us how far we can reach from index i.
+
+So we update:
+
+    farthest = max(farthest, i + nums[i])
+
+If we ever reach an index i such that:
+
+    i > farthest
+
+then that index is unreachable.
+
+Therefore, return False.
+
+Approach
+1. Start:
+       farthest = 0
+
+   We can initially reach index 0.
+
+2. Traverse every index i.
+
+3. Check:
+       if i > farthest
+
+   This means we cannot even reach index i.
+
+   Therefore:
+       return False
+
+4. Otherwise, calculate how far we can reach from i:
+       i + nums[i]
+
+5. Update farthest with the larger value.
+
+6. If we successfully finish the loop, return True.
+
+Example
+nums = [2,3,1,1,4]
+
+Start:
+farthest = 0
+
+i = 0
+0 <= 0 ✓
+Reach from index 0:
+0 + 2 = 2
+
+farthest = 2
+
+i = 1
+1 <= 2 ✓
+Reach:
+1 + 3 = 4
+
+farthest = 4
+
+i = 2
+2 <= 4 ✓
+Reach:
+2 + 1 = 3
+
+farthest = 4
+
+i = 3
+3 <= 4 ✓
+Reach:
+3 + 1 = 4
+
+farthest = 4
+
+i = 4
+4 <= 4 ✓
+
+We reached the last index.
+
+Return → True
+
+Example 2
+nums = [3,2,1,0,4]
+
+Start:
+farthest = 0
+
+i = 0
+0 <= 0 ✓
+0 + 3 = 3
+
+farthest = 3
+
+i = 1
+1 <= 3 ✓
+1 + 2 = 3
+
+farthest = 3
+
+i = 2
+2 <= 3 ✓
+2 + 1 = 3
+
+farthest = 3
+
+i = 3
+3 <= 3 ✓
+3 + 0 = 3
+
+farthest = 3
+
+i = 4
+4 > 3 ✗
+
+We cannot reach index 4.
+
+Return → False
+
+Important
+The key condition is:
+
+    if i > farthest:
+
+If i is greater than farthest, there is a gap.
+
+We cannot reach that position, so we immediately return False.
+
+Time Complexity
+O(n)
+
+We visit every index once.
+
+Space Complexity
+O(1)
+
+Only one extra variable is used.
+"""
+
+class Solution(object):
+    def canJump(self, nums):
+
+        # Farthest index we can currently reach
+        farthest = 0
+
+        # Check every index
+        for i in range(len(nums)):
+
+            # If this index is unreachable
+            if i > farthest:
+                return False
+
+            # Update the farthest reachable index
+            farthest = max(farthest, i + nums[i])
+
+        # We were able to reach the end
+        return True
