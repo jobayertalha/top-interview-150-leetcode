@@ -1,0 +1,187 @@
+# 45. Jump Game II
+# Difficulty: Medium
+# Topic: Array, Greedy
+# LeetCode: https://leetcode.com/problems/jump-game-ii/
+
+"""
+Problem
+You are given an array nums.
+
+nums[i] tells you the maximum number of steps you can jump
+forward from index i.
+
+You start at index 0.
+
+Return the MINIMUM number of jumps needed to reach the last index.
+
+Example
+nums = [2,3,1,1,4]
+
+Answer → 2
+
+We can jump:
+
+0 → 1 → 4
+
+So only 2 jumps are needed.
+
+Idea
+Think of each jump as creating a RANGE of reachable indexes.
+
+We keep track of:
+
+1. jumps
+   → how many jumps we have made
+
+2. current_end
+   → the end of the range we can reach using
+     the current number of jumps
+
+3. farthest
+   → the farthest position we can reach from
+     the current range
+
+When we reach current_end, we have finished checking
+everything reachable with the current number of jumps.
+
+So we MUST make another jump.
+
+At that moment:
+    jumps += 1
+
+and:
+
+    current_end = farthest
+
+This creates the next reachable range.
+
+Approach
+1. Start with:
+       jumps = 0
+       current_end = 0
+       farthest = 0
+
+2. Loop only until len(nums) - 1.
+
+   We don't need to process the last index because
+   our goal is to reach it.
+
+3. For every index i:
+   calculate the farthest position we can reach:
+
+       farthest = max(farthest, i + nums[i])
+
+4. If:
+       i == current_end
+
+   it means we have reached the end of our current range.
+
+   Therefore, we need another jump:
+
+       jumps += 1
+
+5. The next range ends at:
+
+       current_end = farthest
+
+6. Return jumps.
+
+Example
+nums = [2,3,1,1,4]
+
+Index:
+        0   1   2   3   4
+nums:   2   3   1   1   4
+
+Start:
+jumps = 0
+current_end = 0
+farthest = 0
+
+i = 0
+farthest = max(0, 0 + 2)
+          = 2
+
+i == current_end
+0 == 0 ✓
+
+So we need another jump:
+
+jumps = 1
+current_end = 2
+
+Now our first jump can reach indexes:
+
+[0, 1, 2]
+
+Continue:
+
+i = 1
+farthest = max(2, 1 + 3)
+          = 4
+
+i = 2
+farthest = max(4, 2 + 1)
+          = 4
+
+i == current_end
+2 == 2 ✓
+
+We need another jump:
+
+jumps = 2
+current_end = 4
+
+Now index 4 is reachable.
+
+Return → 2
+
+The jumps are effectively:
+
+0 → 1 → 4
+
+Important
+We are NOT choosing the exact jump immediately.
+
+Instead, we explore all positions reachable within the
+current jump range.
+
+Then we choose the next range that reaches the farthest.
+
+This is a Greedy approach.
+
+Time Complexity
+O(n)
+
+We visit each index once.
+
+Space Complexity
+O(1)
+
+Only three variables are used.
+"""
+
+class Solution(object):
+    def jump(self, nums):
+
+        jumps = 0
+        current_end = 0
+        farthest = 0
+
+        # We don't need to process the last index
+        for i in range(len(nums) - 1):
+
+            # Find the farthest position reachable
+            # from the current range
+            farthest = max(farthest, i + nums[i])
+
+            # We reached the end of the current jump range
+            if i == current_end:
+
+                # Make another jump
+                jumps += 1
+
+                # The next jump can reach up to farthest
+                current_end = farthest
+
+        return jumps
