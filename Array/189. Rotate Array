@@ -1,75 +1,129 @@
 # 189. Rotate Array
 # Difficulty: Medium
-# Topic: Array
+# Topic: Array, Two Pointers
 # LeetCode: https://leetcode.com/problems/rotate-array/
 
 """
 Problem
-Rotate the array to the right by k steps.
+Given an array nums, rotate the array to the right by k steps.
 
-Definition
-Each element moves k positions to the right.
-Elements that go past the end wrap around to the beginning.
+Example:
+nums = [1,2,3,4,5,6,7]
+k = 3
 
-Example
-nums = [1,2,3,4,5,6,7], k = 3
+After rotating right by 3:
 
-After rotation:
 [5,6,7,1,2,3,4]
+
+The last 3 elements move to the beginning.
 
 Idea
-Use the reverse technique.
+Use the REVERSE method.
 
-Instead of shifting elements one by one,
-we reverse parts of the array.
+Instead of directly moving elements one by one:
 
-Key Insight
-Rotating right by k steps can be done by:
-1. Reverse the entire array
-2. Reverse the first k elements
-3. Reverse the remaining elements
+1. Reverse the entire array.
+2. Reverse the first k elements.
+3. Reverse the remaining elements.
 
-Rename (Pointer Meaning)
-start → beginning index for reversing
-end → ending index for reversing
+This gives the correct rotated array.
 
 Approach
-1. Compute k % n to handle cases where k > array size.
-2. Reverse the whole array.
-3. Reverse the first k elements.
-4. Reverse the rest of the array.
 
-Example Walkthrough
-nums = [1,2,3,4,5,6,7], k = 3
+Step 1: Handle large k
 
-Step 1 (reverse all):
+    k = k % len(nums)
+
+Why?
+
+If nums has 7 elements, rotating 7 times gives the
+same array.
+
+So:
+
+k = 3  → rotate 3 times
+k = 10 → 10 % 7 = 3
+
+Therefore, we only need k % n rotations.
+
+Step 2: Reverse the entire array
+
+    nums.reverse()
+
+Example:
+
+[1,2,3,4,5,6,7]
+
+becomes:
+
 [7,6,5,4,3,2,1]
 
-Step 2 (reverse first k):
+Step 3: Reverse the first k elements
+
+    nums[:k] = reversed(nums[:k])
+
+For k = 3:
+
+[7,6,5 | 4,3,2,1]
+
+First 3 elements:
+
+[7,6,5]
+
+Reverse them:
+
+[5,6,7]
+
+Now:
+
 [5,6,7,4,3,2,1]
 
-Step 3 (reverse rest):
+Step 4: Reverse the remaining elements
+
+    nums[k:] = reversed(nums[k:])
+
+Remaining part:
+
+[4,3,2,1]
+
+Reverse it:
+
+[1,2,3,4]
+
+Final:
+
 [5,6,7,1,2,3,4]
+
+Return
+Nothing is returned because the problem asks us to modify
+nums in-place.
 
 Time Complexity
 O(n)
 
+We reverse the array 3 times, but:
+
+O(n) + O(n) + O(n) = O(n)
+
 Space Complexity
-O(1)
+O(n) in Python for the slice/reversed assignment.
+
+The algorithm itself is O(1) auxiliary space, but Python's
+slicing creates temporary objects.
 """
 
 class Solution(object):
     def rotate(self, nums, k):
 
-        n = len(nums)
-        k = k % n
+        # If k is larger than the array length,
+        # reduce it to the equivalent number of rotations
+        k = k % len(nums)
 
-        def reverse(start, end):
-            while start < end:
-                nums[start], nums[end] = nums[end], nums[start]
-                start += 1
-                end -= 1
+        # Step 1: Reverse the entire array
+        nums.reverse()
 
-        reverse(0, n-1)
-        reverse(0, k-1)
-        reverse(k, n-1)
+        # Step 2: Reverse the first k elements
+        nums[:k] = reversed(nums[:k])
+
+        # Step 3: Reverse the remaining elements
+        nums[k:] = reversed(nums[k:])
