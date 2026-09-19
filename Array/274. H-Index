@@ -1,0 +1,193 @@
+# 274. H-Index
+# Difficulty: Medium
+# Topic: Array, Counting
+# LeetCode: https://leetcode.com/problems/h-index/
+
+"""
+Problem
+Given an array citations where citations[i] is the number of
+citations for a research paper, calculate the researcher's
+H-Index.
+
+The H-Index is the largest value h such that:
+
+    At least h papers have at least h citations each.
+
+Example
+citations = [3,0,6,1,5]
+
+We can find:
+
+h = 1 → at least 1 paper has ≥ 1 citation ✓
+h = 2 → at least 2 papers have ≥ 2 citations ✓
+h = 3 → at least 3 papers have ≥ 3 citations ✓
+h = 4 → only 2 papers have ≥ 4 citations ✗
+
+Therefore:
+
+H-Index = 3
+
+Return → 3
+
+Idea
+Try every possible value of h.
+
+For each h:
+1. Count how many papers have at least h citations.
+2. If that count is at least h, then h is a valid H-Index.
+3. Keep the largest valid h.
+
+The important condition is:
+
+    count >= i
+
+where:
+- i = possible H-Index
+- count = number of papers with at least i citations
+
+Approach
+1. Start:
+       h = 0
+
+2. Try every possible H-Index from 1 to len(citations).
+
+3. For each i:
+       count = 0
+
+4. Go through every citation.
+
+5. If:
+       citation >= i
+
+   increase count.
+
+6. After checking all papers:
+   if:
+       count >= i
+
+   then i is a valid H-Index.
+
+   Update:
+       h = i
+
+7. Return h.
+
+Example
+citations = [3,0,6,1,5]
+
+Try i = 1:
+
+Papers with ≥ 1 citation:
+3 ✓
+0 ✗
+6 ✓
+1 ✓
+5 ✓
+
+count = 4
+
+4 >= 1 ✓
+
+h = 1
+
+Try i = 2:
+
+3 ✓
+0 ✗
+6 ✓
+1 ✗
+5 ✓
+
+count = 3
+
+3 >= 2 ✓
+
+h = 2
+
+Try i = 3:
+
+3 ✓
+0 ✗
+6 ✓
+1 ✗
+5 ✓
+
+count = 3
+
+3 >= 3 ✓
+
+h = 3
+
+Try i = 4:
+
+3 ✗
+0 ✗
+6 ✓
+1 ✗
+5 ✓
+
+count = 2
+
+2 >= 4 ✗
+
+h remains 3.
+
+Try i = 5:
+
+Only 6 has ≥ 5 citations.
+
+count = 1
+
+1 >= 5 ✗
+
+Final:
+
+h = 3
+
+Return → 3
+
+Why do we go up to len(citations)?
+
+Because the H-Index can never be larger than the total
+number of papers.
+
+For example, if there are 5 papers, h cannot be 6.
+
+Time Complexity
+O(n²)
+
+Outer loop → n times
+Inner loop → n times
+
+So:
+
+O(n × n) = O(n²)
+
+Space Complexity
+O(1)
+
+Only h and count are used.
+"""
+
+class Solution(object):
+    def hIndex(self, citations):
+
+        # Store the maximum valid H-Index
+        h = 0
+
+        # Try every possible H-Index
+        for i in range(1, len(citations) + 1):
+
+            # Count papers having at least i citations
+            count = 0
+
+            for citation in citations:
+
+                if citation >= i:
+                    count += 1
+
+            # Check if i is a valid H-Index
+            if count >= i:
+                h = i
+
+        return h
