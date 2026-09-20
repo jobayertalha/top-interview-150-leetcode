@@ -1,0 +1,79 @@
+class Solution(object):
+    def trap(self, height):
+        """
+        Problem:
+        Given an elevation map, calculate how much rainwater
+        can be trapped between the bars.
+
+        Idea:
+        Use two pointers:
+            left  -> starts from the beginning
+            right -> starts from the end
+
+        We keep track of:
+            left_max  -> tallest bar seen from the left
+            right_max -> tallest bar seen from the right
+
+        At each step, process the side with the smaller
+        maximum height.
+
+        If the current bar is lower than that side's maximum,
+        water can be trapped there.
+
+        Time Complexity: O(n)
+        Space Complexity: O(1)
+        """
+
+        # Left pointer starts at the first bar
+        left = 0
+
+        # Right pointer starts at the last bar
+        right = len(height) - 1
+
+        # Highest bar we have seen from the left side
+        left_max = 0
+
+        # Highest bar we have seen from the right side
+        right_max = 0
+
+        # Total amount of trapped water
+        water = 0
+
+        # Continue until the two pointers cross
+        while left <= right:
+
+            # If the left maximum is smaller/equal,
+            # process the LEFT side.
+            if left_max <= right_max:
+
+                # If current left bar is the new highest bar,
+                # update left_max.
+                if height[left] >= left_max:
+                    left_max = height[left]
+
+                # Otherwise, current bar is lower than left_max,
+                # so water can be trapped above it.
+                else:
+                    water += left_max - height[left]
+
+                # Move left pointer one position to the right
+                left += 1
+
+            # Otherwise, process the RIGHT side.
+            else:
+
+                # If current right bar is the new highest bar,
+                # update right_max.
+                if height[right] >= right_max:
+                    right_max = height[right]
+
+                # Otherwise, current bar is lower than right_max,
+                # so water can be trapped above it.
+                else:
+                    water += right_max - height[right]
+
+                # Move right pointer one position to the left
+                right -= 1
+
+        # Return total trapped water
+        return water
