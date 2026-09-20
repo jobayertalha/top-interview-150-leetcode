@@ -1,0 +1,77 @@
+class Solution(object):
+    def candy(self, ratings):
+        """
+        Problem:
+        Each child must get at least 1 candy.
+
+        If a child has a higher rating than a neighboring child,
+        that child must receive more candies than that neighbor.
+
+        We need to find the minimum total number of candies.
+
+        Approach:
+        1. Give every child 1 candy.
+        2. Go LEFT -> RIGHT:
+           If rating[i] > rating[i-1],
+           give child i one more candy than the left child.
+        3. Go RIGHT -> LEFT:
+           If rating[i] > rating[i+1],
+           make sure child i has one more candy than the right child.
+        4. Use max() because the first pass may already have
+           given the child more candies.
+
+        Time Complexity: O(n)
+        Space Complexity: O(n)
+        """
+
+        # Number of children
+        n = len(ratings)
+
+        # Give every child 1 candy initially.
+        #
+        # Example:
+        # ratings = [1, 0, 2]
+        # candies = [1, 1, 1]
+        candies = [1] * n
+
+        # --------------------------------------------------
+        # PASS 1: LEFT -> RIGHT
+        # --------------------------------------------------
+        #
+        # Compare each child with the child immediately
+        # to their LEFT.
+
+        for i in range(1, n):
+
+            # If current child's rating is higher
+            # than the child on the left...
+            if ratings[i] > ratings[i - 1]:
+
+                # Current child must get one more candy
+                # than the child on the left.
+                candies[i] = candies[i - 1] + 1
+
+        # --------------------------------------------------
+        # PASS 2: RIGHT -> LEFT
+        # --------------------------------------------------
+        #
+        # Compare each child with the child immediately
+        # to their RIGHT.
+
+        for i in range(n - 2, -1, -1):
+
+            # If current child's rating is higher
+            # than the child on the right...
+            if ratings[i] > ratings[i + 1]:
+
+                # Current child must have at least
+                # one more candy than the right child.
+                #
+                # max() protects the result from Pass 1.
+                candies[i] = max(
+                    candies[i],
+                    candies[i + 1] + 1
+                )
+
+        # Add all candies and return the minimum total.
+        return sum(candies)
