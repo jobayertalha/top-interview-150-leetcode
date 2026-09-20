@@ -1,0 +1,226 @@
+# 238. Product of Array Except Self
+# Difficulty: Medium
+# Topic: Array, Prefix Product, Suffix Product
+# LeetCode: https://leetcode.com/problems/product-of-array-except-self/
+
+"""
+Problem
+Given an integer array nums, return an array answer such that:
+
+    answer[i] = product of all elements of nums
+               except nums[i]
+
+You must solve it without using division.
+
+Example
+nums = [1,2,3,4]
+
+Answer:
+
+[24,12,8,6]
+
+Because:
+
+index 0 → 2 × 3 × 4 = 24
+index 1 → 1 × 3 × 4 = 12
+index 2 → 1 × 2 × 4 = 8
+index 3 → 1 × 2 × 3 = 6
+
+Idea
+For every position i, we need:
+
+    product of everything BEFORE i
+    ×
+    product of everything AFTER i
+
+So:
+
+answer[i] = prefix product × suffix product
+
+We calculate these in TWO passes.
+
+First pass:
+→ Calculate the prefix product.
+
+Second pass:
+→ Calculate the suffix product and multiply it
+   with the prefix product already stored in answer.
+
+--------------------------------------------------
+FIRST PASS: PREFIX
+--------------------------------------------------
+
+Example:
+
+nums = [1,2,3,4]
+
+Start:
+
+prefix = 1
+
+For i = 0:
+
+answer[0] = prefix
+           = 1
+
+Then:
+
+prefix *= nums[0]
+prefix = 1 × 1 = 1
+
+For i = 1:
+
+answer[1] = prefix
+           = 1
+
+Then:
+
+prefix = 1 × 2 = 2
+
+For i = 2:
+
+answer[2] = 2
+
+Then:
+
+prefix = 2 × 3 = 6
+
+For i = 3:
+
+answer[3] = 6
+
+Then:
+
+prefix = 6 × 4 = 24
+
+After the first pass:
+
+answer = [1,1,2,6]
+
+These are the products of everything BEFORE each index.
+
+--------------------------------------------------
+SECOND PASS: SUFFIX
+--------------------------------------------------
+
+Now we go from RIGHT to LEFT.
+
+Start:
+
+suffix = 1
+
+For i = 3:
+
+answer[3] *= suffix
+           = 6 × 1
+           = 6
+
+Then:
+
+suffix *= nums[3]
+suffix = 1 × 4 = 4
+
+For i = 2:
+
+answer[2] *= suffix
+           = 2 × 4
+           = 8
+
+Then:
+
+suffix = 4 × 3
+       = 12
+
+For i = 1:
+
+answer[1] *= suffix
+           = 1 × 12
+           = 12
+
+Then:
+
+suffix = 12 × 2
+       = 24
+
+For i = 0:
+
+answer[0] *= suffix
+           = 1 × 24
+           = 24
+
+Final:
+
+answer = [24,12,8,6]
+
+Return → [24,12,8,6]
+
+Why does this work?
+
+At each index:
+
+    answer[i] = prefix × suffix
+
+Prefix contains everything BEFORE i.
+
+Suffix contains everything AFTER i.
+
+Therefore:
+
+    answer[i] =
+    product before i × product after i
+
+which is exactly the product of every element
+except nums[i].
+
+Time Complexity
+O(n)
+
+We go through the array twice.
+
+O(n) + O(n) = O(n)
+
+Space Complexity
+O(1) extra space
+
+The output array does not count as extra space.
+We use only prefix and suffix variables.
+"""
+
+class Solution(object):
+    def productExceptSelf(self, nums):
+
+        # Create the answer array.
+        # Initially every position contains 1.
+        answer = [1] * len(nums)
+
+        # Stores the product of elements
+        # to the LEFT of the current index.
+        prefix = 1
+
+        # Move from left to right
+        for i in range(len(nums)):
+
+            # Store the product of everything
+            # before index i.
+            answer[i] = prefix
+
+            # Add nums[i] to the prefix product
+            # for the next position.
+            prefix *= nums[i]
+
+        # Stores the product of elements
+        # to the RIGHT of the current index.
+        suffix = 1
+
+        # Move from right to left
+        for i in range(len(nums) - 1, -1, -1):
+
+            # Multiply the existing prefix product
+            # by the suffix product.
+            answer[i] *= suffix
+
+            # Add nums[i] to the suffix product
+            # for the next position.
+            suffix *= nums[i]
+
+        return answer
