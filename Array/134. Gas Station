@@ -1,0 +1,56 @@
+class Solution(object):
+    def canCompleteCircuit(self, gas, cost):
+        """
+        Problem:
+        There are gas stations arranged in a circle.
+
+        gas[i]  = amount of gas available at station i
+        cost[i] = gas needed to travel from station i to station i+1
+
+        We need to find the starting station from which we can
+        complete the entire circular journey.
+
+        If it is impossible, return -1.
+
+        Idea:
+        1. Calculate the total gas balance of the entire circle.
+        2. If total gas < total cost, completing the circuit is impossible.
+        3. Otherwise, use a greedy approach to find the valid starting point.
+
+        Time Complexity: O(n)
+        Space Complexity: O(1)
+        """
+
+        total = 0       # Total gas balance of the entire journey
+        tank = 0        # Gas currently available from our chosen start
+        start = 0       # Possible starting station
+
+        # Check every gas station
+        for i in range(len(gas)):
+
+            # Calculate gas gained/lost at station i
+            # Positive -> we gain gas
+            # Negative -> we lose gas
+            total += gas[i] - cost[i]
+
+            # Add the current station's balance to our tank
+            tank += gas[i] - cost[i]
+
+            # If tank becomes negative,
+            # we cannot reach the next station from this start
+            if tank < 0:
+
+                # So the current start cannot work.
+                # Try the next station as the new start.
+                start = i + 1
+
+                # Start with an empty tank again
+                tank = 0
+
+        # If the total amount of gas is less than total cost,
+        # completing the entire circle is impossible.
+        if total < 0:
+            return -1
+
+        # Otherwise, the greedy start is a valid answer.
+        return start
