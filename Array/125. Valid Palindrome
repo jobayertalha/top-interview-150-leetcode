@@ -1,0 +1,178 @@
+# 125. Valid Palindrome
+# Difficulty: Easy
+# Topic: String, Two Pointers
+# LeetCode: https://leetcode.com/problems/valid-palindrome/
+
+"""
+Problem
+Given a string s, determine whether it is a palindrome.
+
+A palindrome reads the same forward and backward.
+
+Only letters and numbers should be considered.
+
+Uppercase and lowercase letters should be treated
+as the same character.
+
+Example:
+
+s = "A man, a plan, a canal: Panama"
+
+Ignore:
+- spaces
+- commas
+- colon
+
+Convert uppercase to lowercase:
+
+"amanaplanacanalpanama"
+
+This is the same forwards and backwards.
+
+Answer:
+True
+
+
+Idea
+First create a CLEAN version of the string.
+
+While going through every character:
+
+1. Check whether it is a letter or number.
+2. If it is, convert it to lowercase.
+3. Add it to cleaned.
+
+Then compare:
+
+cleaned
+
+with:
+
+cleaned[::-1]
+
+If they are equal, the string is a palindrome.
+
+
+Approach
+1. Create an empty string called cleaned.
+
+2. Traverse every character in s.
+
+3. Use isalnum() to check whether the character
+   is a letter or number.
+
+4. If it is valid:
+   - Convert it to lowercase using lower().
+   - Add it to cleaned.
+
+5. Reverse cleaned using [::-1].
+
+6. Compare the original cleaned string with
+   its reversed version.
+
+7. Return True if they are equal.
+   Otherwise return False.
+
+
+Example
+
+s = "A man, a plan, a canal: Panama"
+
+After removing non-alphanumeric characters
+and converting to lowercase:
+
+cleaned = "amanaplanacanalpanama"
+
+Reverse:
+
+cleaned[::-1]
+= "amanaplanacanalpanama"
+
+They are equal:
+
+cleaned == cleaned[::-1]
+
+Therefore:
+
+True
+
+
+Important Functions
+
+isalnum()
+→ Checks whether a character is a letter or number.
+
+Examples:
+
+'A'.isalnum() → True
+'7'.isalnum() → True
+' '.isalnum() → False
+','.isalnum() → False
+
+
+lower()
+→ Converts an uppercase letter to lowercase.
+
+'A'.lower() → 'a'
+'B'.lower() → 'b'
+
+
+[::-1]
+→ Reverses a string.
+
+"hello"[::-1]
+→ "olleh"
+
+
+Why do we clean the string?
+
+Consider:
+
+"A man, a plan, a canal: Panama"
+
+If we directly compare the original string with
+its reverse, spaces and punctuation would cause
+the comparison to fail.
+
+The problem says to ignore them.
+
+So we first create:
+
+"amanaplanacanalpanama"
+
+
+Time Complexity
+O(n)
+
+We go through the string once to clean it,
+then compare/reverse the cleaned string.
+
+
+Space Complexity
+O(n)
+
+We create a new cleaned string and its reversed
+version.
+"""
+
+class Solution(object):
+    def isPalindrome(self, s):
+
+        # Create an empty string to store only
+        # letters and numbers in lowercase.
+        cleaned = ""
+
+        # Go through every character in the string.
+        for char in s:
+
+            # Check whether the character is a
+            # letter or a number.
+            if char.isalnum():
+
+                # Convert the character to lowercase
+                # and add it to cleaned.
+                cleaned += char.lower()
+
+        # Compare the cleaned string with its reverse.
+        # If they are the same, it is a palindrome.
+        return cleaned == cleaned[::-1]
