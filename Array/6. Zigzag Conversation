@@ -1,0 +1,213 @@
+# 6. Zigzag Conversion
+# Difficulty: Medium
+# Topic: String
+# LeetCode: https://leetcode.com/problems/zigzag-conversion/
+
+"""
+Problem
+Given a string s and an integer numRows, arrange the characters
+in a zigzag pattern on the given number of rows.
+
+Then read the characters row by row.
+
+Example:
+
+s = "PAYPALISHIRING"
+numRows = 3
+
+Zigzag pattern:
+
+P   A   H   N
+A P L S I G
+Y   I   R
+
+Reading row by row:
+
+"PAHNAPLSIIGYIR"
+
+So the answer is:
+"PAHNAPLSIIGYIR"
+
+
+Idea
+Instead of physically creating a 2D zigzag grid,
+we can build each row directly.
+
+We keep a list called rows.
+
+For example:
+
+rows = ["", "", ""]
+
+We put each character into the current row.
+
+The direction changes when we reach:
+- the top row
+- the bottom row
+
+Example with numRows = 3:
+
+Row movement:
+
+0 ↓
+1 ↓
+2 ↓
+1 ↑
+0 ↑
+1 ↓
+2 ↓
+...
+
+So the row numbers are:
+
+0 → 1 → 2 → 1 → 0 → 1 → 2 → 1 → ...
+
+
+Approach
+1. If numRows == 1, return s directly.
+
+2. Create one empty string for each row.
+
+   rows = ["", "", ...]
+
+3. Start at row = 0.
+
+4. Start moving DOWN.
+
+5. For every character:
+   - Add it to the current row.
+   - If we reach the top or bottom,
+     change the direction.
+   - Move to the next row.
+
+6. Finally, join all rows together.
+
+
+Example
+s = "PAYPALISHIRING"
+numRows = 3
+
+Characters are placed like this:
+
+P → row 0
+A → row 1
+Y → row 2
+P → row 1
+A → row 0
+L → row 1
+I → row 2
+S → row 1
+H → row 0
+I → row 1
+R → row 2
+I → row 1
+N → row 0
+G → row 1
+
+Rows become:
+
+row 0 = "PAHN"
+row 1 = "APLSIIG"
+row 2 = "YIR"
+
+Join them:
+
+"PAHN" + "APLSIIG" + "YIR"
+
+= "PAHNAPLSIIGYIR"
+
+
+Why do we change direction?
+
+When we reach the bottom row,
+we cannot continue downward.
+
+So:
+
+0 → 1 → 2
+
+At row 2, change direction:
+
+2 → 1 → 0
+
+At row 0, change direction again:
+
+0 → 1 → 2
+
+
+Why do we need the special case numRows == 1?
+
+If there is only one row, there is no zigzag.
+
+Example:
+
+s = "HELLO"
+numRows = 1
+
+There is only:
+
+H
+E
+L
+L
+O
+
+So the answer is simply:
+
+"HELLO"
+
+
+Time Complexity
+O(n)
+
+We visit every character once.
+
+
+Space Complexity
+O(n)
+
+We store all characters inside the row strings.
+"""
+
+class Solution(object):
+
+    def convert(self, s, numRows):
+
+        # If there is only one row,
+        # the string does not need any rearrangement.
+        if numRows == 1:
+            return s
+
+        # Create an empty string for every row.
+        # Example: numRows = 3
+        # rows = ["", "", ""]
+        rows = [""] * numRows
+
+        # Start from the first row.
+        row = 0
+
+        # direction = 1 means we are moving DOWN.
+        # direction = -1 means we are moving UP.
+        direction = 1
+
+        # Go through every character in the string.
+        for char in s:
+
+            # Put the current character into the current row.
+            rows[row] += char
+
+            # If we reach the bottom row,
+            # change direction from DOWN to UP.
+            if row == numRows - 1:
+                direction = -1
+
+            # If we reach the top row,
+            # change direction from UP to DOWN.
+            elif row == 0:
+                direction = 1
+
+            # Move to the next row according to the direction.
+            row += direction
+
+        # Combine all rows into one string.
+        return "".join(rows)
