@@ -1,0 +1,311 @@
+# 68. Text Justification
+# Difficulty: Hard
+# Topic: Array, String, Greedy
+# LeetCode: https://leetcode.com/problems/text-justification/
+
+"""
+Problem
+Given a list of words and an integer maxWidth, format the text
+so that every line has exactly maxWidth characters.
+
+Rules:
+
+1. Every line except the last line must be fully justified.
+2. Spaces should be distributed as evenly as possible.
+3. If extra spaces are needed, the LEFT gaps get the extra spaces.
+4. The last line should be left-justified.
+5. A line containing only one word should also be left-justified.
+
+
+Example:
+
+words = ["This", "is", "an", "example", "of", "text"]
+maxWidth = 16
+
+Output:
+
+"This    is    an"
+"example   of   text"
+
+
+Idea
+We solve the problem in TWO main steps:
+
+STEP 1:
+Find which words can fit on the current line.
+
+STEP 2:
+Format that line.
+
+For each line:
+
+- If it is the LAST line:
+    use one normal space between words
+    and put remaining spaces at the end.
+
+- If the line contains ONLY ONE word:
+    put remaining spaces at the end.
+
+- Otherwise:
+    distribute spaces between the words.
+
+
+Approach
+
+1. Start from the first word using i = 0.
+
+2. Use j to find how many words can fit in the current line.
+
+3. For every word:
+   - Calculate how many characters it needs.
+   - Add 1 extra space if it is not the first word.
+   - If adding it exceeds maxWidth, stop.
+
+4. Store the words from i to j-1.
+
+5. Check whether this is:
+   - the last line, OR
+   - a line containing only one word.
+
+6. If yes:
+   use " ".join() and put remaining spaces at the end.
+
+7. Otherwise:
+   - Calculate the total number of spaces needed.
+   - Calculate the number of gaps.
+   - Divide the spaces equally among the gaps.
+   - Give any leftover spaces to the LEFT gaps first.
+
+8. Add the completed line to result.
+
+9. Set i = j and repeat.
+
+10. Return result.
+
+
+Example
+
+words = ["This", "is", "an"]
+maxWidth = 16
+
+Characters:
+
+"This" = 4
+"is"   = 2
+"an"   = 2
+
+Total word characters:
+
+4 + 2 + 2 = 8
+
+We need:
+
+16 - 8 = 8 spaces
+
+There are:
+
+3 - 1 = 2 gaps
+
+So:
+
+8 // 2 = 4 spaces per gap
+8 % 2 = 0 extra spaces
+
+Therefore:
+
+"This" + "    " + "is" + "    " + "an"
+
+Result:
+
+"This    is    an"
+
+
+Example with extra spaces
+
+Suppose:
+
+maxWidth = 17
+
+Word characters are still 8.
+
+Spaces needed:
+
+17 - 8 = 9
+
+There are 2 gaps.
+
+9 // 2 = 4
+9 % 2 = 1
+
+So:
+
+First gap = 5 spaces
+Second gap = 4 spaces
+
+Because the EXTRA space goes to the LEFT.
+
+Result:
+
+"This     is    an"
+
+
+Important Variables
+
+i
+→ Start index of the current line.
+
+j
+→ End index.
+Words from i to j-1 belong to the current line.
+
+line_length
+→ Number of characters currently needed to fit the
+words into the line, including normal spaces.
+
+line_words
+→ The words that belong to the current line.
+
+num_words
+→ Number of words in the current line.
+
+word_length
+→ Total number of characters in the words,
+NOT including spaces.
+
+total_spaces
+→ Total spaces that must be inserted.
+
+gaps
+→ Number of spaces/gaps between words.
+
+spaces
+→ Minimum number of spaces each gap receives.
+
+extra
+→ Remaining spaces after equal distribution.
+
+
+Time Complexity
+O(n)
+
+Every word is processed a constant number of times.
+The actual construction of the output also takes O(n)
+with respect to the total output size.
+
+Space Complexity
+O(n)
+
+The result and temporary line storage require O(n) space.
+"""
+
+class Solution(object):
+    def fullJustify(self, words, maxWidth):
+
+        # Store all completed lines here.
+        result = []
+
+        # i points to the first word of the current line.
+        i = 0
+
+        # Continue until all words have been processed.
+        while i < len(words):
+
+            # j will find how many words can fit in this line.
+            j = i
+
+            # Current length of the line.
+            line_length = 0
+
+            # Try adding words one by one.
+            while j < len(words):
+
+                # Number of characters needed for this word.
+                needed = len(words[j])
+
+                # If this is not the first word,
+                # we need at least one space before it.
+                if j > i:
+                    needed += 1
+
+                # If adding this word exceeds maxWidth,
+                # stop building this line.
+                if line_length + needed > maxWidth:
+                    break
+
+                # The word fits, so add its required length.
+                line_length += needed
+
+                # Move to the next word.
+                j += 1
+
+            # Get all words belonging to this line.
+            # Words i through j-1 are included.
+            line_words = words[i:j]
+
+            # Count how many words are in this line.
+            num_words = len(line_words)
+
+            # Last line OR line with only one word.
+            if j == len(words) or num_words == 1:
+
+                # Put exactly one normal space between words.
+                line = " ".join(line_words)
+
+                # Add all remaining spaces at the END.
+                line += " " * (maxWidth - len(line))
+
+            else:
+
+                # Calculate total characters occupied
+                # only by the words.
+                word_length = sum(len(word) for word in line_words)
+
+                # Calculate how many spaces we need in total.
+                total_spaces = maxWidth - word_length
+
+                # Number of gaps between the words.
+                #
+                # Example:
+                # ["This", "is", "an"]
+                #
+                # This | is | an
+                #      ↑    ↑
+                #    2 gaps
+                gaps = num_words - 1
+
+                # Minimum number of spaces in every gap.
+                spaces = total_spaces // gaps
+
+                # Extra spaces left after equal distribution.
+                extra = total_spaces % gaps
+
+                # Start building the justified line.
+                line = ""
+
+                # Process every gap except the final word.
+                for k in range(gaps):
+
+                    # Add the current word.
+                    line += line_words[k]
+
+                    # Start with the minimum number of spaces.
+                    gap_spaces = spaces
+
+                    # Give one extra space to the LEFT gaps.
+                    if k < extra:
+                        gap_spaces += 1
+
+                    # Add the calculated spaces.
+                    line += " " * gap_spaces
+
+                # Add the final word.
+                line += line_words[-1]
+
+            # Add the completed line to the result.
+            result.append(line)
+
+            # Move to the first word of the next line.
+            i = j
+
+        # Return all formatted lines.
+        return result
