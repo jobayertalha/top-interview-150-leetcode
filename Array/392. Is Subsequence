@@ -1,0 +1,253 @@
+# 392. Is Subsequence
+# Difficulty: Easy
+# Topic: Two Pointers, String
+# LeetCode: https://leetcode.com/problems/is-subsequence/
+
+"""
+Problem
+Given two strings s and t, determine whether s is a subsequence
+of t.
+
+A subsequence means:
+
+- Characters must appear in the same order.
+- But they do NOT have to be next to each other.
+
+Example:
+
+s = "abc"
+t = "ahbgdc"
+
+We can find:
+
+a → t[0]
+b → t[2]
+c → t[5]
+
+The order is still:
+
+a → b → c
+
+Therefore:
+
+True
+
+
+Example:
+
+s = "axc"
+t = "ahbgdc"
+
+We can find:
+
+a
+
+But after a, there is no x.
+
+Therefore:
+
+False
+
+
+Idea
+Use TWO pointers.
+
+i → points to the current character we need from s.
+
+j → moves through every character of t.
+
+For every character in t:
+
+- If s[i] == t[j],
+  we found the character we were looking for.
+  Move i forward.
+
+- Otherwise, do nothing and continue moving j.
+
+At the end:
+
+If i == len(s),
+we successfully found every character of s.
+
+Therefore, s is a subsequence of t.
+
+
+Approach
+1. Start i = 0.
+
+2. Traverse t using j.
+
+3. For every t[j]:
+   - Make sure i is still inside s.
+   - Check whether s[i] == t[j].
+
+4. If they match:
+   - Move i forward by 1.
+
+5. Continue until all characters of t are checked.
+
+6. Return:
+
+   i == len(s)
+
+If i reaches len(s), every character of s
+was successfully matched.
+
+
+Example
+
+s = "abc"
+t = "ahbgdc"
+
+Initially:
+
+i = 0
+
+We need:
+
+s[0] = 'a'
+
+
+j = 0:
+t[0] = 'a'
+
+'a' == 'a'
+
+Match!
+
+i = 1
+
+
+j = 1:
+t[1] = 'h'
+
+'b' != 'h'
+
+Do nothing.
+
+
+j = 2:
+t[2] = 'b'
+
+'b' == 'b'
+
+Match!
+
+i = 2
+
+
+j = 3:
+t[3] = 'g'
+
+'c' != 'g'
+
+Do nothing.
+
+
+j = 4:
+t[4] = 'd'
+
+'c' != 'd'
+
+Do nothing.
+
+
+j = 5:
+t[5] = 'c'
+
+'c' == 'c'
+
+Match!
+
+i = 3
+
+
+Now:
+
+i == len(s)
+
+3 == 3
+
+Therefore:
+
+True
+
+
+Why don't we move j manually?
+
+Because:
+
+for j in range(len(t))
+
+automatically moves j:
+
+0 → 1 → 2 → 3 → ...
+
+
+We only manually move i when we find
+a matching character.
+
+
+Why do we check i < len(s)?
+
+Because after matching all characters of s,
+i becomes equal to len(s).
+
+Example:
+
+s = "abc"
+
+After finding c:
+
+i = 3
+
+But valid indexes are only:
+
+0, 1, 2
+
+So checking:
+
+i < len(s)
+
+prevents us from trying:
+
+s[3]
+
+
+Time Complexity
+O(n)
+
+where n = len(t).
+
+We scan t once.
+
+
+Space Complexity
+O(1)
+
+Only the pointer i is used.
+
+
+"""
+
+class Solution(object):
+    def isSubsequence(self, s, t):
+
+        # i points to the current character
+        # we are looking for in s.
+        i = 0
+
+        # j goes through every character of t.
+        for j in range(len(t)):
+
+            # Make sure i is still inside s.
+            # Then check whether the current characters match.
+            if i < len(s) and s[i] == t[j]:
+
+                # We found the required character,
+                # so move to the next character of s.
+                i += 1
+
+        # If i reached the length of s,
+        # every character of s was found in the correct order.
+        return i == len(s)
