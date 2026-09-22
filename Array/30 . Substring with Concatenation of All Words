@@ -1,0 +1,447 @@
+# 30. Substring with Concatenation of All Words
+# Difficulty: Hard
+# Topic: Hash Table, String, Sliding Window
+# LeetCode: https://leetcode.com/problems/substring-with-concatenation-of-all-words/
+
+from collections import Counter
+
+"""
+Problem
+Given a string s and a list of words, where every word has the
+same length, find all starting indices where a substring contains
+every word in words exactly once, in any order.
+
+Example:
+
+s = "barfoothefoobarman"
+words = ["foo", "bar"]
+
+We need:
+
+"foobar"
+or
+"barfoo"
+
+Both contain:
+foo + bar
+
+They start at:
+
+0 → "barfoo"
+9 → "foobar"
+
+Answer:
+
+[0, 9]
+
+
+Idea
+Every word has the SAME length.
+
+For example:
+
+words = ["foo", "bar", "the"]
+
+Every word has length 3.
+
+So instead of checking every character individually,
+we move through s in jumps of 3 characters.
+
+We use a SLIDING WINDOW.
+
+The window contains complete words.
+
+We keep track of:
+
+required
+→ How many times each word is needed.
+
+seen
+→ How many times each word currently appears
+inside our window.
+
+count
+→ How many words are currently inside the window.
+
+If a word is not required:
+    Reset the window.
+
+If a word appears too many times:
+    Remove words from the LEFT until the window
+    becomes valid again.
+
+If the window contains exactly word_count words:
+    We found a valid answer.
+
+
+Approach
+1. Find the length of each word.
+
+2. Count how many words we need.
+
+3. Calculate the total required substring length.
+
+4. Use Counter(words) to count the required frequency
+   of every word.
+
+5. There are word_length possible starting offsets.
+
+   Example:
+
+   word_length = 3
+
+   We check:
+
+   start = 0
+   start = 1
+   start = 2
+
+6. For each starting position:
+   - Set left = start.
+   - Set right = start.
+   - Create an empty seen dictionary.
+
+7. Move right by word_length each time.
+
+8. Extract one complete word.
+
+9. If the word is not required:
+   reset the window.
+
+10. Otherwise add the word to seen.
+
+11. If that word appears more times than required:
+    remove words from the left until valid.
+
+12. If count == word_count:
+    the current window contains exactly the required
+    number of words, so add left to result.
+
+13. Move left forward by one word and continue searching.
+
+
+Example
+
+s = "barfoothefoobarman"
+words = ["foo", "bar"]
+
+word_length = 3
+
+required:
+
+{
+    "foo": 1,
+    "bar": 1
+}
+
+Start from offset 0:
+
+bar → required
+foo → required
+
+Window:
+
+"barfoo"
+
+We have:
+
+seen = {
+    "bar": 1,
+    "foo": 1
+}
+
+count = 2
+
+word_count = 2
+
+Therefore:
+
+"barfoo"
+
+is valid.
+
+Add its starting index:
+
+0
+
+
+Continue:
+
+the → not required
+
+So reset the window.
+
+
+Later:
+
+foo → required
+bar → required
+
+Window:
+
+"foobar"
+
+Add:
+
+9
+
+Final result:
+
+[0, 9]
+
+
+Why do we use range(word_length)?
+
+Suppose each word has length 3.
+
+A valid concatenation can start at:
+
+index 0
+index 1
+index 2
+
+After that, the pattern repeats.
+
+For example:
+
+Start = 0:
+
+0, 3, 6, 9, ...
+
+
+Start = 1:
+
+1, 4, 7, 10, ...
+
+
+Start = 2:
+
+2, 5, 8, 11, ...
+
+So we need to check all possible offsets from
+0 to word_length - 1.
+
+
+Why do we move right by word_length?
+
+Because each word has exactly the same length.
+
+If word_length = 3:
+
+s = "barfoothe..."
+
+We read:
+
+"bar"
+"foo"
+"the"
+...
+
+instead of:
+
+"b"
+"a"
+"r"
+"f"
+...
+
+
+Why reset when word is not required?
+
+Suppose:
+
+words = ["foo", "bar"]
+
+and we encounter:
+
+"xyz"
+
+Since "xyz" can never belong to a valid answer,
+nothing before it can be part of the current window.
+
+So we can immediately start again after "xyz".
+
+
+Why do we shrink when seen[word] > required[word]?
+
+Suppose:
+
+words = ["foo", "bar"]
+
+Required:
+
+foo → 1
+bar → 1
+
+But our window contains:
+
+foo, bar, foo
+
+We have two "foo"s, but only one is allowed.
+
+So we remove words from the LEFT:
+
+foo, bar, foo
+↑
+
+Remove the first foo.
+
+Now:
+
+bar, foo
+
+The counts are valid again.
+
+
+Why do we shrink after finding a valid window?
+
+Suppose:
+
+words = ["foo", "bar"]
+
+and our window is:
+
+"foobar"
+
+We found a valid answer.
+
+But there might be another valid window starting
+inside this window.
+
+So we remove the leftmost word:
+
+"foobar"
+ ↑
+
+Remove "foo".
+
+Now the window starts at "bar", allowing us to
+continue searching for another answer.
+
+
+Time Complexity
+O(n)
+
+The string is scanned using word-sized jumps.
+Each word can be added and removed from the window
+at most a constant number of times for each offset.
+
+Space Complexity
+O(m)
+
+where m is the number of distinct words.
+
+The required and seen dictionaries store word counts.
+"""
+
+class Solution(object):
+    def findSubstring(self, s, words):
+
+        # Length of every word.
+        word_length = len(words[0])
+
+        # Total number of words we need.
+        word_count = len(words)
+
+        # Total length of a valid concatenated substring.
+        total_length = word_length * word_count
+
+        # Count how many times every word is required.
+        #
+        # Example:
+        # ["foo", "bar", "foo"]
+        #
+        # becomes:
+        # {"foo": 2, "bar": 1}
+        required = Counter(words)
+
+        # Store the starting indexes of valid substrings.
+        result = []
+
+        # Try every possible starting offset.
+        #
+        # If word_length = 3:
+        # start = 0, 1, 2
+        for start in range(word_length):
+
+            # Left boundary of the sliding window.
+            left = start
+
+            # Number of complete words currently
+            # inside the window.
+            count = 0
+
+            # Count the words currently inside the window.
+            seen = {}
+
+            # Right boundary starts at the current offset.
+            right = start
+
+            # Continue while a complete word can still fit.
+            while right + word_length <= len(s):
+
+                # Extract one complete word.
+                word = s[right:right + word_length]
+
+                # Move right forward by one whole word.
+                right += word_length
+
+                # If this word is not one of the required words,
+                # the current window can no longer be useful.
+                if word not in required:
+
+                    # Start a completely new window.
+                    seen = {}
+
+                    # No words are currently inside it.
+                    count = 0
+
+                    # Start after the invalid word.
+                    left = right
+
+                    # Continue with the next word.
+                    continue
+
+                # Add this word to our current window.
+                seen[word] = seen.get(word, 0) + 1
+
+                # We now have one more word in the window.
+                count += 1
+
+                # If we have too many copies of this word,
+                # shrink the window from the left.
+                while seen[word] > required[word]:
+
+                    # Get the leftmost word.
+                    left_word = s[left:left + word_length]
+
+                    # Remove it from the window count.
+                    seen[left_word] -= 1
+
+                    # One word has left the window.
+                    count -= 1
+
+                    # Move the left boundary forward
+                    # by one complete word.
+                    left += word_length
+
+                # If the window contains exactly the required
+                # number of words, we found a valid substring.
+                if count == word_count:
+
+                    # Add the starting index of this window.
+                    result.append(left)
+
+                    # Remove the leftmost word so that we can
+                    # search for the next possible valid window.
+                    left_word = s[left:left + word_length]
+                    seen[left_word] -= 1
+
+                    # One word has been removed.
+                    count -= 1
+
+                    # Move the left boundary forward by one word.
+                    left += word_length
+
+        # Return all starting indexes.
+        return result
