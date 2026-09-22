@@ -1,0 +1,235 @@
+# 11. Container With Most Water
+# Difficulty: Medium
+# Topic: Array, Two Pointers, Greedy
+# LeetCode: https://leetcode.com/problems/container-with-most-water/
+
+"""
+Problem
+Given an integer array height, where height[i] represents the
+height of a vertical line, find two lines that together with
+the x-axis form a container that holds the most water.
+
+The amount of water depends on:
+
+1. Width between the two lines.
+2. Height of the shorter line.
+
+Formula:
+
+Area = width × shorter height
+
+Example:
+
+height = [1, 8, 6, 2, 5, 4, 8, 3, 7]
+
+Take:
+
+8 and 7
+
+Width = 8 - 1 = 7
+
+Shorter height = min(8, 7) = 7
+
+Area = 7 × 7 = 49
+
+Answer = 49
+
+
+Idea
+Use TWO POINTERS.
+
+Start with:
+- left at the first line.
+- right at the last line.
+
+For every pair:
+
+1. Calculate the width.
+2. Find the shorter height.
+3. Calculate the current area.
+4. Update the maximum area.
+5. Move the pointer at the SHORTER line.
+
+Why move the shorter line?
+
+Because the shorter line limits the water level.
+
+If:
+
+height[left] < height[right]
+
+then the left line is limiting the water.
+
+Moving right would only make the width smaller
+while the same short left height would still limit
+the water.
+
+So we move left forward and try to find a taller line.
+
+
+Approach
+1. Set left = 0.
+2. Set right = len(height) - 1.
+3. Set max_water = 0.
+4. While left < right:
+   - Calculate width.
+   - Find the shorter height.
+   - Calculate area.
+   - Update max_water.
+   - Move the pointer at the shorter line.
+5. Return max_water.
+
+
+Example
+
+height = [1,8,6,2,5,4,8,3,7]
+
+Initially:
+
+left = 0 → height = 1
+right = 8 → height = 7
+
+Width:
+
+8 - 0 = 8
+
+Shorter height:
+
+min(1,7) = 1
+
+Area:
+
+8 × 1 = 8
+
+The left line is shorter:
+
+1 < 7
+
+So move left:
+
+left = 1
+
+
+Now:
+
+height[left] = 8
+height[right] = 7
+
+Width:
+
+8 - 1 = 7
+
+Shorter height:
+
+min(8,7) = 7
+
+Area:
+
+7 × 7 = 49
+
+Update:
+
+max_water = 49
+
+Continue until the pointers meet.
+
+
+Why is the shorter line the water limit?
+
+Imagine two walls:
+
+      |       |
+      |       |
+      |   |   |
+      |   |   |
+      |   |   |
+      |   |   |
+      |   |   |
+      |___|___|
+
+If one wall is 10 units tall and the other is 5 units tall,
+water can only rise to 5 units.
+
+The taller wall cannot make the water rise above
+the shorter wall.
+
+Therefore:
+
+water height = min(left height, right height)
+
+
+Why do we move the shorter pointer?
+
+Suppose:
+
+left height = 5
+right height = 10
+
+Current water height = 5.
+
+If we move the right pointer:
+
+- Width becomes smaller.
+- Left height is still 5.
+- Water height cannot become greater than 5.
+
+So this cannot give a better container.
+
+Instead, move the shorter side:
+
+left += 1
+
+We hope to find a taller left wall.
+
+Time Complexity
+O(n)
+
+Each pointer moves toward the other side.
+Every position is visited at most once.
+
+
+Space Complexity
+O(1)
+
+Only a few variables are used.
+"""
+
+class Solution(object):
+    def maxArea(self, height):
+
+        # Start the left pointer at the first line.
+        left = 0
+
+        # Start the right pointer at the last line.
+        right = len(height) - 1
+
+        # Store the maximum amount of water found so far.
+        max_water = 0
+
+        # Continue while the two pointers have not met.
+        while left < right:
+
+            # Calculate the width between the two lines.
+            width = right - left
+
+            # Water height is limited by the shorter line.
+            current_height = min(height[left], height[right])
+
+            # Calculate the current container area.
+            area = width * current_height
+
+            # Keep the largest area found so far.
+            max_water = max(max_water, area)
+
+            # If the left line is shorter,
+            # move the left pointer forward.
+            if height[left] < height[right]:
+                left += 1
+
+            # Otherwise, the right line is shorter
+            # or both lines have the same height.
+            else:
+                right -= 1
+
+        # Return the maximum amount of water found.
+        return max_water
