@@ -1,0 +1,485 @@
+# 76. Minimum Window Substring
+# Difficulty: Hard
+# Topic: Hash Table, String, Sliding Window
+# LeetCode: https://leetcode.com/problems/minimum-window-substring/
+
+from collections import Counter
+
+"""
+Problem
+Given two strings s and t, find the smallest substring of s
+that contains every character of t, including duplicate characters.
+
+If no such substring exists, return "".
+
+Example:
+
+s = "ADOBECODEBANC"
+t = "ABC"
+
+The smallest substring containing A, B, and C is:
+
+"BANC"
+
+Answer:
+"BANC"
+
+
+Idea
+Use a SLIDING WINDOW.
+
+We need to find a window inside s that contains all
+characters required by t.
+
+We use two frequency dictionaries:
+
+required
+→ tells us how many times each character is needed.
+
+window
+→ tells us how many times each character currently
+   appears inside our window.
+
+Example:
+
+t = "AABC"
+
+required = {
+    'A': 2,
+    'B': 1,
+    'C': 1
+}
+
+
+We also use:
+
+formed
+→ how many different required characters have reached
+   their required frequency.
+
+required_count
+→ how many different characters we need to satisfy.
+
+For:
+
+t = "AABC"
+
+required_count = 3
+
+because the different characters are:
+
+A, B, C
+
+
+Approach
+1. Count the required characters using Counter(t).
+
+2. Create an empty window dictionary.
+
+3. Set formed = 0.
+
+4. Set required_count = number of different characters
+   in t.
+
+5. Use two pointers:
+   left = 0
+   right = 0
+
+6. Move right through s and add each character to
+   the current window.
+
+7. Whenever a required character reaches its required
+   frequency, increase formed.
+
+8. When:
+
+       formed == required_count
+
+   the current window is valid.
+
+9. While the window is valid:
+   - Record its length if it is the smallest.
+   - Remove the leftmost character.
+   - If removing it makes the window invalid,
+     decrease formed.
+   - Move left forward.
+
+10. Continue until right reaches the end.
+
+11. Return the smallest valid window.
+
+
+Example
+
+s = "ADOBECODEBANC"
+t = "ABC"
+
+Required:
+
+A → 1
+B → 1
+C → 1
+
+required_count = 3
+
+
+Expand the window:
+
+A D O B E C
+
+Now we have:
+
+A → 1 ✓
+B → 1 ✓
+C → 1 ✓
+
+Therefore:
+
+formed = 3
+
+The window:
+
+"ADOBEC"
+
+is valid.
+
+But it is not necessarily the smallest window.
+
+So we start shrinking from the left.
+
+
+Remove A:
+
+"DOBEC"
+
+A is now missing.
+
+The window becomes invalid.
+
+So we stop shrinking.
+
+
+Continue expanding.
+
+Eventually we reach:
+
+"ADOBECODEBANC"
+
+and later the window becomes:
+
+"BANC"
+
+It contains:
+
+B → 1 ✓
+A → 1 ✓
+C → 1 ✓
+
+So it is valid.
+
+Length:
+
+4
+
+No smaller valid window exists.
+
+Answer:
+
+"BANC"
+
+
+Why do we need `required`?
+
+`required` tells us exactly what t needs.
+
+Example:
+
+t = "AABC"
+
+required:
+
+{
+    'A': 2,
+    'B': 1,
+    'C': 1
+}
+
+This is important because duplicates matter.
+
+A window containing only one A is NOT enough.
+
+
+Why do we need `window`?
+
+`window` tells us what the current substring contains.
+
+Example:
+
+window = {
+    'A': 2,
+    'B': 1,
+    'C': 1
+}
+
+If:
+
+required = {
+    'A': 2,
+    'B': 1,
+    'C': 1
+}
+
+then the window satisfies all requirements.
+
+
+What does `formed` mean?
+
+`formed` counts how many DIFFERENT required characters
+have reached their required frequency.
+
+Example:
+
+t = "AABC"
+
+required_count = 3
+
+Suppose the current window has:
+
+A → 2
+B → 1
+C → 0
+
+Then:
+
+formed = 2
+
+because A and B are satisfied.
+
+C is still missing.
+
+When C reaches 1:
+
+formed = 3
+
+Now:
+
+formed == required_count
+
+and the window is valid.
+
+
+Why don't we compare `formed` with len(t)?
+
+Because `formed` counts DIFFERENT characters,
+not total characters.
+
+Example:
+
+t = "AABC"
+
+len(t) = 4
+
+But:
+
+required_count = 3
+
+because we only have three different characters:
+
+A, B, C
+
+A needs two copies, but it counts as ONE satisfied
+character in formed.
+
+
+Why:
+
+if char in required and window[char] == required[char]:
+
+?
+
+Suppose:
+
+required['A'] = 2
+
+We see:
+
+A → window['A'] = 1
+
+Not enough.
+
+formed does not change.
+
+Then we see another A:
+
+A → window['A'] = 2
+
+Now the requirement is exactly satisfied.
+
+So:
+
+formed += 1
+
+
+Why do we shrink with `while`?
+
+Once the window is valid, we want the SMALLEST
+possible valid window.
+
+Example:
+
+"ADOBEC"
+
+is valid.
+
+Remove from the left:
+
+"DOBEC"
+
+Now A is missing, so it is invalid.
+
+Therefore the smallest valid window for that point
+was "ADOBEC".
+
+The same process happens later and finds "BANC".
+
+
+Why do we update `min_left`?
+
+We need to remember not only the smallest length,
+but also WHERE that smallest window starts.
+
+Example:
+
+min_length = 4
+min_left = 9
+
+Then:
+
+s[9:9 + 4]
+
+gives the answer.
+
+
+Why use:
+
+s[min_left:min_left + min_length]
+
+?
+
+This extracts exactly the best window.
+
+Example:
+
+min_left = 9
+min_length = 4
+
+Then:
+
+s[9:13]
+
+returns:
+
+"BANC"
+
+
+Time Complexity
+O(n)
+
+Each character is added to the window once and removed
+from the window at most once.
+
+So the total work is linear.
+
+
+Space Complexity
+O(k)
+
+where k is the number of distinct characters.
+
+The dictionaries store character frequencies.
+"""
+
+class Solution(object):
+    def minWindow(self, s, t):
+
+        # Count how many times each character is required.
+        #
+        # Example:
+        # t = "AABC"
+        # required = {'A': 2, 'B': 1, 'C': 1}
+        required = Counter(t)
+
+        # Store the frequency of characters
+        # currently inside the sliding window.
+        window = {}
+
+        # Number of different required characters
+        # whose required frequency has been satisfied.
+        formed = 0
+
+        # Total number of different characters
+        # that need to be satisfied.
+        required_count = len(required)
+
+        # Left boundary of the sliding window.
+        left = 0
+
+        # Smallest valid window length found so far.
+        min_length = float('inf')
+
+        # Starting index of the smallest valid window.
+        min_left = 0
+
+        # Expand the window by moving right.
+        for right in range(len(s)):
+
+            # Character entering the window.
+            char = s[right]
+
+            # Add this character to the window count.
+            window[char] = window.get(char, 0) + 1
+
+            # If this character is required AND
+            # we have now reached exactly the required amount,
+            # one more character requirement is satisfied.
+            if char in required and window[char] == required[char]:
+                formed += 1
+
+            # If every required character is satisfied,
+            # the current window is valid.
+            while formed == required_count:
+
+                # Calculate the current window length.
+                current_length = right - left + 1
+
+                # If this is the smallest window so far,
+                # save its length and starting position.
+                if current_length < min_length:
+                    min_length = current_length
+                    min_left = left
+
+                # Character that will be removed
+                # when we move left forward.
+                left_char = s[left]
+
+                # Remove it from the current window.
+                window[left_char] -= 1
+
+                # If this was a required character and
+                # its count is now too small,
+                # the window is no longer valid.
+                if (
+                    left_char in required
+                    and window[left_char] < required[left_char]
+                ):
+                    formed -= 1
+
+                # Move the left boundary forward.
+                left += 1
+
+        # If no valid window was found, return an empty string.
+        if min_length == float('inf'):
+            return ""
+
+        # Return the smallest valid substring.
+        return s[min_left:min_left + min_length]
