@@ -1,0 +1,201 @@
+"""
+Problem
+Given two strings:
+
+    ransomNote
+    magazine
+
+Return True if ransomNote can be constructed using the
+letters from magazine.
+
+Each letter in magazine can only be used ONCE.
+
+Example:
+
+ransomNote = "a"
+magazine = "b"
+
+Output:
+False
+
+Example:
+
+ransomNote = "aa"
+magazine = "aab"
+
+Output:
+True
+
+
+Idea
+Count how many times each letter appears in magazine.
+
+There are only 26 lowercase English letters, so we create
+an array of size 26:
+
+    count = [0] * 26
+
+Each position represents one letter:
+
+    0 → a
+    1 → b
+    2 → c
+    ...
+    25 → z
+
+First, count all letters in magazine.
+
+Then go through ransomNote.
+
+For every character:
+    - If its count is 0, magazine does not have enough
+      copies → return False.
+    - Otherwise, use one copy by decreasing the count.
+
+If every character can be found, return True.
+
+
+Approach
+
+1. Create an array of 26 zeros.
+2. Traverse magazine.
+3. Convert each character into an index from 0 to 25.
+4. Increase its count.
+5. Traverse ransomNote.
+6. Convert each character into its index.
+7. If count is 0, return False.
+8. Otherwise decrease the count by 1.
+9. If all characters are successfully used, return True.
+
+
+Example
+
+ransomNote = "aa"
+magazine = "aab"
+
+After counting magazine:
+
+    a = 2
+    b = 1
+
+Now process ransomNote:
+
+First 'a':
+    count[a] = 2
+    use one
+    count[a] = 1
+
+Second 'a':
+    count[a] = 1
+    use one
+    count[a] = 0
+
+All letters were available.
+
+Return True.
+
+
+Why do we use:
+
+ord(ch) - ord('a')
+
+Python gives every character a numerical Unicode value.
+
+For example:
+
+    ord('a') = 97
+    ord('b') = 98
+    ord('c') = 99
+
+So:
+
+    ord('a') - ord('a') = 0
+    ord('b') - ord('a') = 1
+    ord('c') - ord('a') = 2
+
+Therefore each letter gets an array index from 0 to 25.
+
+
+Why do we decrease count?
+
+Because each letter in magazine can only be used once.
+
+For example:
+
+magazine = "aab"
+
+Initially:
+
+    a = 2
+
+If ransomNote needs one 'a':
+
+    a = 1
+
+If it needs another 'a':
+
+    a = 0
+
+If it needs another 'a':
+
+    count[a] == 0
+
+So we return False.
+
+
+Time Complexity
+O(m + n)
+
+where:
+    m = length of magazine
+    n = length of ransomNote
+
+We scan both strings once.
+
+
+Space Complexity
+O(1)
+
+The count array always contains exactly 26 elements.
+"""
+
+
+class Solution(object):
+    def canConstruct(self, ransomNote, magazine):
+
+        # Create an array of 26 zeros.
+        # Each position represents one lowercase letter.
+        count = [0] * 26
+
+        # Go through every character in magazine.
+        for ch in magazine:
+
+            # Convert the character into an index.
+            #
+            # 'a' → 0
+            # 'b' → 1
+            # 'c' → 2
+            # ...
+            # 'z' → 25
+            index = ord(ch) - ord('a')
+
+            # Add one copy of this character.
+            count[index] += 1
+
+        # Now check every character required by ransomNote.
+        for ch in ransomNote:
+
+            # Convert the character into an index.
+            index = ord(ch) - ord('a')
+
+            # No copies of this character are available.
+            if count[index] == 0:
+
+                # ransomNote cannot be constructed.
+                return False
+
+            # Use one copy of this character.
+            count[index] -= 1
+
+        # Every required character was available.
+        return True
