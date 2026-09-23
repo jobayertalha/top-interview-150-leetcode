@@ -1,0 +1,226 @@
+"""
+Problem
+Given two strings s and t, determine whether they are isomorphic.
+
+Two strings are isomorphic if the characters in s can be replaced
+to get t while following these rules:
+
+1. Each character must always map to the same character.
+2. Two different characters in s cannot map to the same character
+   in t.
+
+Example 1:
+
+s = "egg"
+t = "add"
+
+Mapping:
+
+e → a
+g → d
+
+So:
+
+egg
+ ↓↓
+add
+
+Return True.
+
+
+Example 2:
+
+s = "foo"
+t = "bar"
+
+Mapping starts:
+
+f → b
+o → a
+
+But the second 'o' maps to 'r'.
+
+The same character 'o' cannot map to both 'a' and 'r'.
+
+Return False.
+
+
+Idea
+We need to maintain mappings in BOTH directions:
+
+    s → t
+    t → s
+
+Why two dictionaries?
+
+Suppose:
+
+s = "ab"
+t = "cc"
+
+If we only check s → t:
+
+    a → c
+    b → c
+
+It might look valid.
+
+But it is NOT valid because two different characters
+cannot map to the same character.
+
+Therefore we also need:
+
+    t → s
+
+This detects that 'c' is already mapped to 'a' and
+cannot also map to 'b'.
+
+
+Approach
+
+1. Create two dictionaries:
+       s_to_t
+       t_to_s
+
+2. Go through both strings at the same index.
+
+3. Check the s → t mapping:
+   - If s_char already has a mapping,
+     it must match t_char.
+   - Otherwise, create the mapping.
+
+4. Check the t → s mapping:
+   - If t_char already has a mapping,
+     it must match s_char.
+   - Otherwise, create the mapping.
+
+5. If any mapping conflicts, return False.
+
+6. If all characters are consistent, return True.
+
+
+Example
+
+s = "egg"
+t = "add"
+
+Start:
+
+s_to_t = {}
+t_to_s = {}
+
+i = 0:
+
+e → a
+
+s_to_t = {'e': 'a'}
+t_to_s = {'a': 'e'}
+
+i = 1:
+
+g → d
+
+s_to_t = {'e': 'a', 'g': 'd'}
+t_to_s = {'a': 'e', 'd': 'g'}
+
+i = 2:
+
+g → d
+
+'g' already maps to 'd'.
+
+No conflict.
+
+Return True.
+
+
+Important Example
+
+s = "ab"
+t = "cc"
+
+i = 0:
+
+a → c
+
+s_to_t:
+a → c
+
+t_to_s:
+c → a
+
+
+i = 1:
+
+b → c
+
+s_to_t:
+b → c looks okay.
+
+BUT:
+
+t_to_s already says:
+
+c → a
+
+Now c is being asked to map back to b.
+
+Conflict!
+
+Return False.
+
+
+Time Complexity
+O(n)
+
+We scan the strings once.
+
+
+Space Complexity
+O(n)
+
+In the worst case, the dictionaries store mappings for
+all characters.
+"""
+
+
+class Solution(object):
+    def isIsomorphic(self, s, t):
+
+        # Dictionary for mapping characters from s → t.
+        s_to_t = {}
+
+        # Dictionary for mapping characters from t → s.
+        t_to_s = {}
+
+        # Go through both strings at the same index.
+        for i in range(len(s)):
+
+            # Get the current character from s.
+            s_char = s[i]
+
+            # Get the current character from t.
+            t_char = t[i]
+
+            # If s_char already has a mapping...
+            if s_char in s_to_t:
+
+                # It must map to the same t_char every time.
+                if s_to_t[s_char] != t_char:
+                    return False
+
+            # If t_char already has a mapping...
+            if t_char in t_to_s:
+
+                # It must map back to the same s_char every time.
+                if t_to_s[t_char] != s_char:
+                    return False
+
+            # Store/update the mapping s → t.
+            s_to_t[s_char] = t_char
+
+            # Store/update the mapping t → s.
+            t_to_s[t_char] = s_char
+
+        # No mapping conflict was found.
+        return True
