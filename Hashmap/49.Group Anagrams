@@ -1,0 +1,182 @@
+"""
+Problem
+Given an array of strings, group the anagrams together.
+
+Anagrams are words that contain the same characters with the
+same frequencies, but possibly in a different order.
+
+Example:
+
+Input:
+["eat", "tea", "tan", "ate", "nat", "bat"]
+
+Output:
+[
+    ["eat", "tea", "ate"],
+    ["tan", "nat"],
+    ["bat"]
+]
+
+
+Idea
+Anagrams become identical if we sort their characters.
+
+For example:
+
+"eat" → "aet"
+"tea" → "aet"
+"ate" → "aet"
+
+Since they produce the same sorted string, we can use that
+sorted string as a KEY in a dictionary.
+
+The dictionary will store:
+
+    key → list of anagrams
+
+
+Example:
+
+"aet" → ["eat", "tea", "ate"]
+"ant" → ["tan", "nat"]
+"abt" → ["bat"]
+
+
+Approach
+
+1. Create an empty dictionary called groups.
+
+2. Traverse every word in strs.
+
+3. Sort the characters of the current word.
+
+4. Join the sorted characters to create a string key.
+
+5. If the key does not exist in groups:
+       create an empty list.
+
+6. Add the original word to that key's list.
+
+7. Return all the dictionary values.
+
+
+Example
+
+strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+
+For "eat":
+
+sorted("eat") → ['a', 'e', 't']
+
+join → "aet"
+
+groups:
+"aet" → ["eat"]
+
+
+For "tea":
+
+sorted("tea") → ['a', 'e', 't']
+
+join → "aet"
+
+groups:
+"aet" → ["eat", "tea"]
+
+
+For "tan":
+
+sorted("tan") → ['a', 'n', 't']
+
+join → "ant"
+
+groups:
+"aet" → ["eat", "tea"]
+"ant" → ["tan"]
+
+
+Eventually:
+
+"aet" → ["eat", "tea", "ate"]
+"ant" → ["tan", "nat"]
+"abt" → ["bat"]
+
+
+Why does the key work?
+
+Anagrams have exactly the same characters and frequencies.
+
+Therefore, after sorting, they always produce the same string.
+
+Example:
+
+"listen" → "eilnst"
+"silent" → "eilnst"
+
+Same key → same group.
+
+
+Why do we store the ORIGINAL word?
+
+The sorted string is only used as a key.
+
+We want the final answer to contain the original words:
+
+["eat", "tea", "ate"]
+
+not:
+
+["aet", "aet", "aet"]
+
+
+Time Complexity
+O(n × k log k)
+
+where:
+    n = number of words
+    k = maximum length of a word
+
+For every word, we sort its characters.
+
+
+Space Complexity
+O(n × k)
+
+The dictionary stores all the original words and their keys.
+"""
+
+
+class Solution(object):
+    def groupAnagrams(self, strs):
+
+        # Dictionary where:
+        # key   = sorted version of a word
+        # value = list of original anagram words
+        groups = {}
+
+        # Process every word in the input list.
+        for word in strs:
+
+            # Sort the characters in the word.
+            #
+            # Example:
+            # "tea" → ['a', 'e', 't']
+            sorted_word = sorted(word)
+
+            # Convert the sorted character list into a string.
+            #
+            # ['a', 'e', 't'] → "aet"
+            key = ''.join(sorted_word)
+
+            # If this key does not exist yet...
+            if key not in groups:
+
+                # Create an empty list for this group.
+                groups[key] = []
+
+            # Add the ORIGINAL word to its anagram group.
+            groups[key].append(word)
+
+        # Dictionary values contain all the groups.
+        # Convert them into a list and return.
+        return list(groups.values())
