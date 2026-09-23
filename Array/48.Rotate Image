@@ -1,0 +1,152 @@
+"""
+Problem
+Given an n x n matrix, rotate the matrix 90 degrees clockwise.
+
+The rotation must be done IN-PLACE.
+
+That means:
+- We cannot create another matrix.
+- We must modify the original matrix directly.
+- We do not return anything.
+
+Example:
+
+Input:
+1 2 3
+4 5 6
+7 8 9
+
+Output:
+7 4 1
+8 5 2
+9 6 3
+
+
+Idea
+A 90-degree clockwise rotation can be done in TWO simple steps:
+
+1. Transpose the matrix.
+2. Reverse every row.
+
+Transpose means:
+- Swap matrix[row][col] with matrix[col][row].
+- In simple words, rows become columns.
+
+Example:
+
+Before transpose:
+1 2 3
+4 5 6
+7 8 9
+
+After transpose:
+1 4 7
+2 5 8
+3 6 9
+
+Then reverse every row:
+
+1 4 7  →  7 4 1
+2 5 8  →  8 5 2
+3 6 9  →  9 6 3
+
+Final:
+7 4 1
+8 5 2
+9 6 3
+
+
+Approach
+1. Find the size of the matrix: n.
+2. Traverse only the upper triangle of the matrix.
+3. Swap matrix[row][col] with matrix[col][row].
+   This performs the transpose.
+4. Reverse every row.
+5. The matrix is now rotated 90 degrees clockwise.
+
+
+Why do we use range(row + 1, n)?
+
+We only need to swap elements above the diagonal.
+
+For example:
+
+1 2 3
+4 5 6
+7 8 9
+
+The diagonal is:
+
+1
+  5
+    9
+
+We swap:
+2 ↔ 4
+3 ↔ 7
+6 ↔ 8
+
+We do NOT swap them again.
+
+Starting from row + 1 avoids:
+- the diagonal itself
+- swapping the same pair twice
+
+
+Why does reversing every row work?
+
+After transpose:
+
+1 4 7
+2 5 8
+3 6 9
+
+Reverse each row:
+
+7 4 1
+8 5 2
+9 6 3
+
+This produces the 90-degree clockwise rotation.
+
+
+Time Complexity
+O(n²)
+
+Every matrix element is processed a constant number of times.
+
+
+Space Complexity
+O(1)
+
+No extra matrix is created.
+Everything is modified in-place.
+"""
+
+class Solution(object):
+    def rotate(self, matrix):
+
+        # Get the size of the square matrix.
+        n = len(matrix)
+
+        # Go through each row.
+        for row in range(n):
+
+            # Start from the element just after the diagonal.
+            # This visits only the upper triangle.
+            for col in range(row + 1, n):
+
+                # Swap the element above the diagonal
+                # with its corresponding element below the diagonal.
+                #
+                # This performs the TRANSPOSE.
+                matrix[row][col], matrix[col][row] = \
+                    matrix[col][row], matrix[row][col]
+
+        # Reverse every row.
+        # After transposing + reversing rows,
+        # the matrix becomes rotated 90° clockwise.
+        for row in range(n):
+
+            # Reverse the current row in-place.
+            matrix[row].reverse()
