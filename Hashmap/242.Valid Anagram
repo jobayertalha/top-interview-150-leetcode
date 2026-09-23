@@ -1,0 +1,196 @@
+"""
+Problem
+Given two strings s and t, return True if t is an anagram of s.
+
+An anagram is a word or string made by rearranging all the
+characters of another string.
+
+The characters and their frequencies must be exactly the same.
+
+Example:
+
+s = "anagram"
+t = "nagaram"
+
+Both contain:
+
+a → 3
+n → 1
+g → 1
+r → 1
+m → 1
+
+So return True.
+
+
+Example:
+
+s = "rat"
+t = "car"
+
+The characters are different.
+
+So return False.
+
+
+Idea
+Count how many times each character appears in s.
+
+Then subtract how many times each character appears in t.
+
+If s and t are anagrams, every character count should finally
+be exactly 0.
+
+
+Example:
+
+s = "abb"
+t = "bab"
+
+After counting s:
+
+a = 1
+b = 2
+
+Then process t:
+
+'b' → b becomes 1
+'a' → a becomes 0
+'b' → b becomes 0
+
+Everything becomes 0.
+
+Therefore they are anagrams.
+
+
+Approach
+
+1. Check whether s and t have the same length.
+   If not, they cannot be anagrams.
+
+2. Create an array of 26 zeros.
+
+3. Traverse s and increase the count of each character.
+
+4. Traverse t and decrease the count of each character.
+
+5. If every count is 0, return True.
+   Otherwise return False.
+
+
+Why does subtraction work?
+
+Suppose:
+
+s = "abb"
+
+Counts after s:
+
+a = 1
+b = 2
+
+Now t = "bab".
+
+Remove each character:
+
+b → 2 - 1 = 1
+a → 1 - 1 = 0
+b → 1 - 1 = 0
+
+All counts are 0.
+
+That means t contained exactly the same characters
+with exactly the same frequencies.
+
+
+Why do we use:
+
+ord(ch) - ord('a')
+
+This converts a lowercase letter into an array index:
+
+'a' → 0
+'b' → 1
+'c' → 2
+...
+'z' → 25
+
+
+What does all(x == 0 for x in count) mean?
+
+It checks whether EVERY value in count is 0.
+
+For example:
+
+count = [0, 0, 0]
+
+→ True
+
+But:
+
+count = [0, 1, 0]
+
+→ False
+
+So:
+
+return all(x == 0 for x in count)
+
+means:
+
+"Return True only if every character has a balanced count."
+
+
+Time Complexity
+O(n)
+
+We scan s and t once.
+
+The final all() checks only 26 elements, which is constant.
+
+
+Space Complexity
+O(1)
+
+The count array always contains exactly 26 elements.
+"""
+
+
+class Solution(object):
+    def isAnagram(self, s, t):
+
+        # Anagrams must contain the same number of characters.
+        if len(s) != len(t):
+            return False
+
+        # Create 26 counters for the letters a-z.
+        count = [0] * 26
+
+        # Count every character in s.
+        for ch in s:
+
+            # Convert the character into an index from 0 to 25.
+            #
+            # 'a' → 0
+            # 'b' → 1
+            # ...
+            # 'z' → 25
+            index = ord(ch) - ord('a')
+
+            # Add one occurrence of this character.
+            count[index] += 1
+
+        # Process every character in t.
+        for ch in t:
+
+            # Convert the character into an index.
+            index = ord(ch) - ord('a')
+
+            # Remove one occurrence of this character.
+            count[index] -= 1
+
+        # Every count must be exactly zero.
+        #
+        # If even one count is not zero,
+        # s and t are not anagrams.
+        return all(x == 0 for x in count)
