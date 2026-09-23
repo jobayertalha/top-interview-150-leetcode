@@ -1,0 +1,380 @@
+# 54. Spiral Matrix
+# Difficulty: Medium
+# Topic: Array, Matrix, Simulation
+# LeetCode: https://leetcode.com/problems/spiral-matrix/
+
+"""
+Problem
+Given an m x n matrix, return all elements of the matrix
+in spiral order.
+
+Example:
+
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
+
+Spiral order:
+
+1 → 2 → 3
+        ↓
+4   →   6
+↑       ↓
+7 ← 8 ← 9
+
+Answer:
+
+[1, 2, 3, 6, 9, 8, 7, 4, 5]
+
+
+Idea
+Imagine that the matrix has four walls:
+
+top
+bottom
+left
+right
+
+We process the outer layer in four directions:
+
+1. LEFT → RIGHT across the TOP row
+2. TOP → BOTTOM down the RIGHT column
+3. RIGHT → LEFT across the BOTTOM row
+4. BOTTOM → TOP up the LEFT column
+
+After processing one side, we move that boundary inward.
+
+For example:
+
+After processing the top row:
+
+    top += 1
+
+After processing the right column:
+
+    right -= 1
+
+After processing the bottom row:
+
+    bottom -= 1
+
+After processing the left column:
+
+    left += 1
+
+Then we repeat the same process for the
+smaller inner rectangle.
+
+
+Approach
+1. Create an empty result list.
+
+2. Set the four boundaries:
+
+   top = 0
+   bottom = number of rows - 1
+   left = 0
+   right = number of columns - 1
+
+3. Continue while:
+
+   top <= bottom
+   AND
+   left <= right
+
+4. Traverse the top row from left to right.
+
+5. Move top downward.
+
+6. Traverse the right column from top to bottom.
+
+7. Move right inward.
+
+8. If a row still remains:
+   traverse the bottom row from right to left.
+
+9. Move bottom upward.
+
+10. If a column still remains:
+    traverse the left column from bottom to top.
+
+11. Move left inward.
+
+12. Repeat until all elements are processed.
+
+
+Example
+
+matrix =
+
+1  2  3
+4  5  6
+7  8  9
+
+Initial boundaries:
+
+top = 0
+bottom = 2
+left = 0
+right = 2
+
+
+Step 1: TOP ROW
+
+Read:
+
+1 2 3
+
+result:
+
+[1, 2, 3]
+
+Then:
+
+top += 1
+
+top = 1
+
+
+Step 2: RIGHT COLUMN
+
+Read:
+
+6
+9
+
+result:
+
+[1, 2, 3, 6, 9]
+
+Then:
+
+right -= 1
+
+right = 1
+
+
+Step 3: BOTTOM ROW
+
+Read:
+
+8 7
+
+result:
+
+[1, 2, 3, 6, 9, 8, 7]
+
+Then:
+
+bottom -= 1
+
+bottom = 1
+
+
+Step 4: LEFT COLUMN
+
+Read:
+
+4
+
+result:
+
+[1, 2, 3, 6, 9, 8, 7, 4]
+
+Then:
+
+left += 1
+
+left = 1
+
+
+Now the remaining boundaries are:
+
+top = 1
+bottom = 1
+left = 1
+right = 1
+
+Only the center element remains:
+
+5
+
+Add it.
+
+Final:
+
+[1, 2, 3, 6, 9, 8, 7, 4, 5]
+
+
+Why do we use `right + 1`?
+
+Python's range() does NOT include the ending value.
+
+For example:
+
+range(0, 3)
+
+gives:
+
+0, 1, 2
+
+So if right = 2 and we want to include
+column 2, we need:
+
+range(left, right + 1)
+
+
+Why do we use `left - 1` here?
+
+For the bottom row, we move backwards:
+
+range(right, left - 1, -1)
+
+The stop value is excluded.
+
+So if:
+
+left = 0
+right = 2
+
+we want:
+
+2, 1, 0
+
+Therefore:
+
+range(2, -1, -1)
+
+
+Why do we need:
+
+if top <= bottom
+
+before processing the bottom row?
+
+After processing the top row, it is possible that
+there are no rows left.
+
+Without this check, we could process the same row
+again.
+
+Similarly:
+
+if left <= right
+
+prevents us from processing a column that has
+already been completely processed.
+
+
+Why do we update the boundaries?
+
+Each boundary represents a wall around the
+unprocessed portion of the matrix.
+
+After processing a wall, we move it inward.
+
+Example:
+
+top += 1
+
+means:
+
+"The top row has already been processed,
+so don't visit it again."
+
+
+Time Complexity
+O(m × n)
+
+Every matrix element is visited exactly once.
+
+
+Space Complexity
+O(m × n)
+
+The result list stores all matrix elements.
+
+Ignoring the output list, the algorithm uses
+O(1) extra space.
+"""
+
+class Solution(object):
+    def spiralOrder(self, matrix):
+
+        # Store the elements in spiral order.
+        result = []
+
+        # Top boundary of the unprocessed area.
+        top = 0
+
+        # Bottom boundary of the unprocessed area.
+        bottom = len(matrix) - 1
+
+        # Left boundary of the unprocessed area.
+        left = 0
+
+        # Right boundary of the unprocessed area.
+        right = len(matrix[0]) - 1
+
+        # Continue while there is still an unprocessed
+        # rectangle inside the four boundaries.
+        while top <= bottom and left <= right:
+
+            # ------------------------------------------------
+            # 1. TOP: Move from LEFT → RIGHT
+            # ------------------------------------------------
+
+            # Visit every element in the current top row.
+            for col in range(left, right + 1):
+                result.append(matrix[top][col])
+
+            # The top row has now been processed,
+            # so move the top boundary downward.
+            top += 1
+
+            # ------------------------------------------------
+            # 2. RIGHT: Move from TOP → BOTTOM
+            # ------------------------------------------------
+
+            # Visit every element in the current right column.
+            for row in range(top, bottom + 1):
+                result.append(matrix[row][right])
+
+            # The right column has now been processed,
+            # so move the right boundary inward.
+            right -= 1
+
+            # ------------------------------------------------
+            # 3. BOTTOM: Move from RIGHT → LEFT
+            # ------------------------------------------------
+
+            # Make sure a row still remains.
+            if top <= bottom:
+
+                # Move backwards across the bottom row.
+                for col in range(right, left - 1, -1):
+                    result.append(matrix[bottom][col])
+
+                # The bottom row has been processed,
+                # so move the bottom boundary upward.
+                bottom -= 1
+
+            # ------------------------------------------------
+            # 4. LEFT: Move from BOTTOM → TOP
+            # ------------------------------------------------
+
+            # Make sure a column still remains.
+            if left <= right:
+
+                # Move upwards along the left column.
+                for row in range(bottom, top - 1, -1):
+                    result.append(matrix[row][left])
+
+                # The left column has been processed,
+                # so move the left boundary inward.
+                left += 1
+
+        # Return all elements in spiral order.
+        return result
