@@ -1,0 +1,251 @@
+"""
+Problem
+Given a board containing 0s and 1s:
+
+    0 = dead cell
+    1 = live cell
+
+Update the board according to Conway's Game of Life rules.
+
+For each cell, look at its 8 neighboring cells.
+
+Rules:
+
+1. A live cell with fewer than 2 live neighbors dies.
+2. A live cell with 2 or 3 live neighbors stays alive.
+3. A live cell with more than 3 live neighbors dies.
+4. A dead cell with exactly 3 live neighbors becomes alive.
+
+The board must be modified IN-PLACE.
+
+
+Main Problem
+We need to calculate the next generation while the current
+generation is still being used.
+
+If we directly change:
+
+    1 → 0
+    0 → 1
+
+then later cells might see the NEW value instead of the
+ORIGINAL value.
+
+That would give incorrect results.
+
+
+Idea
+Use temporary values:
+
+    0 = originally dead, stays dead
+    1 = originally alive, stays alive
+    2 = originally alive, will die
+    3 = originally dead, will become alive
+
+This lets us store BOTH pieces of information:
+
+    original state
+    +
+    next state
+
+
+For example:
+
+    2
+
+means:
+
+    Originally: alive
+    Next:       dead
+
+
+And:
+
+    3
+
+means:
+
+    Originally: dead
+    Next:       alive
+
+
+Important
+When counting live neighbors:
+
+    1 and 2 both count as LIVE.
+
+Why?
+
+Because 2 means:
+
+    originally alive → will die
+
+But we are still calculating the current generation.
+
+Similarly, 3 does NOT count as live because it was
+originally dead.
+
+
+Approach
+
+1. Get the number of rows and columns.
+
+2. Create the 8 possible neighbor directions.
+
+3. For every cell:
+   - Check its 8 neighbors.
+   - Count how many were originally alive.
+   - Apply the Game of Life rules.
+   - Store the next state using 2 or 3 if necessary.
+
+4. After every cell has been processed, make a second pass:
+   - 2 → 0
+   - 3 → 1
+
+This gives the final board.
+
+
+The 8 Directions
+
+        (-1,-1)  (-1,0)  (-1,+1)
+             ↖       ↑       ↗
+
+        (0,-1)     CELL    (0,+1)
+             ←               →
+
+        (+1,-1)  (+1,0)  (+1,+1)
+             ↙       ↓       ↘
+
+
+Example
+
+Suppose:
+
+0 1 0
+0 0 1
+1 1 1
+
+Consider the center cell:
+
+0
+
+Its neighbors are:
+
+0 1 0
+0 X 1
+1 1 1
+
+There are 5 live neighbors.
+
+Because the center cell is dead, it only becomes alive
+when it has exactly 3 live neighbors.
+
+So it stays dead.
+
+
+Why do we use:
+
+if board[new_row][new_col] in (1, 2):
+
+Because:
+
+1 = originally alive and stays alive
+2 = originally alive but will die
+
+Both were ALIVE in the original generation.
+
+Therefore both must be counted as live neighbors.
+
+
+Time Complexity
+O(m × n)
+
+For every cell we check at most 8 neighbors.
+
+
+Space Complexity
+O(1)
+
+The directions list contains only 8 fixed directions,
+and no extra matrix is created.
+"""
+
+class Solution(object):
+    def gameOfLife(self, board):
+
+        # Number of rows in the board.
+        m = len(board)
+
+        # Number of columns in the board.
+        n = len(board[0])
+
+        # All 8 possible directions around a cell.
+        directions = [
+            (-1, -1), (-1, 0), (-1, 1),
+            (0, -1),           (0, 1),
+            (1, -1),  (1, 0),  (1, 1)
+        ]
+
+        # First pass:
+        # Calculate the next state of every cell.
+        for row in range(m):
+
+            # Go through every column.
+            for col in range(n):
+
+                # Count how many neighbors were originally alive.
+                live_neighbors = 0
+
+                # Check all 8 possible neighbors.
+                for dr, dc in directions:
+
+                    # Calculate the neighbor's row.
+                    new_row = row + dr
+
+                    # Calculate the neighbor's column.
+                    new_col = col + dc
+
+                    # Make sure the neighbor is inside the board.
+                    if 0 <= new_row < m and 0 <= new_col < n:
+
+                        # 1 = originally alive and stays alive.
+                        # 2 = originally alive but will die.
+                        #
+                        # Both were originally ALIVE,
+                        # so both count as live neighbors.
+                        if board[new_row][new_col] in (1, 2):
+                            live_neighbors += 1
+
+                # If the current cell was originally alive...
+                if board[row][col] == 1:
+
+                    # Fewer than 2 neighbors → dies.
+                    # More than 3 neighbors → dies.
+                    if live_neighbors < 2 or live_neighbors > 3:
+
+                        # 2 means:
+                        # originally alive → next state dead.
+                        board[row][col] = 2
+
+                # If the current cell was originally dead...
+                elif board[row][col] == 0:
+
+                    # Exactly 3 live neighbors → becomes alive.
+                    if live_neighbors == 3:
+
+                        # 3 means:
+                        # originally dead → next state alive.
+                        board[row][col] = 3
+
+        # Second pass:
+        # Convert temporary values into actual 0/1 values.
+        for row in range(m):
+            for col in range(n):
+
+                # Originally alive → now dead.
+                if board[row][col] == 2:
+                    board[row][col] = 0
+
+                # Originally dead → now alive.
+                elif board[row][col] == 3:
+                    board[row][col] = 1
