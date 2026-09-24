@@ -1,0 +1,209 @@
+"""
+Problem
+Given an unsorted array of integers nums, return the length of
+the longest consecutive elements sequence.
+
+A consecutive sequence means numbers that follow each other
+without gaps.
+
+Example:
+
+nums = [100, 4, 200, 1, 3, 2]
+
+The longest consecutive sequence is:
+
+1, 2, 3, 4
+
+Length = 4
+
+Return 4.
+
+
+Important
+The sequence does NOT need to appear next to each other in the
+original array.
+
+For example:
+
+[100, 4, 200, 1, 3, 2]
+
+is unordered, but we can still find:
+
+1 → 2 → 3 → 4
+
+
+Idea
+Put all numbers into a SET.
+
+Why?
+
+Because checking:
+
+    number in set
+
+is O(1) on average.
+
+Then, for every number, check whether it is the START of a
+sequence.
+
+A number is a starting point if:
+
+    num - 1 is NOT in the set.
+
+For example:
+
+1 → 0 is not present
+    Therefore, 1 is the start.
+
+2 → 1 is present
+    Therefore, 2 is NOT a start.
+
+3 → 2 is present
+    Therefore, 3 is NOT a start.
+
+4 → 3 is present
+    Therefore, 4 is NOT a start.
+
+
+Once we find a starting number, keep checking:
+
+    num + 1
+    num + 2
+    num + 3
+    ...
+
+until the sequence ends.
+
+
+Approach
+
+1. Convert nums into a set.
+
+2. Set longest = 0.
+
+3. For every number in the set:
+   - Check if num - 1 exists.
+   - If it exists, this number is not the beginning of a
+     sequence, so skip it.
+   - If it does not exist, this is the beginning.
+
+4. Starting from this number, keep checking whether:
+       current + 1
+   exists in the set.
+
+5. Count how long the sequence is.
+
+6. Update longest.
+
+7. Return longest.
+
+
+Example
+
+nums = [100, 4, 200, 1, 3, 2]
+
+Set:
+
+{100, 4, 200, 1, 3, 2}
+
+
+Check 1:
+
+0 is not in the set.
+
+So 1 is a starting point.
+
+Check:
+
+1 → 2 → 3 → 4
+
+Then:
+
+5 is not in the set.
+
+Length = 4.
+
+So:
+
+longest = 4.
+
+
+Why don't we start from 2?
+
+Because:
+
+2 - 1 = 1
+
+and 1 IS in the set.
+
+Therefore, 2 is already part of a sequence that started
+at 1.
+
+The same applies to 3 and 4.
+
+
+Why do we use a set?
+
+The original array is unsorted.
+
+Searching for a number in a list can take O(n).
+
+But a set allows average O(1) membership checking.
+
+This allows us to efficiently check:
+
+    current + 1 in num_set
+
+
+Time Complexity
+O(n) average
+
+Creating the set takes O(n), and each number is processed
+efficiently because we only start counting from the beginning
+of a sequence.
+
+
+Space Complexity
+O(n)
+
+The set stores the numbers.
+"""
+
+
+class Solution(object):
+    def longestConsecutive(self, nums):
+
+        # Convert the array into a set.
+        # This removes duplicates and gives fast lookups.
+        num_set = set(nums)
+
+        # Store the length of the longest sequence found.
+        longest = 0
+
+        # Check every unique number.
+        for num in num_set:
+
+            # If num - 1 does NOT exist,
+            # num is the beginning of a sequence.
+            if num - 1 not in num_set:
+
+                # Start the sequence from this number.
+                current = num
+
+                # The starting number itself counts as 1.
+                length = 1
+
+                # Keep going while the next consecutive number exists.
+                while current + 1 in num_set:
+
+                    # Move to the next number.
+                    current += 1
+
+                    # Increase the sequence length.
+                    length += 1
+
+                # Keep the maximum sequence length found so far.
+                longest = max(longest, length)
+
+        # Return the longest consecutive sequence length.
+        return longest
