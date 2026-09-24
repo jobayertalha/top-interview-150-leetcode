@@ -1,0 +1,178 @@
+"""
+Problem
+Given an array of integers nums and an integer target, return
+the indices of two numbers whose sum is equal to target.
+
+Each input has exactly one solution.
+
+Example:
+
+nums = [2, 7, 11, 15]
+target = 9
+
+2 + 7 = 9
+
+Answer:
+[0, 1]
+
+
+Idea
+For every current number, calculate the number we NEED:
+
+    needed = target - current
+
+Then check whether that needed number has already appeared.
+
+We use a dictionary called `seen` to remember:
+
+    number → index
+
+Example:
+
+current = 7
+target = 9
+
+needed = 9 - 7
+       = 2
+
+If 2 is already in `seen`, then:
+
+    2 + 7 = 9
+
+So we have found the answer.
+
+
+Approach
+
+1. Create an empty dictionary `seen`.
+
+2. Loop through nums using index i.
+
+3. Get the current number:
+       current = nums[i]
+
+4. Calculate the number needed to reach target:
+       needed = target - current
+
+5. Check if `needed` is already in `seen`.
+   - If yes, return the previous index and current index.
+   - If no, store the current number and its index.
+
+6. Continue until the pair is found.
+
+
+Example
+
+nums = [2, 7, 11, 15]
+target = 9
+
+Start:
+seen = {}
+
+i = 0
+current = 2
+needed = 9 - 2 = 7
+
+7 is not in seen.
+
+Store:
+seen[2] = 0
+
+Now:
+seen = {2: 0}
+
+
+i = 1
+current = 7
+needed = 9 - 7 = 2
+
+2 IS in seen.
+
+seen[2] = 0
+
+So return:
+
+[0, 1]
+
+Because:
+
+nums[0] + nums[1]
+= 2 + 7
+= 9
+
+
+Why do we check BEFORE storing the current number?
+
+Suppose:
+
+nums = [3, 3]
+target = 6
+
+At i = 0:
+
+current = 3
+needed = 3
+
+3 is not in seen.
+
+So store:
+
+seen[3] = 0
+
+At i = 1:
+
+current = 3
+needed = 3
+
+Now 3 is already in seen.
+
+So:
+
+return [0, 1]
+
+This also ensures that we don't use the same element twice.
+
+
+Time Complexity
+O(n)
+
+We go through the array once.
+Dictionary lookup is O(1) on average.
+
+
+Space Complexity
+O(n)
+
+In the worst case, we may store almost every number
+in the dictionary.
+"""
+
+
+class Solution(object):
+    def twoSum(self, nums, target):
+
+        # Dictionary to remember:
+        # number → index where we saw it.
+        seen = {}
+
+        # Go through every element using its index.
+        for i in range(len(nums)):
+
+            # Get the current number.
+            current = nums[i]
+
+            # Calculate the number needed to reach the target.
+            needed = target - current
+
+            # Check whether we have already seen the needed number.
+            if needed in seen:
+
+                # If yes, we found the pair.
+                #
+                # seen[needed] = index of the previous number.
+                # i = index of the current number.
+                return [seen[needed], i]
+
+            # We haven't found the pair yet.
+            # Store the current number and its index.
+            seen[current] = i
