@@ -1,0 +1,181 @@
+"""
+Problem
+Given a string s containing only the characters:
+'(', ')', '{', '}', '[', ']'
+
+Determine whether the string is valid.
+
+A string is valid when:
+
+1. Every opening bracket has a matching closing bracket.
+2. Brackets close in the correct order.
+3. Every closing bracket has a corresponding opening bracket.
+
+Examples:
+
+"()"       → True
+"()[]{}"   → True
+"(]"       → False
+"([)]"     → False
+"{[]}"     → True
+
+
+Idea
+Use a STACK.
+
+A stack follows LIFO:
+
+Last In → First Out
+
+Whenever we see an opening bracket:
+    push it into the stack.
+
+Whenever we see a closing bracket:
+    check whether the TOP of the stack
+    is its matching opening bracket.
+
+If it matches:
+    remove the opening bracket.
+
+If it does not match:
+    return False.
+
+At the end, the stack must be empty.
+
+
+Approach
+1. Create an empty stack.
+2. Create a dictionary that tells us which opening bracket
+   belongs to each closing bracket.
+
+   ')' → '('
+   '}' → '{'
+   ']' → '['
+
+3. Traverse every character in s.
+4. If it is an opening bracket:
+       push it into the stack.
+5. Otherwise, it is a closing bracket:
+       - If the stack is empty → False
+       - If the top does not match → False
+       - Otherwise pop the opening bracket.
+6. After the loop, return True only if the stack is empty.
+
+
+Example
+s = "({[]})"
+
+Step 1:
+'(' → opening → push
+
+stack = ['(']
+
+Step 2:
+'{' → opening → push
+
+stack = ['(', '{']
+
+Step 3:
+'[' → opening → push
+
+stack = ['(', '{', '[']
+
+Step 4:
+']' → expected '['
+
+Top = '[' → match → pop
+
+stack = ['(', '{']
+
+Step 5:
+'}' → expected '{'
+
+Top = '{' → match → pop
+
+stack = ['(']
+
+Step 6:
+')' → expected '('
+
+Top = '(' → match → pop
+
+stack = []
+
+Stack is empty → True
+
+
+Why do we use a stack?
+
+Consider:
+
+"([{}])"
+
+The last opening bracket is '{'.
+
+So it must be the first one to close.
+
+That is exactly how a stack works:
+
+Opening:
+( → [ → {
+
+Closing:
+} → ] → )
+
+So:
+
+Last opening → First closing
+
+
+Time Complexity
+O(n)
+
+We visit every character once.
+
+Space Complexity
+O(n)
+
+In the worst case, all characters can be opening brackets,
+so the stack can contain n characters.
+"""
+
+class Solution(object):
+    def isValid(self, s):
+
+        # Create an empty stack to store opening brackets.
+        stack = []
+
+        # Map every closing bracket to its matching opening bracket.
+        pairs = {
+            ')': '(',
+            '}': '{',
+            ']': '['
+        }
+
+        # Go through each character in the string.
+        for char in s:
+
+            # If the character is an opening bracket,
+            # put it into the stack.
+            if char in '([{':
+                stack.append(char)
+
+            # Otherwise, the character is a closing bracket.
+            else:
+
+                # If the stack is empty, there is no opening
+                # bracket available to match this closing bracket.
+                if not stack:
+                    return False
+
+                # Check whether the most recent opening bracket
+                # matches the current closing bracket.
+                if stack[-1] != pairs[char]:
+                    return False
+
+                # The brackets match, so remove the opening bracket.
+                stack.pop()
+
+        # The string is valid only if no unmatched opening
+        # brackets are left in the stack.
+        return len(stack) == 0
