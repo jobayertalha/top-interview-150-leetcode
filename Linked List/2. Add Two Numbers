@@ -1,0 +1,249 @@
+"""
+Problem
+You are given two non-empty linked lists representing two
+non-negative integers.
+
+The digits are stored in REVERSE ORDER.
+
+Add the two numbers and return the result as a linked list.
+
+Example:
+
+l1 = [2,4,3]
+l2 = [5,6,4]
+
+These represent:
+
+342
++456
+----
+798
+
+So the result is:
+
+[7,9,8]
+
+
+Idea
+Add the numbers digit by digit, just like normal addition.
+
+We need three important things:
+
+1. current
+   → Keeps track of where we are building the result.
+
+2. carry
+   → Stores the value carried to the next digit.
+
+3. dummy
+   → A temporary starting node that makes it easy to build
+     the result linked list.
+
+For every position:
+
+    total = digit1 + digit2 + carry
+
+Then:
+
+    digit = total % 10
+
+gives the digit we put in the result.
+
+And:
+
+    carry = total // 10
+
+gives the carry for the next position.
+
+
+Approach
+1. Create a dummy node.
+2. Set current = dummy.
+3. Set carry = 0.
+4. Continue while:
+       l1 exists
+       OR l2 exists
+       OR carry exists.
+5. Get the current digit from each list.
+   If a list has ended, use 0.
+6. Add both digits and carry.
+7. Get the result digit using `% 10`.
+8. Get the new carry using `// 10`.
+9. Create a new node for the result digit.
+10. Move all pointers forward.
+11. Return `dummy.next`.
+
+
+Example
+
+l1 = [2,4,3]
+l2 = [5,6,4]
+
+First:
+
+2 + 5 = 7
+
+digit = 7 % 10 = 7
+carry = 7 // 10 = 0
+
+Result:
+[7]
+
+
+Second:
+
+4 + 6 = 10
+
+digit = 10 % 10 = 0
+carry = 10 // 10 = 1
+
+Result:
+[7,0]
+
+
+Third:
+
+3 + 4 + 1 = 8
+
+digit = 8
+carry = 0
+
+Result:
+[7,0,8]
+
+This represents 807 in reverse order,
+which corresponds to 342 + 465? 
+
+More precisely:
+l1 [2,4,3] = 342
+l2 [5,6,4] = 465
+342 + 465 = 807
+
+So the correct result is:
+[7,0,8]
+
+
+Example with carry at the end
+
+l1 = [9,9]
+l2 = [1]
+
+First:
+9 + 1 = 10
+digit = 0
+carry = 1
+
+Second:
+9 + 0 + 1 = 10
+digit = 0
+carry = 1
+
+No nodes remain, but carry = 1.
+
+Therefore the loop runs one more time:
+
+digit = 1
+
+Result:
+[0,0,1]
+
+
+Why do we use `dummy`?
+
+Without a dummy node, we would need special
+logic for creating the first node.
+
+With:
+
+dummy → result
+
+we can always do:
+
+current.next = ListNode(digit)
+
+At the end, `dummy` itself is not part of the answer,
+so we return:
+
+dummy.next
+
+
+Time Complexity
+O(max(m, n))
+
+where m and n are the lengths of the two lists.
+
+We process each digit once.
+
+
+Space Complexity
+O(max(m, n))
+
+The result list contains up to max(m, n) + 1 nodes.
+"""
+
+class Solution(object):
+    def addTwoNumbers(self, l1, l2):
+
+        # Create a dummy node.
+        # It acts as the starting point of the result list.
+        dummy = ListNode(0)
+
+        # current points to the last node
+        # in the result list.
+        current = dummy
+
+        # Stores the carry from the previous addition.
+        carry = 0
+
+        # Continue while:
+        # - l1 still has a node, OR
+        # - l2 still has a node, OR
+        # - there is still a carry.
+        while l1 or l2 or carry:
+
+            # If l1 has a node, get its digit.
+            if l1:
+                val1 = l1.val
+            else:
+                # If l1 has ended, treat its digit as 0.
+                val1 = 0
+
+            # If l2 has a node, get its digit.
+            if l2:
+                val2 = l2.val
+            else:
+                # If l2 has ended, treat its digit as 0.
+                val2 = 0
+
+            # Add both digits and the previous carry.
+            total = val1 + val2 + carry
+
+            # Get the digit that belongs in the current node.
+            #
+            # Example:
+            # 17 % 10 = 7
+            digit = total % 10
+
+            # Get the carry for the next position.
+            #
+            # Example:
+            # 17 // 10 = 1
+            carry = total // 10
+
+            # Create a new node containing the result digit.
+            current.next = ListNode(digit)
+
+            # Move current to the newly created node.
+            current = current.next
+
+            # Move l1 to its next node if possible.
+            if l1:
+                l1 = l1.next
+
+            # Move l2 to its next node if possible.
+            if l2:
+                l2 = l2.next
+
+        # The dummy node is not part of the answer.
+        # Return the actual first result node.
+        return dummy.next
