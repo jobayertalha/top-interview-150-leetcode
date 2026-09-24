@@ -1,0 +1,140 @@
+"""
+Problem
+Given the head of a linked list, determine whether the linked list
+contains a cycle.
+
+A cycle exists if we can keep following the `next` pointer and
+eventually reach a node that we have already visited.
+
+Example:
+
+1 → 2 → 3 → 4
+        ↑     ↓
+        └─────┘
+
+Here, 4 points back to 3, so there is a cycle.
+
+If the list eventually reaches None, there is no cycle.
+
+
+Idea
+Use TWO pointers:
+
+1. slow
+   → moves one node at a time.
+
+2. fast
+   → moves two nodes at a time.
+
+If there is a cycle:
+    fast will eventually catch slow.
+
+If there is no cycle:
+    fast will reach None.
+
+
+Approach
+1. Set both slow and fast to head.
+2. While fast and fast.next exist:
+       - Move slow one step.
+       - Move fast two steps.
+       - If slow == fast:
+             return True
+3. If fast reaches None:
+       there is no cycle.
+4. Return False.
+
+
+Example
+
+List:
+
+1 → 2 → 3 → 4
+        ↑     ↓
+        └─────┘
+
+Initially:
+
+slow = 1
+fast = 1
+
+Move 1:
+slow = 2
+fast = 3
+
+Move 2:
+slow = 3
+fast = 3
+
+They meet.
+
+Therefore:
+return True
+
+
+Why does this work?
+
+Imagine two runners on a circular track.
+
+The slow runner moves 1 step.
+The fast runner moves 2 steps.
+
+Because the fast runner is faster,
+it will eventually catch the slow runner.
+
+In a linked-list cycle, the same thing happens.
+
+
+Why do we need:
+while fast and fast.next?
+
+Because fast moves two nodes:
+
+fast = fast.next.next
+
+We need to make sure both:
+    fast
+and
+    fast.next
+
+actually exist before doing this.
+
+
+Time Complexity
+O(n)
+
+In the worst case, we may visit the nodes several times,
+but the total work is linear.
+
+
+Space Complexity
+O(1)
+
+Only two pointers are used.
+"""
+
+class Solution(object):
+    def hasCycle(self, head):
+
+        # Slow pointer moves one step at a time.
+        slow = head
+
+        # Fast pointer moves two steps at a time.
+        fast = head
+
+        # Continue while fast can safely move two steps.
+        while fast and fast.next:
+
+            # Move slow by one node.
+            slow = slow.next
+
+            # Move fast by two nodes.
+            fast = fast.next.next
+
+            # If both pointers reach the same node,
+            # a cycle exists.
+            if slow == fast:
+                return True
+
+        # If fast reaches None, the list has no cycle.
+        return False
