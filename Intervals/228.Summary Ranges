@@ -1,0 +1,243 @@
+"""
+Problem
+Given a sorted and unique integer array nums, return the smallest
+list of ranges that covers all the numbers in the array.
+
+A range can be represented as:
+
+    "a->b"
+
+if it contains multiple consecutive numbers.
+
+If there is only one number, represent it as:
+
+    "a"
+
+
+Example:
+
+nums = [0, 1, 2, 4, 5, 7]
+
+The consecutive groups are:
+
+0, 1, 2
+4, 5
+7
+
+So the answer is:
+
+["0->2", "4->5", "7"]
+
+
+Idea
+Keep track of where the current range STARTS.
+
+We use:
+
+    start = first number of the current range
+
+Then move through the array.
+
+As long as:
+
+    nums[i] == nums[i - 1] + 1
+
+the numbers are consecutive, so we stay in the same range.
+
+When this condition becomes false, the current range has ended.
+
+Then we add it to the result and start a new range.
+
+
+Approach
+
+1. Create an empty result list.
+
+2. If nums is empty, return result.
+
+3. Set:
+       start = nums[0]
+
+   This is the beginning of the first range.
+
+4. Start from index 1.
+
+5. For each number:
+   - Check whether it is consecutive with the previous number.
+   - If yes, continue.
+   - If no, the current range has ended.
+
+6. When a range ends:
+   - If start == previous number:
+       It contains only one number.
+   - Otherwise:
+       It contains multiple consecutive numbers.
+
+7. Set:
+       start = nums[i]
+
+   to begin the next range.
+
+8. After the loop, process the final range separately.
+
+
+Example
+
+nums = [0, 1, 2, 4, 5, 7]
+
+Start:
+
+start = 0
+
+i = 1:
+1 == 0 + 1
+→ consecutive
+
+i = 2:
+2 == 1 + 1
+→ consecutive
+
+i = 3:
+4 != 2 + 1
+→ range ended
+
+Current range:
+0 to 2
+
+Add:
+"0->2"
+
+Start new range:
+start = 4
+
+i = 4:
+5 == 4 + 1
+→ consecutive
+
+i = 5:
+7 != 5 + 1
+→ range ended
+
+Add:
+"4->5"
+
+Start:
+start = 7
+
+Loop ends.
+
+Handle final range:
+"7"
+
+
+Why do we use nums[i - 1]?
+
+When nums[i] is not consecutive, nums[i - 1] is the LAST
+number of the previous range.
+
+For example:
+
+0 1 2 4
+
+At i = 3:
+
+nums[i] = 4
+nums[i - 1] = 2
+
+Since 4 is not consecutive with 2, the previous range is:
+
+0->2
+
+
+Why do we need to handle the last range after the loop?
+
+The loop only creates a range when it finds a BREAK.
+
+But the final range has no number after it to create a break.
+
+Example:
+
+[1, 2, 3]
+
+There is never a number after 3 that tells us:
+
+"the range ended."
+
+So after the loop, we must manually add:
+
+"1->3"
+
+
+Time Complexity
+O(n)
+
+We traverse the array once.
+
+
+Space Complexity
+O(n)
+
+The result list can contain up to n ranges.
+The algorithm uses O(1) extra space excluding the output.
+"""
+
+
+class Solution(object):
+    def summaryRanges(self, nums):
+
+        # Store the final ranges.
+        result = []
+
+        # If the array is empty, there are no ranges.
+        if not nums:
+            return result
+
+        # Start the first range at the first number.
+        start = nums[0]
+
+        # Start from the second element.
+        for i in range(1, len(nums)):
+
+            # Check whether the current number is consecutive
+            # with the previous number.
+            if nums[i] != nums[i - 1] + 1:
+
+                # If start equals the previous number,
+                # this range contains only one number.
+                if start == nums[i - 1]:
+
+                    # Add just that number as a string.
+                    result.append(str(start))
+
+                # Otherwise, this range contains multiple numbers.
+                else:
+
+                    # Add the range:
+                    # start -> previous number
+                    result.append(
+                        str(start) + "->" + str(nums[i - 1])
+                    )
+
+                # The current number starts a new range.
+                start = nums[i]
+
+        # The loop ends without processing the final range,
+        # so handle it separately.
+
+        # If start equals the last number,
+        # the final range contains only one number.
+        if start == nums[-1]:
+
+            # Add the single number.
+            result.append(str(start))
+
+        # Otherwise, the final range contains multiple numbers.
+        else:
+
+            # Add the final range.
+            result.append(
+                str(start) + "->" + str(nums[-1])
+            )
+
+        # Return all summarized ranges.
+        return result
