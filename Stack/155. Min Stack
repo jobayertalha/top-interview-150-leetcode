@@ -1,0 +1,180 @@
+"""
+Problem
+Design a stack that supports the following operations:
+
+1. push(val)   → Add a value to the stack.
+2. pop()       → Remove the top value.
+3. top()       → Return the top value.
+4. getMin()    → Return the minimum value in the stack.
+
+The important requirement is:
+
+getMin() must work in O(1) time.
+
+
+Idea
+Use TWO stacks:
+
+1. stack
+   → Stores the actual values.
+
+2. minStack
+   → Stores the minimum value seen so far at every position.
+
+Example:
+
+Push 5
+
+stack:
+[5]
+
+minStack:
+[5]
+
+Push 3
+
+stack:
+[5, 3]
+
+minStack:
+[5, 3]
+
+Push 7
+
+stack:
+[5, 3, 7]
+
+minStack:
+[5, 3, 3]
+
+Why is minStack [5, 3, 3]?
+
+After pushing:
+5 → minimum = 5
+3 → minimum = 3
+7 → minimum is still 3
+
+
+Approach
+For push(val):
+
+1. Add val to the normal stack.
+2. Find the minimum between:
+       val
+       current minimum
+3. Store that minimum in minStack.
+
+For pop():
+
+Remove the top element from BOTH stacks.
+
+For top():
+
+Return the top of the normal stack.
+
+For getMin():
+
+Return the top of minStack.
+
+Because minStack always keeps the current minimum
+at its top, getMin() takes O(1).
+
+
+Example
+
+Operations:
+
+push(5)
+push(3)
+push(7)
+push(2)
+
+Stacks become:
+
+stack:
+[5, 3, 7, 2]
+
+minStack:
+[5, 3, 3, 2]
+
+getMin()
+→ 2
+
+pop()
+
+stack:
+[5, 3, 7]
+
+minStack:
+[5, 3, 3]
+
+getMin()
+→ 3
+
+
+Time Complexity
+
+push()   → O(1)
+pop()    → O(1)
+top()    → O(1)
+getMin() → O(1)
+
+
+Space Complexity
+
+O(n)
+
+We use two stacks, and each can contain up to n elements.
+"""
+
+class MinStack(object):
+
+    def __init__(self):
+
+        # Normal stack.
+        # Stores all the actual values.
+        self.stack = []
+
+        # Minimum stack.
+        # Stores the minimum value seen so far.
+        self.minStack = []
+
+    def push(self, val):
+
+        # Add the new value to the normal stack.
+        self.stack.append(val)
+
+        # If minStack is empty,
+        # this value is automatically the minimum.
+        if not self.minStack:
+            self.minStack.append(val)
+
+        else:
+            # Compare the new value with the current minimum.
+            #
+            # self.minStack[-1] = current minimum
+            #
+            # Store whichever is smaller.
+            self.minStack.append(
+                min(val, self.minStack[-1])
+            )
+
+    def pop(self):
+
+        # Remove the top value from the normal stack.
+        self.stack.pop()
+
+        # Remove the corresponding minimum
+        # from the minimum stack.
+        self.minStack.pop()
+
+    def top(self):
+
+        # Return the top value of the normal stack.
+        return self.stack[-1]
+
+    def getMin(self):
+
+        # The top of minStack is always
+        # the minimum value in the entire stack.
+        return self.minStack[-1]
