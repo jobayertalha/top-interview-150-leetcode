@@ -1,0 +1,259 @@
+"""
+Problem
+Given a list of non-overlapping intervals sorted by their starting
+values, and a new interval, insert the new interval into the list
+and merge overlapping intervals.
+
+Example:
+
+intervals = [[1,3], [6,9]]
+newInterval = [2,5]
+
+Output:
+[[1,5], [6,9]]
+
+Why?
+
+[1,3] overlaps with [2,5].
+
+So they become:
+
+[1,5]
+
+
+Idea
+There are 3 cases for every interval:
+
+1. Current interval is completely BEFORE newInterval.
+
+       [1,2]     [5,7]
+       ↑
+    current   newInterval
+
+   No overlap.
+   Add current interval to result.
+
+
+2. Current interval OVERLAPS newInterval.
+
+       [1,5]
+          [3,7]
+
+   Merge them.
+
+   newInterval becomes:
+
+       [1,7]
+
+
+3. Current interval is completely AFTER newInterval.
+
+       [2,5]     [8,10]
+                 ↑
+              current
+
+   No overlap.
+
+   Add newInterval first, then add current interval.
+
+   After this point, all remaining intervals are also after
+   newInterval, so we can add them directly.
+
+
+Approach
+
+1. Create an empty result list.
+
+2. Go through each interval.
+
+3. If:
+       interval[1] < newInterval[0]
+
+   the current interval is completely before newInterval.
+
+   Add it to result.
+
+4. Else if:
+       interval[0] > newInterval[1]
+
+   the current interval is completely after newInterval.
+
+   Add newInterval first.
+   Add current interval.
+   Add all remaining intervals.
+   Return the result.
+
+5. Otherwise, the intervals overlap.
+
+   Merge them:
+
+       newInterval[0] = min(newInterval[0], interval[0])
+       newInterval[1] = max(newInterval[1], interval[1])
+
+6. If we reach the end, newInterval belongs at the end.
+
+7. Add newInterval to result.
+
+
+Example
+
+intervals = [[1,3], [6,9]]
+newInterval = [2,5]
+
+Start:
+
+result = []
+
+
+Process [1,3]:
+
+3 < 2? No.
+
+1 > 5? No.
+
+Therefore they overlap.
+
+Merge:
+
+start = min(2,1) = 1
+end   = max(5,3) = 5
+
+newInterval = [1,5]
+
+
+Process [6,9]:
+
+6 > 5
+
+This interval is completely AFTER newInterval.
+
+So:
+
+result = [[1,5], [6,9]]
+
+Return result.
+
+
+Why do we use:
+
+interval[1] < newInterval[0]
+
+The current interval ends before the new interval starts.
+
+Example:
+
+[1,3] and [5,7]
+
+3 < 5
+
+Therefore they cannot overlap.
+
+
+Why do we use:
+
+interval[0] > newInterval[1]
+
+The current interval starts after the new interval ends.
+
+Example:
+
+[1,3] and [5,7]
+
+5 > 3
+
+Therefore they cannot overlap.
+
+
+Why is everything after the first "after" interval safe?
+
+The original intervals are already sorted.
+
+So if we find:
+
+current interval starts after newInterval ends,
+
+every interval after it will also start after newInterval.
+
+Therefore, no more merging is necessary.
+
+
+Time Complexity
+O(n)
+
+We scan the intervals once.
+
+
+Space Complexity
+O(n)
+
+The result list can contain all intervals.
+"""
+
+
+class Solution(object):
+    def insert(self, intervals, newInterval):
+
+        # Store the final intervals here.
+        result = []
+
+        # Go through every existing interval.
+        for i in range(len(intervals)):
+
+            # Get the current interval.
+            interval = intervals[i]
+
+            # CASE 1:
+            # Current interval is completely BEFORE newInterval.
+            #
+            # Example:
+            # [1,3]   [5,7]
+            #
+            # 3 < 5 → no overlap.
+            if interval[1] < newInterval[0]:
+
+                # Add the current interval unchanged.
+                result.append(interval)
+
+            # CASE 3:
+            # Current interval is completely AFTER newInterval.
+            #
+            # Example:
+            # [2,5]   [8,10]
+            #
+            # 8 > 5 → no overlap.
+            elif interval[0] > newInterval[1]:
+
+                # newInterval must come before the current interval.
+                result.append(newInterval)
+
+                # Add the current interval.
+                result.append(interval)
+
+                # All remaining intervals are also after
+                # newInterval because intervals are sorted.
+                result.extend(intervals[i + 1:])
+
+                # We are finished.
+                return result
+
+            # CASE 2:
+            # Current interval overlaps newInterval.
+            else:
+
+                # Extend the starting point if necessary.
+                newInterval[0] = min(
+                    newInterval[0],
+                    interval[0]
+                )
+
+                # Extend the ending point if necessary.
+                newInterval[1] = max(
+                    newInterval[1],
+                    interval[1]
+                )
+
+        # If we reach here, newInterval belongs at the end.
+        result.append(newInterval)
+
+        # Return the final intervals.
+        return result
