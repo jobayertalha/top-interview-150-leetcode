@@ -1,0 +1,281 @@
+"""
+Problem
+Given a list of balloons represented by intervals:
+
+    [x_start, x_end]
+
+A balloon occupies every point between x_start and x_end.
+
+An arrow is shot vertically at some x-coordinate and can burst
+every balloon whose interval contains that x-coordinate.
+
+Return the minimum number of arrows needed to burst all balloons.
+
+
+Example:
+
+points = [[10,16], [2,8], [1,6], [7,12]]
+
+We can burst:
+
+[1,6] and [2,8]
+with an arrow at x = 6
+
+And:
+
+[7,12] and [10,16]
+with an arrow at x = 12
+
+Answer:
+
+2
+
+
+Idea
+Sort the balloons by their END points.
+
+Then greedily shoot an arrow at the end of the first
+unburst balloon.
+
+Why?
+
+Suppose the first balloon ends at x = 6.
+
+If we shoot at x = 6, we have the best chance of also
+bursting later balloons because later balloons end at
+6 or greater.
+
+If a later balloon starts after the arrow position,
+the arrow cannot burst it.
+
+So we need another arrow.
+
+
+Approach
+
+1. Sort all balloons by their ending position.
+
+2. Set:
+       arrows = 0
+
+3. Set:
+       arrow_position = None
+
+   This stores the position of the most recently fired arrow.
+
+4. Traverse each balloon:
+
+       [start, end]
+
+5. If there is no arrow yet OR:
+
+       start > arrow_position
+
+   then the current balloon cannot be burst by the previous
+   arrow.
+
+6. Shoot a new arrow at the current balloon's END:
+
+       arrow_position = end
+
+7. Increase arrows.
+
+8. Otherwise, the current balloon already contains the
+   existing arrow, so no new arrow is needed.
+
+
+Example
+
+points = [[10,16], [2,8], [1,6], [7,12]]
+
+After sorting by end:
+
+[[1,6], [2,8], [7,12], [10,16]]
+
+
+First balloon:
+
+[1,6]
+
+No arrow yet.
+
+Shoot at:
+
+x = 6
+
+arrows = 1
+
+
+Second balloon:
+
+[2,8]
+
+Does it contain x = 6?
+
+Yes:
+
+2 <= 6 <= 8
+
+So no new arrow.
+
+
+Third balloon:
+
+[7,12]
+
+Does it contain x = 6?
+
+No.
+
+7 > 6
+
+So shoot another arrow at:
+
+x = 12
+
+arrows = 2
+
+
+Fourth balloon:
+
+[10,16]
+
+Does it contain x = 12?
+
+Yes.
+
+No new arrow.
+
+
+Answer:
+
+2
+
+
+Why do we sort by END point?
+
+We want to choose an arrow position that leaves as much
+room as possible for future balloons.
+
+The earliest ending balloon gives us the most restrictive
+right boundary.
+
+Shooting at its end is the safest greedy choice.
+
+
+Why:
+
+start > arrow_position
+
+Suppose:
+
+arrow_position = 6
+
+Current balloon:
+
+[2,8]
+
+Since:
+
+2 <= 6
+
+the arrow is inside the balloon.
+
+No new arrow is needed.
+
+But if:
+
+current balloon = [7,12]
+
+then:
+
+7 > 6
+
+The balloon starts after the arrow.
+
+Therefore, the existing arrow cannot burst it.
+
+We need another arrow.
+
+
+Why not use >=?
+
+Because an arrow ON the boundary can still burst a balloon.
+
+Example:
+
+balloon = [2,6]
+arrow_position = 6
+
+The arrow is exactly at the balloon's endpoint.
+
+It still bursts the balloon.
+
+So:
+
+    start > arrow_position
+
+means a new arrow is needed.
+
+But:
+
+    start == arrow_position
+
+means the existing arrow still works.
+
+
+Time Complexity
+O(n log n)
+
+Sorting takes O(n log n).
+
+The loop takes O(n).
+
+
+Space Complexity
+O(1) extra space
+
+Apart from the sorting implementation, we only use a few
+variables.
+"""
+
+
+class Solution(object):
+    def findMinArrowShots(self, points):
+
+        # Sort balloons by their END point.
+        #
+        # Example:
+        # [2,8], [1,6], [10,16]
+        #
+        # becomes:
+        # [1,6], [2,8], [10,16]
+        points.sort(key=lambda x: x[1])
+
+        # Number of arrows used so far.
+        arrows = 0
+
+        # Position of the most recently fired arrow.
+        #
+        # None means we have not fired an arrow yet.
+        arrow_position = None
+
+        # Process balloons in increasing order of end position.
+        for start, end in points:
+
+            # If we haven't fired an arrow yet,
+            # OR the current balloon starts after the
+            # previous arrow position...
+            if arrow_position is None or start > arrow_position:
+
+                # The current balloon cannot be burst by
+                # the previous arrow.
+                #
+                # Shoot a new arrow at this balloon's END.
+                arrow_position = end
+
+                # Count the new arrow.
+                arrows += 1
+
+        # Return the minimum number of arrows.
+        return arrows
