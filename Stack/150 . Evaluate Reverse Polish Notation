@@ -1,0 +1,196 @@
+"""
+Problem
+You are given an arithmetic expression in Reverse Polish Notation (RPN).
+
+Evaluate the expression and return the result.
+
+In RPN:
+
+"2 1 +"
+means:
+2 + 1 = 3
+
+There are no parentheses because the order is determined
+by the position of the operators.
+
+Important:
+For division, the result must truncate toward ZERO.
+
+Example:
+7 / 2 = 3
+-7 / 2 = -3
+7 / -2 = -3
+
+
+Idea
+Use a STACK.
+
+- If the token is a number → PUSH it.
+- If the token is an operator:
+    1. POP the second number.
+    2. POP the first number.
+    3. Perform the operation.
+    4. PUSH the result back.
+
+Why do we pop b first and a second?
+
+For:
+"5 2 -"
+
+The correct calculation is:
+
+5 - 2 = 3
+
+The stack is:
+
+[5, 2]
+
+First pop → 2 → this is b
+Second pop → 5 → this is a
+
+So:
+a - b
+= 5 - 2
+= 3
+
+This order is especially important for
+subtraction and division.
+
+
+Approach
+1. Create an empty stack.
+2. Create a set containing the four operators.
+3. Traverse every token.
+4. If the token is not an operator:
+       convert it to an integer and push it.
+5. Otherwise:
+       pop b
+       pop a
+       perform the correct operation
+       push the result
+6. At the end, the stack contains only the final answer.
+7. Return the top element.
+
+
+Example
+tokens = ["2", "1", "+", "3", "*"]
+
+Read "2":
+stack = [2]
+
+Read "1":
+stack = [2, 1]
+
+Read "+":
+a = 2
+b = 1
+2 + 1 = 3
+
+stack = [3]
+
+Read "3":
+stack = [3, 3]
+
+Read "*":
+a = 3
+b = 3
+3 * 3 = 9
+
+stack = [9]
+
+Return → 9
+
+
+Division
+Python's // operator does NOT truncate toward zero
+for negative numbers.
+
+For example:
+
+-7 // 2 = -4
+
+But LeetCode requires:
+
+-7 / 2 = -3
+
+So we first divide the absolute values:
+
+abs(-7) // abs(2)
+= 7 // 2
+= 3
+
+Then we make the result negative if exactly one
+of a and b is negative.
+
+
+Time Complexity
+O(n)
+
+Each token is processed once.
+
+Space Complexity
+O(n)
+
+The stack can contain up to O(n) values.
+"""
+
+class Solution(object):
+    def evalRPN(self, tokens):
+
+        # Stack stores numbers and intermediate results.
+        stack = []
+
+        # Set of valid operators.
+        operators = {"+", "-", "*", "/"}
+
+        # Process each token from left to right.
+        for token in tokens:
+
+            # If the token is not an operator,
+            # it must be a number.
+            if token not in operators:
+
+                # Convert the string into an integer
+                # and push it onto the stack.
+                stack.append(int(token))
+
+            else:
+                # The second operand is on the top of the stack.
+                b = stack.pop()
+
+                # The first operand is below it.
+                a = stack.pop()
+
+                # Perform addition.
+                if token == "+":
+                    stack.append(a + b)
+
+                # Perform subtraction.
+                elif token == "-":
+                    stack.append(a - b)
+
+                # Perform multiplication.
+                elif token == "*":
+                    stack.append(a * b)
+
+                # Perform division.
+                elif token == "/":
+
+                    # Divide the absolute values first.
+                    # This gives the positive truncated result.
+                    result = abs(a) // abs(b)
+
+                    # If exactly one number is negative,
+                    # the final result should be negative.
+                    #
+                    # Example:
+                    # -7 / 2 → -3
+                    #  7 / -2 → -3
+                    if (a < 0) != (b < 0):
+                        result = -result
+
+                    # Put the result back into the stack.
+                    stack.append(result)
+
+        # The final answer is the only value left in the stack.
+        return stack[-1]
