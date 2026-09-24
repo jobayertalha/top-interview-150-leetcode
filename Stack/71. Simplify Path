@@ -1,0 +1,27 @@
+class Solution(object):
+    def simplifyPath(self, path):
+
+        stack = []
+
+        # Split path using "/"
+        parts = path.split("/")
+
+        for part in parts:
+
+            # Ignore empty parts and "."
+            if part == "" or part == ".":
+                continue
+
+            # Go to parent directory
+            elif part == "..":
+
+                # Only go back if we are not at root
+                if stack:
+                    stack.pop()
+
+            # Normal directory/file name
+            else:
+                stack.append(part)
+
+        # Join everything with "/"
+        return "/" + "/".join(stack)
