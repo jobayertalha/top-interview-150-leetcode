@@ -1,0 +1,184 @@
+"""
+Problem
+Given two arrays:
+
+inorder   → Left → Root → Right
+postorder → Left → Right → Root
+
+Construct the original binary tree.
+
+
+Idea
+The LAST element of postorder is always the ROOT.
+
+Example:
+
+postorder = [9, 15, 7, 20, 3]
+
+The last element is:
+
+3 → root
+
+
+Now find 3 in inorder:
+
+inorder = [9, 3, 15, 20, 7]
+              ↑
+
+Everything before 3 belongs to the LEFT subtree:
+
+[9]
+
+Everything after 3 belongs to the RIGHT subtree:
+
+[15, 20, 7]
+
+
+Approach
+1. If either array is empty, return None.
+2. Take the LAST element of postorder as the root.
+3. Create a TreeNode using that value.
+4. Find the root's position in inorder.
+5. Everything before the root in inorder is the left subtree.
+6. Everything after the root in inorder is the right subtree.
+7. Recursively build both subtrees.
+
+
+Example
+
+inorder   = [9, 3, 15, 20, 7]
+postorder = [9, 15, 7, 20, 3]
+
+Last postorder element:
+
+3 → root
+
+Inorder:
+
+[9] [3] [15,20,7]
+ ↑    ↑       ↑
+left root    right
+
+So:
+
+        3
+       / \
+      9   ?
+
+Now build the right subtree.
+
+Its postorder is:
+
+[15, 7, 20]
+
+The last value is:
+
+20 → right subtree root
+
+Find 20 in inorder:
+
+[15, 20, 7]
+
+So:
+
+left  = [15]
+right = [7]
+
+Final tree:
+
+        3
+       / \
+      9   20
+         /  \
+        15   7
+
+
+Important
+The slicing is slightly different from the
+preorder + inorder problem.
+
+Here:
+
+postorder:
+    Left → Right → Root
+
+Therefore, the ROOT is at the END.
+
+So we use:
+
+    postorder[-1]
+
+For the LEFT subtree:
+    postorder[:root_index]
+
+For the RIGHT subtree:
+    postorder[root_index:-1]
+
+The `-1` excludes the root itself.
+
+
+Time Complexity
+O(n²)
+
+`inorder.index()` can take O(n), and slicing also
+creates new arrays.
+
+In the worst case, the recursion becomes O(n²).
+
+
+Space Complexity
+O(n)
+
+The recursion and array slices can use O(n) space.
+"""
+
+
+class Solution(object):
+    def buildTree(self, inorder, postorder):
+
+        # If there are no nodes,
+        # there is no tree to build.
+        if not inorder or not postorder:
+            return None
+
+        # The LAST element of postorder is always
+        # the root of the current subtree.
+        root_value = postorder[-1]
+
+        # Create the root node.
+        root = TreeNode(root_value)
+
+        # Find the root's position in inorder.
+        #
+        # Everything before it → left subtree.
+        # Everything after it  → right subtree.
+        root_index = inorder.index(root_value)
+
+        # Build the LEFT subtree.
+        #
+        # inorder[:root_index]
+        # → everything before the root.
+        #
+        # postorder[:root_index]
+        # → the same number of elements belonging
+        #   to the left subtree.
+        root.left = self.buildTree(
+            inorder[:root_index],
+            postorder[:root_index]
+        )
+
+        # Build the RIGHT subtree.
+        #
+        # inorder[root_index + 1:]
+        # → everything after the root.
+        #
+        # postorder[root_index:-1]
+        # → right subtree values.
+        # -1 excludes the root at the end.
+        root.right = self.buildTree(
+            inorder[root_index + 1:],
+            postorder[root_index:-1]
+        )
+
+        # Return the completed subtree.
+        return root
