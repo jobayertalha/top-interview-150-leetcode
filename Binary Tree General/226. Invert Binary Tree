@@ -1,0 +1,143 @@
+"""
+Problem
+Given the root of a binary tree, invert the tree and return its root.
+
+Inverting a binary tree means:
+
+    left child ↔ right child
+
+Example:
+
+Original:
+
+        4
+       / \
+      2   7
+     / \ / \
+    1  3 6  9
+
+After inversion:
+
+        4
+       / \
+      7   2
+     / \ / \
+    9  6 3  1
+
+
+Idea
+For every node:
+
+1. Swap its left and right children.
+2. Recursively invert the left subtree.
+3. Recursively invert the right subtree.
+
+We continue until we reach None.
+
+
+Approach
+1. If root is None:
+       return None
+
+2. Swap:
+       root.left ↔ root.right
+
+3. Invert the new left subtree.
+
+4. Invert the new right subtree.
+
+5. Return root.
+
+
+Example
+
+Original:
+
+        4
+       / \
+      2   7
+
+At node 4:
+
+left  = 2
+right = 7
+
+Swap them:
+
+left  = 7
+right = 2
+
+Now:
+
+        4
+       / \
+      7   2
+
+Then recursively invert the subtrees.
+
+
+Why do we swap BEFORE recursion?
+
+After swapping the children, `root.left` and `root.right`
+already point to the correct subtrees that still need to
+be inverted.
+
+So we can simply call:
+
+    invertTree(root.left)
+    invertTree(root.right)
+
+
+Important
+Python allows this:
+
+    root.left, root.right = root.right, root.left
+
+It swaps both values at the same time without needing
+a temporary variable.
+
+
+Time Complexity
+O(n)
+
+Every node is visited once.
+
+
+Space Complexity
+O(h)
+
+The recursion stack depends on the height of the tree.
+
+Worst case:
+O(n) for a skewed tree.
+
+Balanced tree:
+O(log n).
+"""
+
+
+class Solution(object):
+    def invertTree(self, root):
+
+        # If there is no node,
+        # there is nothing to invert.
+        if root is None:
+            return None
+
+        # Swap the left and right children.
+        #
+        # Before:
+        #     left       right
+        #
+        # After:
+        #     right      left
+        root.left, root.right = root.right, root.left
+
+        # Recursively invert the left subtree.
+        self.invertTree(root.left)
+
+        # Recursively invert the right subtree.
+        self.invertTree(root.right)
+
+        # Return the root of the inverted tree.
+        return root
