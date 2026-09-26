@@ -1,0 +1,110 @@
+"""
+Problem:
+Given a binary tree, find the maximum path sum.
+
+A path can start and end at any nodes, but it must follow
+connected parent-child relationships.
+
+Important:
+The path does NOT have to start at the root.
+
+Idea:
+At every node, there are two different things to calculate:
+
+1. The best path that can be returned to the parent.
+2. The best complete path passing through this node.
+
+A path returned to the parent can use only ONE side:
+    node → left
+or
+    node → right
+
+But a complete path through the current node can use BOTH sides:
+    left → node → right
+
+Approach:
+1. Use DFS to calculate the best downward path.
+2. Ignore negative branches using max(0, ...).
+3. Calculate:
+       current = root.val + left + right
+4. Update the global answer.
+5. Return:
+       root.val + max(left, right)
+
+Why only one side is returned?
+Because if the parent uses both left and right,
+the path would branch at the current node and would
+no longer be a valid single path.
+
+Example:
+
+        1
+       / \
+      2   3
+
+At node 1:
+left = 2
+right = 3
+
+current = 1 + 2 + 3 = 6
+
+Answer = 6
+
+Time Complexity: O(n)
+    Every node is visited once.
+
+Space Complexity: O(h)
+    h = height of the tree because of recursion.
+"""
+
+
+class Solution(object):
+    def maxPathSum(self, root):
+
+        # Store the best path sum found so far.
+        #
+        # Start with negative infinity because
+        # the tree may contain only negative values.
+        self.answer = float('-inf')
+
+        # DFS returns the best downward path
+        # that can be connected to the parent.
+        def dfs(root):
+
+            # If there is no node,
+            # it contributes nothing.
+            if root is None:
+                return 0
+
+            # Find the best path coming from the left.
+            #
+            # If the left path is negative,
+            # we simply don't use it.
+            left = max(0, dfs(root.left))
+
+            # Find the best path coming from the right.
+            #
+            # Again, ignore it if it is negative.
+            right = max(0, dfs(root.right))
+
+            # Calculate the best path that passes
+            # THROUGH the current node.
+            #
+            # It can use:
+            # left + current node + right
+            current = root.val + left + right
+
+            # Update the global maximum answer.
+            self.answer = max(self.answer, current)
+
+            # Return the best ONE-sided path to the parent.
+            #
+            # We can only choose left OR right,
+            # not both.
+            return root.val + max(left, right)
+
+        # Start DFS from the root.
+        dfs(root)
+
+        # Return the best path found anywhere in the tree.
+        return self.answer
