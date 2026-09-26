@@ -1,0 +1,111 @@
+"""
+Problem:
+Given the root of a complete binary tree, return the number of nodes.
+
+A complete binary tree is a tree where:
+- Every level is completely filled except possibly the last.
+- The last level is filled from left to right.
+
+Idea:
+For a complete binary tree, if the height going all the way
+left is equal to the height going all the way right, then the
+tree is a perfect binary tree.
+
+For a perfect binary tree with height h:
+
+    number of nodes = 2^h - 1
+
+If the heights are different, the tree is not perfect,
+so recursively count the nodes in the left and right subtrees.
+
+Approach:
+1. If root is None, return 0.
+2. Find the height by following the left children.
+3. Find the height by following the right children.
+4. If both heights are equal:
+       return 2^height - 1
+5. Otherwise:
+       return 1 + left_count + right_count
+
+Example:
+
+        1
+       / \
+      2   3
+     / \  /
+    4  5 6
+
+Left height = 3
+Right height = 2
+
+Heights are different, so recursively count the subtrees.
+
+Time Complexity:
+    O(log² n) for a complete binary tree.
+
+Space Complexity:
+    O(log n) because of recursion.
+"""
+
+
+class Solution(object):
+    def countNodes(self, root):
+
+        # If the tree is empty,
+        # there are zero nodes.
+        if root is None:
+            return 0
+
+        # --------------------------------
+        # Find the height of the LEFT side
+        # --------------------------------
+
+        # Start with height = 0.
+        left_height = 0
+
+        # Start from the root.
+        current = root
+
+        # Keep moving to the leftmost node.
+        while current:
+
+            # Count this node as one level.
+            left_height += 1
+
+            # Move to the left child.
+            current = current.left
+
+        # ---------------------------------
+        # Find the height of the RIGHT side
+        # ---------------------------------
+
+        # Start with height = 0.
+        right_height = 0
+
+        # Start again from the root.
+        current = root
+
+        # Keep moving to the rightmost node.
+        while current:
+
+            # Count this node as one level.
+            right_height += 1
+
+            # Move to the right child.
+            current = current.right
+
+        # If both heights are equal,
+        # the complete tree is actually a PERFECT tree.
+        if left_height == right_height:
+
+            # A perfect binary tree with height h
+            # contains 2^h - 1 nodes.
+            return 2 ** left_height - 1
+
+        # If heights are different, the tree is not perfect.
+        #
+        # Count:
+        #   1 → current root
+        #   left subtree nodes
+        #   right subtree nodes
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
