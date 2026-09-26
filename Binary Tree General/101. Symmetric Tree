@@ -1,0 +1,154 @@
+"""
+Problem
+Given the root of a binary tree, determine whether the tree is
+symmetric around its center.
+
+A tree is symmetric if its left and right sides are mirror images.
+
+Example:
+
+        1
+       / \
+      2   2
+     / \ / \
+    3  4 4  3
+
+This is symmetric → True
+
+
+Idea
+Compare the left subtree with the right subtree as MIRRORS.
+
+For two mirror nodes:
+
+1. Their values must be equal.
+2. The LEFT child of the left node must match the
+   RIGHT child of the right node.
+3. The RIGHT child of the left node must match the
+   LEFT child of the right node.
+
+So we compare:
+
+    left.left  ↔ right.right
+    left.right ↔ right.left
+
+
+Approach
+1. Start with the root's left and right children.
+2. Call isMirror(left, right).
+3. In isMirror:
+   - If both are None → True.
+   - If only one is None → False.
+   - If values are different → False.
+   - Otherwise compare the opposite children recursively.
+
+
+Example
+
+        1
+       / \
+      2   2
+     / \ / \
+    3  4 4  3
+
+First compare:
+
+left = 2
+right = 2
+
+Values match.
+
+Then compare:
+
+left.left  = 3
+right.right = 3
+
+Match.
+
+And:
+
+left.right = 4
+right.left = 4
+
+Match.
+
+Continue recursively.
+
+Everything matches as a mirror.
+
+Answer → True
+
+
+Why do we compare opposite children?
+
+For a mirror:
+
+        2       2
+       / \     / \
+      3   4   4   3
+
+The left-side LEFT child matches the right-side RIGHT child:
+
+    3 ↔ 3
+
+And the left-side RIGHT child matches the right-side LEFT child:
+
+    4 ↔ 4
+
+That's why we use:
+
+    isMirror(left.left, right.right)
+    isMirror(left.right, right.left)
+
+
+Time Complexity
+O(n)
+
+Every node is checked at most once.
+
+
+Space Complexity
+O(h)
+
+The recursion stack depends on the height of the tree.
+
+Worst case: O(n)
+Balanced tree: O(log n)
+"""
+
+
+class Solution(object):
+
+    def isSymmetric(self, root):
+
+        # Compare the left and right subtrees
+        # as mirror images.
+        return self.isMirror(root.left, root.right)
+
+    def isMirror(self, left, right):
+
+        # If both nodes are None,
+        # both sides are empty at this position.
+        # Therefore, they are mirror images.
+        if left is None and right is None:
+            return True
+
+        # If only one node is None,
+        # the structures are different.
+        if left is None or right is None:
+            return False
+
+        # If the values are different,
+        # the two sides cannot be mirrors.
+        if left.val != right.val:
+            return False
+
+        # Compare opposite children.
+        #
+        # left.left  ↔ right.right
+        # left.right ↔ right.left
+        return (
+            self.isMirror(left.left, right.right)
+            and
+            self.isMirror(left.right, right.left)
+        )
