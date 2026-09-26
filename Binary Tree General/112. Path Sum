@@ -1,0 +1,74 @@
+"""
+Problem:
+Given the root of a binary tree and a targetSum, determine whether
+there exists a root-to-leaf path whose node values add up to targetSum.
+
+Idea:
+Start from the root and subtract each node's value from targetSum.
+
+When we reach a leaf:
+    if the remaining targetSum equals the leaf's value,
+    we found a valid path.
+
+Approach:
+1. If the tree is empty, return False.
+2. If the current node is a leaf, check whether its value equals targetSum.
+3. Subtract the current node's value from targetSum.
+4. Recursively check the left and right subtrees.
+5. If either side finds a valid path, return True.
+
+Example:
+
+        5
+       / \
+      4   8
+     /   / \
+    11   13  4
+
+targetSum = 20
+
+Path: 5 → 4 → 11
+5 + 4 + 11 = 20
+
+So return True.
+
+Time Complexity: O(n)
+    We may visit every node once.
+
+Space Complexity: O(h)
+    h = height of the tree because of recursion.
+"""
+
+
+class Solution(object):
+    def hasPathSum(self, root, targetSum):
+
+        # If there is no node, there cannot be a valid path.
+        if root is None:
+            return False
+        
+        # Check if the current node is a leaf.
+        # A leaf has no left child and no right child.
+        if root.left is None and root.right is None:
+
+            # At a leaf, check whether its value
+            # is exactly equal to the remaining target.
+            return targetSum == root.val
+        
+        # Go to the left subtree.
+        # Subtract the current node's value from the target.
+        left = self.hasPathSum(
+            root.left,
+            targetSum - root.val
+        )
+
+        # Go to the right subtree.
+        # Again subtract the current node's value.
+        right = self.hasPathSum(
+            root.right,
+            targetSum - root.val
+        )
+
+        # If either the left path OR the right path works,
+        # the tree has a valid root-to-leaf path.
+        return left or right
