@@ -1,0 +1,169 @@
+"""
+Problem
+Given two arrays:
+
+preorder → Root → Left → Right
+inorder  → Left → Root → Right
+
+Construct the original binary tree.
+
+
+Idea
+The FIRST element of preorder is always the root.
+
+Example:
+
+preorder = [3, 9, 20, 15, 7]
+
+The first element is 3:
+
+        3
+       / \
+      ?   ?
+
+Now find 3 in inorder:
+
+inorder = [9, 3, 15, 20, 7]
+              ↑
+
+Everything before 3 belongs to the LEFT subtree:
+
+[9]
+
+Everything after 3 belongs to the RIGHT subtree:
+
+[15, 20, 7]
+
+
+Approach
+1. If either array is empty, return None.
+2. Take preorder[0] as the root.
+3. Create a TreeNode using that value.
+4. Find the root's position in inorder.
+5. Everything before that position belongs to the left subtree.
+6. Everything after that position belongs to the right subtree.
+7. Recursively build both subtrees.
+
+
+Example
+
+preorder = [3, 9, 20, 15, 7]
+inorder  = [9, 3, 15, 20, 7]
+
+Root:
+3
+
+Inorder:
+
+[9] [3] [15,20,7]
+ ↑    ↑       ↑
+left root    right
+
+So:
+
+        3
+       / \
+      9   ?
+
+The next preorder value is 9,
+so the left subtree is:
+
+9
+
+Then the remaining right subtree is:
+
+[15,20,7]
+
+Its preorder starts with 20,
+so 20 becomes the right child of 3.
+
+Finally:
+
+        3
+       / \
+      9   20
+         /  \
+        15   7
+
+
+Important
+The expression:
+
+preorder[1:root_index + 1]
+
+gets exactly the preorder values belonging
+to the left subtree.
+
+Why?
+
+The left subtree contains `root_index` nodes,
+so after skipping the root, we take exactly
+`root_index` elements.
+
+
+Time Complexity
+O(n²)
+
+Why?
+
+`inorder.index(root_value)` takes O(n),
+and slicing also takes O(n) at each recursive level.
+
+In the worst case, the tree can be completely skewed,
+giving O(n²).
+
+
+Space Complexity
+O(n)
+
+The recursive calls and array slices can use O(n) space.
+"""
+
+
+class Solution(object):
+    def buildTree(self, preorder, inorder):
+
+        # If there are no nodes,
+        # there is no tree to build.
+        if not preorder or not inorder:
+            return None
+
+        # The first element of preorder is always
+        # the root of the current subtree.
+        root_value = preorder[0]
+
+        # Create the root node.
+        root = TreeNode(root_value)
+
+        # Find where the root appears in inorder.
+        #
+        # Everything before it → left subtree.
+        # Everything after it  → right subtree.
+        root_index = inorder.index(root_value)
+
+        # Build the left subtree.
+        #
+        # preorder[1:root_index + 1]
+        # → skip the root and take the left subtree values.
+        #
+        # inorder[:root_index]
+        # → everything before the root.
+        root.left = self.buildTree(
+            preorder[1:root_index + 1],
+            inorder[:root_index]
+        )
+
+        # Build the right subtree.
+        #
+        # preorder[root_index + 1:]
+        # → everything after the left subtree.
+        #
+        # inorder[root_index + 1:]
+        # → everything after the root.
+        root.right = self.buildTree(
+            preorder[root_index + 1:],
+            inorder[root_index + 1:]
+        )
+
+        # Return the completed subtree.
+        return root
