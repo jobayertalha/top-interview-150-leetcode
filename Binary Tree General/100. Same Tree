@@ -1,0 +1,136 @@
+"""
+Problem
+Given the roots of two binary trees, p and q, determine whether
+the two trees are exactly the same.
+
+Two trees are the same if:
+
+1. They have the same structure.
+2. Corresponding nodes have the same values.
+
+Example 1:
+
+Tree p:        Tree q:
+
+    1              1
+   / \            / \
+  2   3          2   3
+
+Both structure and values are the same.
+
+Answer → True
+
+
+Example 2:
+
+Tree p:        Tree q:
+
+    1              1
+   /                \
+  2                  2
+
+The values are the same, but the structure is different.
+
+Answer → False
+
+
+Idea
+Compare the two trees node by node using recursion.
+
+For every pair of nodes:
+
+1. If BOTH are None:
+       They match.
+
+2. If ONLY ONE is None:
+       They are different.
+
+3. If their values are different:
+       They are different.
+
+4. Otherwise:
+       Compare their left children
+       AND
+       Compare their right children.
+
+
+Approach
+1. Check if both nodes are None.
+2. Check if one node is None.
+3. Compare their values.
+4. Recursively compare:
+       p.left with q.left
+       p.right with q.right
+5. Both sides must be the same.
+
+
+Example
+
+        p              q
+        1              1
+       / \            / \
+      2   3          2   3
+
+At node 1:
+    1 == 1 → continue
+
+Left:
+    2 == 2 → continue
+
+Right:
+    3 == 3 → continue
+
+Eventually all corresponding nodes match.
+
+Return → True
+
+
+Time Complexity
+O(n)
+
+In the worst case, we visit every node.
+
+
+Space Complexity
+O(h)
+
+where h is the height of the tree.
+
+The recursion stack can contain up to h calls.
+
+Worst case:
+O(n) for a completely skewed tree.
+
+Balanced tree:
+O(log n).
+"""
+
+
+class Solution(object):
+    def isSameTree(self, p, q):
+
+        # If both nodes are None,
+        # both trees have no node at this position.
+        # Therefore, they match.
+        if p is None and q is None:
+            return True
+
+        # If only one node is None,
+        # the tree structures are different.
+        if p is None or q is None:
+            return False
+
+        # If the values are different,
+        # the trees cannot be the same.
+        if p.val != q.val:
+            return False
+
+        # Compare the left subtrees AND the right subtrees.
+        #
+        # Both must return True for the entire trees
+        # to be the same.
+        return (
+            self.isSameTree(p.left, q.left)
+            and
+            self.isSameTree(p.right, q.right)
+        )
