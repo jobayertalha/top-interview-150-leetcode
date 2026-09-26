@@ -1,0 +1,184 @@
+"""
+Problem
+Given the root of a binary tree, flatten the tree into a
+"linked list" in-place.
+
+The linked list must follow PREORDER traversal:
+
+    Root → Left → Right
+
+After flattening:
+
+1. Every node's `left` must be None.
+2. Every node's `right` points to the next node.
+3. The order must be preorder.
+
+Example:
+
+Original:
+
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+
+Preorder:
+
+1 → 2 → 3 → 4 → 5 → 6
+
+Flattened:
+
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+         \
+          6
+
+
+Idea
+Use recursion.
+
+First flatten:
+    left subtree
+
+Then flatten:
+    right subtree
+
+After both subtrees are flattened:
+
+    1. Save the original right subtree.
+    2. Move the flattened left subtree to the right.
+    3. Set left = None.
+    4. Find the end of the new right chain.
+    5. Attach the original right subtree there.
+
+
+Why do we save `root.right`?
+
+Because we are about to replace `root.right`
+with `root.left`.
+
+So we must save the original right subtree first:
+
+    right = root.right
+
+
+Example
+
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+
+After recursively flattening:
+
+Left subtree:
+
+2 → 3 → 4
+
+Right subtree:
+
+5 → 6
+
+Now at node 1:
+
+right = 5 → 6
+
+Move left to right:
+
+1 → 2 → 3 → 4
+
+Set:
+
+1.left = None
+
+Find the end:
+
+1 → 2 → 3 → 4
+             ↑
+          current
+
+Attach saved right:
+
+1 → 2 → 3 → 4 → 5 → 6
+
+
+Important
+The function does NOT need to return the tree.
+
+It modifies the original tree directly (in-place).
+
+So the return value is ignored.
+
+
+Time Complexity
+O(n²) in the worst case.
+
+Why?
+
+For each node, we may have to walk through the
+right chain using:
+
+    while current.right:
+        current = current.right
+
+In a highly skewed tree, this can cause O(n²) work.
+
+
+Space Complexity
+O(h)
+
+The recursion stack uses O(h), where h is the
+height of the tree.
+
+Worst case: O(n)
+Balanced tree: O(log n)
+"""
+
+
+class Solution(object):
+    def flatten(self, root):
+
+        # If there is no node,
+        # there is nothing to flatten.
+        if root is None:
+            return None
+
+        # First flatten the left subtree.
+        self.flatten(root.left)
+
+        # Then flatten the right subtree.
+        self.flatten(root.right)
+
+        # Save the ORIGINAL right subtree.
+        #
+        # We need this because root.right is about
+        # to be replaced by root.left.
+        right = root.right
+
+        # Move the flattened left subtree
+        # to the right side.
+        root.right = root.left
+
+        # The flattened tree must not have
+        # any left pointers.
+        root.left = None
+
+        # Start from the current root.
+        current = root
+
+        # Move to the end of the new right chain.
+        while current.right:
+            current = current.right
+
+        # Attach the original right subtree
+        # to the end of the flattened left subtree.
+        current.right = right
