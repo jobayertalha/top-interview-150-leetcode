@@ -1,0 +1,96 @@
+"""
+Problem:
+Given a binary tree and two nodes p and q, find their
+Lowest Common Ancestor (LCA).
+
+The Lowest Common Ancestor is the lowest node in the tree
+that has both p and q somewhere below it.
+
+Idea:
+Search both the left and right subtrees.
+
+There are three important cases:
+
+1. Current node is p or q:
+       return current node
+
+2. One node is found on the left and the other on the right:
+       current node is the LCA
+
+3. Both nodes are found on the same side:
+       return whatever that side found
+
+Approach:
+1. If root is None, return None.
+2. If root is p or q, return root.
+3. Recursively search the left subtree.
+4. Recursively search the right subtree.
+5. If both left and right return a node, current root
+   is the common ancestor.
+6. Otherwise return whichever side found a node.
+
+Example:
+
+        3
+       / \
+      5   1
+     / \
+    6   2
+
+If p = 5 and q = 1:
+
+Left side finds 5.
+Right side finds 1.
+
+Therefore, 3 is their Lowest Common Ancestor.
+
+Time Complexity: O(n)
+    Every node may be visited once.
+
+Space Complexity: O(h)
+    h = height of the tree because of recursion.
+"""
+
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+
+        # If there is no node,
+        # nothing can be found here.
+        if root is None:
+            return None
+
+        # If the current node itself is p or q,
+        # return this node.
+        if root == p or root == q:
+            return root
+
+        # Search for p or q in the left subtree.
+        left = self.lowestCommonAncestor(
+            root.left,
+            p,
+            q
+        )
+
+        # Search for p or q in the right subtree.
+        right = self.lowestCommonAncestor(
+            root.right,
+            p,
+            q
+        )
+
+        # If both sides found something,
+        # one node is on the left and the other
+        # is on the right.
+        #
+        # Therefore, the current root is their LCA.
+        if left and right:
+            return root
+
+        # If only the left side found a node,
+        # pass that node upward.
+        if left:
+            return left
+
+        # Otherwise, return whatever the right side found.
+        return right
