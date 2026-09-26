@@ -1,0 +1,109 @@
+"""
+Problem:
+Implement an iterator over a Binary Search Tree (BST).
+
+The iterator should return the BST values in ascending order.
+
+It provides two functions:
+
+    next()     → returns the next smallest value
+    hasNext()  → checks whether another value exists
+
+Idea:
+A BST's inorder traversal gives values in sorted order:
+
+    Left → Root → Right
+
+Instead of storing the entire inorder traversal,
+we use a stack to store only the nodes we need.
+
+Approach:
+1. Start at the root.
+2. Push the root and all its left children into the stack.
+3. The top of the stack is the next smallest node.
+4. When next() is called:
+   - Pop the top node.
+   - If it has a right child, push that right subtree's
+     entire left side.
+5. hasNext() simply checks whether the stack is empty.
+
+Example:
+
+        7
+       / \
+      3   15
+         /  \
+        9    20
+
+Inorder:
+3 → 7 → 9 → 15 → 20
+
+Stack initially:
+[7, 3]
+
+next() → 3
+
+Then stack:
+[7]
+
+next() → 7
+
+Then its right subtree is processed.
+
+Time Complexity:
+    next()  → O(h) worst case, O(1) amortized
+    hasNext() → O(1)
+
+Space Complexity:
+    O(h)
+    where h is the height of the tree.
+"""
+
+
+class BSTIterator(object):
+
+    def __init__(self, root):
+
+        # Stack stores nodes that we still need to visit.
+        self.stack = []
+
+        # Start by pushing the root and
+        # all nodes on its left side.
+        self.pushLeft(root)
+
+    def pushLeft(self, root):
+
+        # Keep moving left.
+        #
+        # Every node is pushed into the stack
+        # before moving to its left child.
+        while root:
+
+            # Store the current node.
+            self.stack.append(root)
+
+            # Move to the left child.
+            root = root.left
+
+    def next(self):
+
+        # The top of the stack is the
+        # next smallest value in the BST.
+        node = self.stack.pop()
+
+        # If the node has a right subtree,
+        # we need to process that subtree.
+        if node.right:
+
+            # Push the right child and all of its
+            # left children into the stack.
+            self.pushLeft(node.right)
+
+        # Return the value of the current node.
+        return node.val
+
+    def hasNext(self):
+
+        # If the stack is not empty,
+        # there is still a node to visit.
+        return len(self.stack) > 0
