@@ -1,0 +1,216 @@
+"""
+Problem
+You are given a linked list where every node has:
+
+1. val
+   → The value of the node.
+
+2. next
+   → Points to the next node.
+
+3. random
+   → Can point to ANY node in the list or None.
+
+Create a DEEP COPY of the entire linked list.
+
+A deep copy means:
+- Every copied node must be a brand-new node.
+- The copied `next` pointers must point to copied nodes.
+- The copied `random` pointers must also point to copied nodes.
+
+Example:
+
+Original:
+
+A → B → C
+↑   ↓   ↑
+|   |   |
+C   A   B
+
+The copied list must have completely new nodes,
+but the same structure.
+
+
+Idea
+Use a HASH MAP (dictionary).
+
+The dictionary stores:
+
+original node → copied node
+
+Example:
+
+original A → copy A
+original B → copy B
+original C → copy C
+
+We use TWO passes.
+
+Pass 1:
+Create a new node for every original node
+and store the relationship in the dictionary.
+
+Pass 2:
+Use the dictionary to connect the `next` and `random`
+pointers of every copied node.
+
+
+Why do we need TWO passes?
+
+Suppose:
+
+A.random → C
+
+When we are creating A's copy, we may not have created
+C's copy yet.
+
+So first create ALL copied nodes.
+
+Then, in the second pass, all copied nodes already exist,
+and we can connect their pointers.
+
+
+Approach
+
+Pass 1:
+1. Create an empty dictionary.
+2. Traverse the original list.
+3. For every original node:
+       mapping[current] = Node(current.val)
+
+Pass 2:
+4. Traverse the original list again.
+5. For every node:
+       copied.next = copy of original.next
+       copied.random = copy of original.random
+
+6. Return the copy of the original head.
+
+
+Example
+
+Original:
+
+A → B → C
+
+Suppose:
+A.random → C
+B.random → A
+C.random → B
+
+After Pass 1:
+
+mapping:
+A → A'
+B → B'
+C → C'
+
+Now all copied nodes exist.
+
+Pass 2:
+
+A'.next   → B'
+A'.random → C'
+
+B'.next   → C'
+B'.random → A'
+
+C'.next   → None
+C'.random → B'
+
+Return A'.
+
+
+Important
+The dictionary uses the ORIGINAL NODE itself as the key,
+not its value.
+
+Why?
+
+Two different nodes can have the same value.
+
+Example:
+
+A.val = 7
+B.val = 7
+
+They are different nodes, even though their values are equal.
+
+So:
+
+mapping[A] and mapping[B]
+
+must be different.
+
+
+Time Complexity
+O(n)
+
+We traverse the list twice.
+Each traversal takes O(n).
+
+
+Space Complexity
+O(n)
+
+The dictionary stores one entry for every original node.
+"""
+
+
+class Solution(object):
+    def copyRandomList(self, head):
+
+        # If the original list is empty,
+        # the copied list is also empty.
+        if not head:
+            return None
+
+        # Dictionary that maps:
+        #
+        # original node → copied node
+        mapping = {}
+
+        # Start from the beginning of the original list.
+        current = head
+
+        # ---------- PASS 1 ----------
+        # Create a copy of every node.
+        while current:
+
+            # Create a brand-new node with the same value.
+            mapping[current] = Node(current.val)
+
+            # Move to the next original node.
+            current = current.next
+
+        # Start from the beginning again.
+        current = head
+
+        # ---------- PASS 2 ----------
+        # Connect next and random pointers.
+        while current:
+
+            # Get the copied version of the current node.
+            copied = mapping[current]
+
+            # Connect the copied next pointer.
+            #
+            # If current.next is None,
+            # mapping.get(None) returns None.
+            #
+            # Otherwise, it returns the copied next node.
+            copied.next = mapping.get(current.next)
+
+            # Connect the copied random pointer.
+            #
+            # If current.random is None,
+            # this gives None.
+            #
+            # Otherwise, it gives the copied random node.
+            copied.random = mapping.get(current.random)
+
+            # Move to the next original node.
+            current = current.next
+
+        # Return the copied version of the original head.
+        return mapping[head]
