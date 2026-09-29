@@ -1,0 +1,137 @@
+"""
+Problem:
+Given the head of a linked list, reverse the nodes of the list
+k at a time and return the modified list.
+
+Important:
+- Only complete groups of k nodes are reversed.
+- If fewer than k nodes remain at the end, leave them unchanged.
+
+Example:
+
+Input:
+1 → 2 → 3 → 4 → 5
+k = 2
+
+Output:
+2 → 1 → 4 → 3 → 5
+
+Another example:
+
+Input:
+1 → 2 → 3 → 4 → 5
+k = 3
+
+Output:
+3 → 2 → 1 → 4 → 5
+
+The final 2 nodes are not reversed because they contain
+fewer than k nodes.
+
+Idea:
+Process the linked list one group at a time.
+
+For every group:
+1. Find the kth node.
+2. If there are fewer than k nodes, stop.
+3. Reverse exactly those k nodes.
+4. Connect the reversed group to the previous part.
+5. Move to the next group.
+
+Important pointers:
+    group_prev  → node before the current group
+    kth         → last node of the current group
+    group_start → first node of the current group
+    group_next  → node after the current group
+    curr        → node currently being reversed
+    prev        → node that should come after the reversed group
+
+Time Complexity: O(n)
+    Every node is visited a constant number of times.
+
+Space Complexity: O(1)
+    Only a few pointers are used.
+"""
+
+
+class Solution(object):
+    def reverseKGroup(self, head, k):
+
+        # Create a dummy node before the actual head.
+        #
+        # This makes it easier to connect the first
+        # reversed group back to the list.
+        dummy = ListNode(0)
+
+        # Connect dummy to the original head.
+        dummy.next = head
+
+        # group_prev points to the node immediately
+        # before the group we are currently processing.
+        group_prev = dummy
+
+        # Keep processing groups until we reach the end.
+        while True:
+
+            # Start from the node before the group.
+            kth = group_prev
+
+            # Try to move k steps forward
+            # to find the kth node of the group.
+            for _ in range(k):
+
+                # Move one node forward.
+                kth = kth.next
+
+                # If kth becomes None,
+                # fewer than k nodes remain.
+                #
+                # Therefore, leave those nodes unchanged.
+                if kth is None:
+                    return dummy.next
+
+            # Save the first node of the current group.
+            group_start = group_prev.next
+
+            # Save the node immediately after the group.
+            #
+            # We need this because reversing the group
+            # will temporarily change its pointers.
+            group_next = kth.next
+
+            # Start reversing from the first node.
+            curr = group_start
+
+            # prev starts at the node AFTER the group.
+            #
+            # This allows the last node of the reversed group
+            # to point directly to the remaining list.
+            prev = group_next
+
+            # Reverse exactly k nodes.
+            for _ in range(k):
+
+                # Save the next node before changing curr.next.
+                next_node = curr.next
+
+                # Reverse curr's pointer.
+                curr.next = prev
+
+                # Move prev forward.
+                prev = curr
+
+                # Move curr forward.
+                curr = next_node
+
+            # Connect the previous part of the list
+            # to the new first node of the reversed group.
+            #
+            # kth is the new first node after reversal.
+            group_prev.next = kth
+
+            # group_start was originally the first node.
+            # After reversal, it becomes the last node.
+            #
+            # So it is now the node immediately before
+            # the next group.
+            group_prev = group_start
