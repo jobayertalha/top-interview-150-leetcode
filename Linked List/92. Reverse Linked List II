@@ -1,0 +1,127 @@
+"""
+Problem:
+Given the head of a singly linked list and two positions
+left and right, reverse the nodes from position left to right.
+
+Only that portion of the linked list should be reversed.
+
+Example:
+
+Input:
+1 → 2 → 3 → 4 → 5
+left = 2
+right = 4
+
+Output:
+1 → 4 → 3 → 2 → 5
+
+Idea:
+Keep the nodes before the reversal section unchanged.
+
+Use:
+    prev → node before the section
+    curr → first node of the section
+
+Then repeatedly take the node after curr and move it
+to the front of the section.
+
+Approach:
+1. Create a dummy node before the head.
+2. Move prev to position left - 1.
+3. Set curr = prev.next.
+4. Repeat right-left times:
+       - Take curr.next
+       - Remove it from its current position
+       - Insert it immediately after prev
+5. Return dummy.next.
+
+Example:
+
+1 → 2 → 3 → 4 → 5
+
+left = 2, right = 4
+
+Start:
+1 → 2 → 3 → 4 → 5
+    ↑
+   curr
+
+Move 3 before 2:
+1 → 3 → 2 → 4 → 5
+
+Move 4 before 3:
+1 → 4 → 3 → 2 → 5
+
+Final:
+1 → 4 → 3 → 2 → 5
+
+Time Complexity: O(n)
+    We traverse the list a constant number of times.
+
+Space Complexity: O(1)
+    No extra list is created.
+"""
+
+
+class Solution(object):
+    def reverseBetween(self, head, left, right):
+
+        # Create a dummy node before the actual head.
+        #
+        # This makes the code easier when left = 1,
+        # because there is always a node before the section.
+        dummy = ListNode(0)
+
+        # Connect dummy to the original head.
+        dummy.next = head
+
+        # prev will eventually point to the node
+        # immediately BEFORE the section we want to reverse.
+        prev = dummy
+
+        # Move prev to position left - 1.
+        #
+        # Example:
+        # left = 3
+        # We want prev to be at position 2.
+        for _ in range(left - 1):
+
+            # Move one node forward.
+            prev = prev.next
+
+        # curr is the first node of the section
+        # that needs to be reversed.
+        curr = prev.next
+
+        # We need to move (right - left) nodes
+        # to the front of the section.
+        for _ in range(right - left):
+
+            # Take the node immediately after curr.
+            #
+            # This is the node we will move forward.
+            next_node = curr.next
+
+            # Remove next_node from its current position.
+            #
+            # curr skips over next_node
+            # and points to the node after it.
+            curr.next = next_node.next
+
+            # Insert next_node immediately after prev.
+            #
+            # next_node now points to the current
+            # first node of the reversed section.
+            next_node.next = prev.next
+
+            # Connect prev to next_node.
+            #
+            # This makes next_node the new first node
+            # of the reversed section.
+            prev.next = next_node
+
+        # dummy.next points to the new head.
+        #
+        # This also works when the original head
+        # itself was part of the reversed section.
+        return dummy.next
