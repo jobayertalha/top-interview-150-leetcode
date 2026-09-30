@@ -1,0 +1,134 @@
+"""
+Problem:
+--------
+Given the root of a binary tree, determine whether it is a valid
+Binary Search Tree (BST).
+
+A valid BST must satisfy:
+
+- Every value in the left subtree is SMALLER than the node.
+- Every value in the right subtree is GREATER than the node.
+- This rule must be true for the ENTIRE subtree, not just
+  the immediate children.
+
+
+Example 1:
+
+        2
+       / \
+      1   3
+
+This is a valid BST.
+
+Output:
+True
+
+
+Example 2:
+
+        5
+       / \
+      1   4
+         / \
+        3   6
+
+This is NOT a valid BST.
+
+Why?
+
+The node 3 is in the right subtree of 5,
+but 3 < 5.
+
+Output:
+False
+
+
+Main Idea:
+----------
+For every node, keep track of the range of values that the node
+is allowed to have.
+
+Initially, the root can contain any value:
+
+    (-infinity, +infinity)
+
+For the left child of a node:
+    minimum stays the same
+    maximum becomes node.val
+
+For the right child:
+    minimum becomes node.val
+    maximum stays the same
+
+
+Example:
+
+        5
+       / \
+      3   8
+
+For 3:
+    -inf < 3 < 5
+
+For 8:
+     5 < 8 < +inf
+
+
+Important:
+----------
+We cannot simply check:
+
+    node.left.val < node.val
+    node.right.val > node.val
+
+because a deeper node can violate an ancestor's rule.
+
+Instead, every node gets a valid RANGE.
+
+
+Time Complexity:
+----------------
+O(n)
+
+Every node is visited once.
+
+
+Space Complexity:
+-----------------
+O(h)
+
+The recursion stack can go as deep as the height of the tree.
+"""
+
+
+class Solution(object):
+
+    def isValidBST(self, root):
+
+        # check() verifies whether every node in this subtree
+        # stays inside the allowed range: (minimum, maximum)
+        def check(node, minimum, maximum):
+
+            # An empty subtree is always valid
+            if not node:
+                return True
+
+            # Current node must be strictly inside the allowed range
+            if node.val <= minimum or node.val >= maximum:
+                return False
+
+            # Check the left subtree
+            # All left-side values must be smaller than node.val
+            if not check(node.left, minimum, node.val):
+                return False
+
+            # Check the right subtree
+            # All right-side values must be greater than node.val
+            if not check(node.right, node.val, maximum):
+                return False
+
+            # If both subtrees are valid, this subtree is valid
+            return True
+
+        # Initially, root can have any value
+        return check(root, float('-inf'), float('inf'))
