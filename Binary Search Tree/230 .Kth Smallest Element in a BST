@@ -1,0 +1,115 @@
+"""
+Problem:
+--------
+Given the root of a Binary Search Tree (BST) and an integer k,
+return the kth smallest value among all the nodes in the BST.
+
+
+Example:
+--------
+Input:
+
+        3
+       / \
+      1   4
+       \
+        2
+
+k = 1
+
+Inorder traversal:
+1 -> 2 -> 3 -> 4
+
+The 1st smallest value = 1
+
+
+Approach:
+---------
+A BST has an important property:
+
+Inorder traversal of a BST gives values in SORTED order.
+
+So:
+
+        BST
+         ↓
+    Inorder traversal
+         ↓
+    Sorted values
+         ↓
+    kth visited node = kth smallest
+
+
+Instead of storing the entire inorder traversal,
+we use a stack to perform inorder traversal iteratively.
+
+Steps:
+1. Go as far left as possible.
+2. Put every visited node into the stack.
+3. Pop the top node.
+4. This is the next smallest value.
+5. Increase count.
+6. If count == k, return the value.
+7. Move to the right subtree and repeat.
+
+
+Time Complexity:
+----------------
+O(H + k)
+
+H = height of the tree.
+
+We first go down the left side, then visit nodes until
+we reach the kth smallest node.
+
+Worst case: O(n)
+
+
+Space Complexity:
+-----------------
+O(H)
+
+The stack contains at most the height of the tree.
+"""
+
+
+class Solution(object):
+
+    def kthSmallest(self, root, k):
+
+        # Stack is used to perform inorder traversal
+        stack = []
+
+        # Start traversal from the root
+        current = root
+
+        # Count how many nodes we have visited
+        count = 0
+
+        # Continue while there is a current node
+        # OR there are nodes waiting in the stack
+        while current or stack:
+
+            # Go as far left as possible
+            while current:
+
+                # Store the current node in the stack
+                stack.append(current)
+
+                # Move to the left child
+                current = current.left
+
+            # The leftmost unprocessed node is next
+            # in inorder traversal
+            current = stack.pop()
+
+            # We have visited one more node
+            count += 1
+
+            # If this is the kth visited node,
+            # it is the kth smallest value
+            if count == k:
+                return current.val
+
+            # Now process the right subtree
+            current = current.right
