@@ -1,0 +1,99 @@
+"""
+Problem:
+Given the head of a linked list, remove the nth node from the END
+of the list and return the new head.
+
+Example:
+
+Input:
+1 → 2 → 3 → 4 → 5
+n = 2
+
+The 2nd node from the end is 4.
+
+Output:
+1 → 2 → 3 → 5
+
+Idea:
+Use two pointers: fast and slow.
+
+First move fast n steps ahead.
+
+Then move both pointers together.
+When fast reaches the last node, slow will be
+exactly at the node BEFORE the node we want to remove.
+
+Then skip that node:
+
+    slow.next = slow.next.next
+
+Why use a dummy node?
+It makes removing the first node easy.
+
+Example:
+
+1 → 2 → 3 → 4 → 5
+n = 2
+
+After moving fast 2 steps:
+slow and fast have a gap of 2 nodes.
+
+Move both until fast reaches the end:
+
+slow → 3
+fast → 5
+
+So slow.next is 4, which is the node to remove.
+
+Time Complexity: O(n)
+    We traverse the list once.
+
+Space Complexity: O(1)
+    Only two pointers and a dummy node are used.
+"""
+
+
+class Solution(object):
+    def removeNthFromEnd(self, head, n):
+
+        # Create a dummy node before the actual head.
+        #
+        # This helps when the node we need to remove
+        # is the first node.
+        dummy = ListNode(0)
+
+        # Connect the dummy node to the head.
+        dummy.next = head
+
+        # Both pointers start at the dummy node.
+        slow = dummy
+        fast = dummy
+
+        # Move fast n steps forward.
+        #
+        # This creates a gap of n nodes
+        # between fast and slow.
+        for _ in range(n):
+
+            # Move fast one node forward.
+            fast = fast.next
+        
+        # Move both pointers until fast reaches
+        # the LAST node.
+        while fast.next:
+
+            # Move slow one step.
+            slow = slow.next
+
+            # Move fast one step.
+            fast = fast.next
+
+        # slow is now immediately BEFORE the node
+        # that needs to be removed.
+        #
+        # Skip slow.next.
+        slow.next = slow.next.next
+
+        # Return the actual head.
+        # dummy itself is not part of the answer.
+        return dummy.next
