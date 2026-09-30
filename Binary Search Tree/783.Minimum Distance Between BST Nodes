@@ -1,0 +1,119 @@
+"""
+Problem:
+--------
+Given the root of a Binary Search Tree (BST), return the minimum
+absolute difference between the values of any two different nodes.
+
+Example:
+--------
+Input:
+
+        4
+       / \
+      2   6
+     / \
+    1   3
+
+Inorder traversal:
+[1, 2, 3, 4, 6]
+
+Differences between consecutive values:
+2 - 1 = 1
+3 - 2 = 1
+4 - 3 = 1
+6 - 4 = 2
+
+Minimum difference = 1
+
+
+Main Idea:
+----------
+In a BST, inorder traversal gives the values in SORTED order.
+
+Example:
+
+        4
+       / \
+      2   6
+     / \
+    1   3
+
+Inorder:
+1 -> 2 -> 3 -> 4 -> 6
+
+Because the values are sorted, the minimum difference can only
+be between two ADJACENT values.
+
+So while doing inorder traversal:
+- Keep the previous value in self.prev.
+- Compare the current value with self.prev.
+- Keep the smallest difference in self.minimum.
+
+
+Approach:
+---------
+1. Traverse the BST using inorder traversal.
+2. Keep track of the previous visited value.
+3. Calculate:
+       current value - previous value
+4. Update the minimum difference.
+5. Return the minimum.
+
+
+Time Complexity:
+----------------
+O(n)
+
+Every node is visited once.
+
+
+Space Complexity:
+-----------------
+O(h)
+
+The recursive call stack uses O(h) space,
+where h is the height of the tree.
+"""
+
+
+class Solution(object):
+
+    def getMinimumDifference(self, root):
+
+        # Store the previous value visited during inorder traversal
+        self.prev = None
+
+        # Start with a very large value
+        self.minimum = float('inf')
+
+        # Inorder traversal function
+        def inorder(node):
+
+            # If there is no node, stop this recursive call
+            if not node:
+                return
+
+            # First visit the left subtree
+            inorder(node.left)
+
+            # If this is not the first visited node
+            if self.prev is not None:
+
+                # Current value - previous value
+                difference = node.val - self.prev
+
+                # Keep the smallest difference found so far
+                self.minimum = min(self.minimum, difference)
+
+            # Current value becomes the previous value
+            # for the next node
+            self.prev = node.val
+
+            # Finally visit the right subtree
+            inorder(node.right)
+
+        # Start inorder traversal from the root
+        inorder(root)
+
+        # Return the smallest difference
+        return self.minimum
