@@ -1,0 +1,120 @@
+"""
+Problem:
+Given the head of a linked list, rotate the list to the right by k places.
+
+Example:
+
+Input:
+1 → 2 → 3 → 4 → 5
+k = 2
+
+Output:
+4 → 5 → 1 → 2 → 3
+
+Idea:
+Rotating right by k means moving the last k nodes to the front.
+
+Instead of moving nodes one by one, we:
+1. Find the length and tail.
+2. Reduce k using k % length.
+3. Connect the tail to the head to create a circle.
+4. Find the new tail.
+5. The node after the new tail becomes the new head.
+6. Break the circle.
+
+Example:
+
+1 → 2 → 3 → 4 → 5
+
+After making it circular:
+
+1 → 2 → 3 → 4 → 5
+↑               ↓
+└───────────────┘
+
+For k = 2:
+The new head should be 4.
+
+New tail = 3
+New head = 4
+
+Break:
+3.next = None
+
+Result:
+4 → 5 → 1 → 2 → 3
+
+Time Complexity: O(n)
+    We traverse the list to find its length,
+    then move to the new tail.
+
+Space Complexity: O(1)
+    Only a few pointers are used.
+"""
+
+
+class Solution(object):
+    def rotateRight(self, head, k):
+
+        # If the list is empty or has only one node,
+        # rotating it does nothing.
+        if not head or not head.next:
+            return head
+
+        # Start from the head to find the last node.
+        tail = head
+
+        # The head itself counts as the first node.
+        length = 1
+
+        # Traverse the list to find:
+        # 1. The tail
+        # 2. The total length
+        while tail.next:
+
+            # Move to the next node.
+            tail = tail.next
+
+            # Increase the length.
+            length += 1
+
+        # Rotating by length positions gives
+        # exactly the original list.
+        #
+        # So only the remainder matters.
+        k = k % length
+
+        # If k is 0, the list does not change.
+        if k == 0:
+            return head
+
+        # Connect the tail back to the head.
+        #
+        # Now the linked list becomes circular.
+        tail.next = head
+
+        # Find the new tail.
+        #
+        # The new tail is at position:
+        # length - k
+        #
+        # Since we start from the head (position 1),
+        # we move length - k - 1 times.
+        new_tail = head
+
+        # Move new_tail to the node just before
+        # the new head.
+        for _ in range(length - k - 1):
+
+            # Move one node forward.
+            new_tail = new_tail.next
+
+        # The node after the new tail
+        # becomes the new head.
+        new_head = new_tail.next
+
+        # Break the circular connection.
+        new_tail.next = None
+
+        # Return the new head.
+        return new_head
