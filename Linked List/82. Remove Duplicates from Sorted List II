@@ -1,0 +1,101 @@
+"""
+Problem:
+Given the head of a sorted linked list, delete ALL nodes that
+have duplicate values.
+
+Only values that appear exactly once should remain.
+
+Example:
+
+Input:
+1 → 2 → 3 → 3 → 4 → 4 → 5
+
+Output:
+1 → 2 → 5
+
+Important:
+If a value appears more than once, remove EVERY node
+with that value.
+
+Idea:
+Because the linked list is sorted, duplicate values are
+always next to each other.
+
+Use:
+    prev → last node that is definitely unique
+    curr → node currently being checked
+
+When curr.val == curr.next.val:
+    - Remember the duplicated value.
+    - Move curr past ALL nodes with that value.
+    - Connect prev directly to the first different node.
+
+Approach:
+1. Create a dummy node before the head.
+2. Keep prev at the last confirmed unique node.
+3. Use curr to scan the list.
+4. If curr and curr.next have the same value:
+       skip every node with that value.
+5. Otherwise, move prev and curr forward normally.
+6. Return dummy.next.
+
+Time Complexity: O(n)
+    Every node is visited at most once.
+
+Space Complexity: O(1)
+    Only a few pointers are used.
+"""
+
+
+class Solution(object):
+    def deleteDuplicates(self, head):
+
+        # Create a dummy node before the actual head.
+        #
+        # This makes it easy to remove duplicates
+        # even when they occur at the beginning.
+        dummy = ListNode(0)
+
+        # Connect the dummy node to the original list.
+        dummy.next = head
+
+        # prev points to the last node that we know
+        # is definitely unique.
+        prev = dummy
+
+        # curr is the node we are currently examining.
+        curr = head
+
+        # We need curr.next because we want to check
+        # whether the current value is duplicated.
+        while curr and curr.next:
+
+            # If current and next have the same value,
+            # this value is duplicated.
+            if curr.val == curr.next.val:
+
+                # Save the duplicated value.
+                duplicate = curr.val
+
+                # Skip ALL nodes having this duplicated value.
+                while curr and curr.val == duplicate:
+
+                    # Move to the next node.
+                    curr = curr.next
+
+                # Connect the last unique node directly
+                # to the first node with a different value.
+                prev.next = curr
+
+            else:
+
+                # Current value is not duplicated.
+                # Therefore, it can safely remain in the list.
+                prev = curr
+
+                # Move to the next node.
+                curr = curr.next
+
+        # Return the actual head.
+        # dummy itself is not part of the answer.
+        return dummy.next
