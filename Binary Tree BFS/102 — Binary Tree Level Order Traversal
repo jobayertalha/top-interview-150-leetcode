@@ -1,0 +1,109 @@
+"""
+Problem:
+--------
+Given the root of a binary tree, return the level order traversal
+of its nodes' values.
+
+Level order means:
+- Visit the tree level by level
+- From left to right
+
+Example:
+--------
+Input:
+
+        3
+       / \
+      9   20
+         /  \
+        15   7
+
+Output:
+[[3], [9, 20], [15, 7]]
+
+
+Approach:
+---------
+Use BFS (Breadth-First Search) with a queue.
+
+For every level:
+1. Find how many nodes are currently in the queue.
+2. Process exactly those nodes.
+3. Store their values in current_level.
+4. Add their children to the queue.
+5. Add current_level to result.
+
+
+Important idea:
+---------------
+level_size = len(queue)
+
+This tells us how many nodes belong to the CURRENT level.
+
+The children added during this level will be processed
+in the NEXT level.
+
+
+Time Complexity:
+----------------
+O(n)
+
+Every node is visited exactly once.
+
+
+Space Complexity:
+-----------------
+O(n)
+
+The queue can contain up to O(n) nodes.
+"""
+
+
+from collections import deque  # Import deque for an efficient queue
+
+
+class Solution(object):
+
+    def levelOrder(self, root):
+
+        # If the tree is empty, there is nothing to traverse
+        if not root:
+            return []
+
+        # Put the root node into the queue
+        queue = deque([root])
+
+        # This will store the final answer
+        result = []
+
+        # Continue until the queue becomes empty
+        while queue:
+
+            # Number of nodes in the CURRENT level
+            level_size = len(queue)
+
+            # Store values of the current level
+            current_level = []
+
+            # Process exactly the nodes of this level
+            for _ in range(level_size):
+
+                # Remove the first node from the queue
+                node = queue.popleft()
+
+                # Add its value to the current level
+                current_level.append(node.val)
+
+                # Add left child for the NEXT level
+                if node.left:
+                    queue.append(node.left)
+
+                # Add right child for the NEXT level
+                if node.right:
+                    queue.append(node.right)
+
+            # Current level is complete, so add it to result
+            result.append(current_level)
+
+        # Return all levels
+        return result
