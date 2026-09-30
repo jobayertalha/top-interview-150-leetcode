@@ -1,0 +1,121 @@
+"""
+Problem:
+Given the head of a linked list and a value x, partition the list
+so that all nodes with values less than x come before nodes with
+values greater than or equal to x.
+
+Important:
+The original relative order of nodes in each group must be preserved.
+
+Example:
+
+Input:
+1 → 4 → 3 → 2 → 5 → 2
+x = 3
+
+Nodes less than 3:
+1 → 2 → 2
+
+Nodes greater than or equal to 3:
+4 → 3 → 5
+
+Final:
+1 → 2 → 2 → 4 → 3 → 5
+
+Idea:
+Create two separate linked lists:
+
+    less list    → values < x
+    greater list → values >= x
+
+Traverse the original list and put each node into
+the correct list.
+
+Finally:
+
+    less list → greater list
+
+Approach:
+1. Create dummy nodes for both lists.
+2. Use `less` to track the end of the less-than-x list.
+3. Use `greater` to track the end of the greater-or-equal list.
+4. Traverse the original list.
+5. Put each node into the appropriate list.
+6. End the greater list with None.
+7. Connect the less list to the greater list.
+8. Return the real head of the less list.
+
+Time Complexity: O(n)
+    Every node is visited once.
+
+Space Complexity: O(1)
+    We reuse the original nodes; only a few pointers/dummy nodes
+    are created.
+"""
+
+
+class Solution(object):
+    def partition(self, head, x):
+
+        # Create a dummy node for the list
+        # containing values smaller than x.
+        less_dummy = ListNode(0)
+
+        # Create a dummy node for the list
+        # containing values greater than or equal to x.
+        greater_dummy = ListNode(0)
+
+        # `less` always points to the last node
+        # in the less-than-x list.
+        less = less_dummy
+
+        # `greater` always points to the last node
+        # in the greater-or-equal-x list.
+        greater = greater_dummy
+
+        # Start traversing the original linked list.
+        curr = head
+
+        # Process every node.
+        while curr:
+
+            # Save the next node BEFORE changing curr.next.
+            #
+            # This is important because we are going to
+            # reconnect curr to another list.
+            next_node = curr.next
+
+            # If the current value is smaller than x...
+            if curr.val < x:
+
+                # Add curr to the end of the less list.
+                less.next = curr
+
+                # Move less to the node we just added.
+                less = less.next
+
+            # Otherwise, curr belongs to the greater/equal list.
+            else:
+
+                # Add curr to the end of the greater list.
+                greater.next = curr
+
+                # Move greater to the node we just added.
+                greater = greater.next
+
+            # Continue with the next node from the ORIGINAL list.
+            curr = next_node
+
+        # The greater list must end with None.
+        #
+        # This prevents the old links from creating
+        # an unwanted cycle or extra nodes.
+        greater.next = None
+
+        # Connect the end of the less list
+        # to the beginning of the greater list.
+        less.next = greater_dummy.next
+
+        # Return the real head of the less list.
+        # We don't return less_dummy itself.
+        return less_dummy.next
