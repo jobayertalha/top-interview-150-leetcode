@@ -1,0 +1,138 @@
+"""
+Problem:
+--------
+Given the root of a binary tree, return the zigzag level order
+traversal of its nodes' values.
+
+Zigzag means:
+- First level: left -> right
+- Second level: right -> left
+- Third level: left -> right
+- Fourth level: right -> left
+- And so on.
+
+
+Example:
+--------
+Input:
+
+        3
+       / \
+      9   20
+         /  \
+        15   7
+
+Normal level order:
+[[3], [9, 20], [15, 7]]
+
+Zigzag level order:
+[[3], [20, 9], [15, 7]]
+
+
+Approach:
+---------
+Use BFS with a queue, just like normal level order traversal.
+
+For every level:
+1. Find the number of nodes in the level.
+2. Process all nodes of that level.
+3. Store their values in current_level.
+4. Add their children to the queue.
+5. If the direction is right -> left, reverse current_level.
+6. Change the direction for the next level.
+
+
+Important idea:
+---------------
+left_to_right tells us which direction the current level should use.
+
+True  -> left to right
+False -> right to left
+
+After every level:
+
+    left_to_right = not left_to_right
+
+This changes True -> False -> True -> False...
+
+
+Time Complexity:
+----------------
+O(n)
+
+Every node is visited once.
+
+Reversing each level also takes O(n) overall because
+the total number of nodes across all levels is n.
+
+
+Space Complexity:
+-----------------
+O(n)
+
+The queue and result can contain O(n) nodes/values.
+"""
+
+
+from collections import deque  # Import deque to use as a queue
+
+
+class Solution(object):
+
+    def zigzagLevelOrder(self, root):
+
+        # If the tree is empty, return an empty list
+        if not root:
+            return []
+
+        # Put the root node into the queue
+        queue = deque([root])
+
+        # Store the final zigzag traversal
+        result = []
+
+        # First level goes from left to right
+        left_to_right = True
+
+        # Continue while there are nodes in the queue
+        while queue:
+
+            # Number of nodes in the current level
+            level_size = len(queue)
+
+            # Store values of the current level
+            current_level = []
+
+            # Process exactly the nodes of this level
+            for _ in range(level_size):
+
+                # Remove the first node from the queue
+                node = queue.popleft()
+
+                # Add its value to the current level
+                current_level.append(node.val)
+
+                # Add left child to the queue
+                # It will be processed in the next level
+                if node.left:
+                    queue.append(node.left)
+
+                # Add right child to the queue
+                # It will also be processed in the next level
+                if node.right:
+                    queue.append(node.right)
+
+            # If this level should go right -> left
+            if not left_to_right:
+
+                # Reverse the values collected for this level
+                current_level.reverse()
+
+            # Add the completed level to the result
+            result.append(current_level)
+
+            # Change direction for the next level
+            left_to_right = not left_to_right
+
+        # Return the final zigzag traversal
+        return result
