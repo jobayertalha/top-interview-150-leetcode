@@ -1,0 +1,83 @@
+from collections import deque
+
+class Solution(object):
+    def findOrder(self, numCourses, prerequisites):
+
+        # -----------------------------------------
+        # STEP 1: Build the graph
+        # -----------------------------------------
+
+        # Create an empty list for every course
+        graph = [[] for _ in range(numCourses)]
+
+        # indegree[i] = number of prerequisites
+        # that course i still needs
+        indegree = [0] * numCourses
+
+        # Build the graph
+        for course, prerequisite in prerequisites:
+
+            # prerequisite must come before course
+            #
+            # Example:
+            # [1, 0] means:
+            # 0 -> 1
+            graph[prerequisite].append(course)
+
+            # Course has one more prerequisite
+            indegree[course] += 1
+
+        # -----------------------------------------
+        # STEP 2: Find courses with NO prerequisites
+        # -----------------------------------------
+
+        # Queue stores courses that are ready to take
+        queue = deque()
+
+        # Check every course
+        for course in range(numCourses):
+
+            # If this course has no prerequisites,
+            # we can take it immediately
+            if indegree[course] == 0:
+                queue.append(course)
+
+        # Store the final course order
+        result = []
+
+        # -----------------------------------------
+        # STEP 3: Topological Sort using BFS
+        # -----------------------------------------
+
+        while queue:
+
+            # Take the first available course
+            course = queue.popleft()
+
+            # Add it to our answer
+            result.append(course)
+
+            # Check all courses that depend on this course
+            for next_course in graph[course]:
+
+                # We have completed one prerequisite
+                # for this course
+                indegree[next_course] -= 1
+
+                # If all prerequisites are now completed,
+                # this course is ready to take
+                if indegree[next_course] == 0:
+                    queue.append(next_course)
+
+        # -----------------------------------------
+        # STEP 4: Check for a cycle
+        # -----------------------------------------
+
+        # If we processed every course,
+        # we found a valid ordering
+        if len(result) == numCourses:
+            return result
+
+        # Otherwise, some courses could not be completed.
+        # This means there is a cycle.
+        return []
