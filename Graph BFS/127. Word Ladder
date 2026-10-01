@@ -1,0 +1,291 @@
+"""
+Problem:
+--------
+Given two words, beginWord and endWord, and a dictionary
+of words called wordList, return the number of words in
+the shortest transformation sequence from beginWord to endWord.
+
+A valid transformation follows these rules:
+
+    1. Change exactly ONE character at a time.
+    2. Every intermediate word must exist in wordList.
+
+Example:
+
+    beginWord = "hit"
+    endWord   = "cog"
+
+    wordList = [
+        "hot",
+        "dot",
+        "dog",
+        "lot",
+        "log",
+        "cog"
+    ]
+
+One shortest transformation is:
+
+    hit
+     |
+     | change 1 character
+     v
+    hot
+     |
+     v
+    dot
+     |
+     v
+    dog
+     |
+     v
+    cog
+
+Number of words:
+
+    5
+
+Answer:
+
+    5
+
+
+Main Idea:
+----------
+Use BFS (Breadth-First Search).
+
+Think of every word as a node in a graph.
+
+Two words are connected if they differ by exactly
+ONE character.
+
+For example:
+
+    hit
+     |
+     v
+    hot
+
+because only one character changed:
+
+    h i t
+    h o t
+      ↑
+    changed
+
+
+Why BFS?
+---------
+We need the SHORTEST transformation sequence.
+
+BFS explores the graph level by level:
+
+    Level 1 -> beginWord
+    Level 2 -> words 1 transformation away
+    Level 3 -> words 2 transformations away
+    Level 4 -> words 3 transformations away
+    ...
+
+Therefore, the first time we reach endWord,
+we have found the shortest sequence.
+
+
+How do we generate new words?
+-----------------------------
+For every character position:
+
+    1. Try every lowercase letter from a-z.
+    2. Skip the current character.
+    3. Create the new word.
+    4. Check if the new word exists in wordSet.
+    5. Check if we already visited it.
+    6. Add it to the BFS queue.
+
+
+Why use a set?
+--------------
+We convert:
+
+    wordList -> wordSet
+
+because we repeatedly ask:
+
+    if new_word in wordSet
+
+A set provides approximately O(1) lookup time.
+
+
+Why do we need visited?
+-----------------------
+A word can be reached from multiple different words.
+
+For example:
+
+        hot
+       /   \
+     dot   lot
+       \   /
+        dog
+
+Without visited, we might process the same word
+multiple times.
+
+So:
+
+    visited = {beginWord}
+
+keeps track of words we have already seen.
+
+
+Important:
+----------
+The queue stores:
+
+    (word, sequence_length)
+
+For example:
+
+    ("hit", 1)
+    ("hot", 2)
+    ("dot", 3)
+    ("dog", 4)
+    ("cog", 5)
+
+The second value tells us how many words are
+currently in the transformation sequence.
+
+
+Why start with 1?
+-----------------
+The problem asks for the NUMBER OF WORDS,
+not the number of changes.
+
+So:
+
+    hit
+
+already counts as 1 word.
+
+Then:
+
+    hit -> hot
+
+contains 2 words.
+
+Therefore:
+
+    queue = deque([(beginWord, 1)])
+
+
+Time Complexity:
+----------------
+Let:
+
+    N = number of words
+    L = length of each word
+
+For every visited word, we try:
+
+    L positions × 26 letters
+
+So approximately:
+
+    O(N × L × 26)
+
+Since 26 is constant:
+
+    O(N × L)
+
+
+Space Complexity:
+-----------------
+O(N)
+
+The word set, visited set, and BFS queue can
+store up to O(N) words.
+"""
+
+
+from collections import deque  # Import deque for BFS queue
+
+
+class Solution(object):
+
+    def ladderLength(self, beginWord, endWord, wordList):
+
+        # Convert wordList into a set
+        # for fast O(1) lookup
+        wordSet = set(wordList)
+
+        # If endWord is not in the dictionary,
+        # we cannot reach it
+        if endWord not in wordSet:
+            return 0
+
+        # Create the BFS queue
+        #
+        # Store:
+        # (current word, number of words in sequence)
+        #
+        # beginWord itself counts as 1
+        queue = deque([(beginWord, 1)])
+
+        # Keep track of words we have already visited
+        visited = set([beginWord])
+
+        # Start BFS
+        while queue:
+
+            # Take the first word from the queue
+            current_word, length = queue.popleft()
+
+            # Try changing every character position
+            for i in range(len(current_word)):
+
+                # Try every lowercase English letter
+                for char in 'abcdefghijklmnopqrstuvwxyz':
+
+                    # If the character is already the same,
+                    # changing it would create the same word
+                    if char == current_word[i]:
+                        continue
+
+                    # Create a new word by changing
+                    # the character at position i
+                    new_word = (
+                        current_word[:i]
+                        + char
+                        + current_word[i + 1:]
+                    )
+
+                    # The new word must exist in wordSet
+                    if new_word not in wordSet:
+                        continue
+
+                    # Skip the word if we already visited it
+                    if new_word in visited:
+                        continue
+
+                    # If we reached the target word,
+                    # return the sequence length
+                    #
+                    # Example:
+                    # current length = 4
+                    # new_word = endWord
+                    #
+                    # Answer = 4 + 1 = 5
+                    if new_word == endWord:
+                        return length + 1
+
+                    # Mark the new word as visited
+                    visited.add(new_word)
+
+                    # Add the new word to the BFS queue
+                    #
+                    # We used one more word,
+                    # so length becomes length + 1
+                    queue.append((new_word, length + 1))
+
+        # BFS finished without reaching endWord
+        # so no valid transformation exists
+        return 0
