@@ -1,0 +1,390 @@
+"""
+Problem:
+--------
+Given an m x n board of characters and a list of words,
+return all words that can be found on the board.
+
+A word can be formed by moving:
+
+    UP
+    DOWN
+    LEFT
+    RIGHT
+
+Rules:
+
+    1. Each next character must be horizontally or vertically adjacent.
+    2. The same cell cannot be used more than once
+       while forming one word.
+
+Example:
+
+    board = [
+        ["o", "a", "a", "n"],
+        ["e", "t", "a", "e"],
+        ["i", "h", "k", "r"],
+        ["i", "f", "l", "v"]
+    ]
+
+    words = ["oath", "pea", "eat", "rain"]
+
+Answer:
+
+    ["oath", "eat"]
+
+
+Main Idea:
+----------
+Use:
+
+    Trie + DFS + Backtracking
+
+
+Why Trie?
+---------
+We have many words.
+
+Instead of searching every word separately,
+put all words into a Trie.
+
+For example:
+
+    words = ["oath", "oat", "eat"]
+
+The Trie stores common prefixes only once.
+
+This allows us to quickly check:
+
+    "Does the current path match the beginning
+     of any word?"
+
+If a character is not present in the Trie,
+we immediately stop that DFS path.
+
+
+Why store the complete word?
+----------------------------
+Each TrieNode stores:
+
+    self.word
+
+When we reach a Trie node where:
+
+    node.word != None
+
+it means a complete word has been found.
+
+For example:
+
+    o -> a -> t -> h
+                  ↑
+               word = "oath"
+
+Then we can directly do:
+
+    result.append(node.word)
+
+instead of rebuilding the word character by character.
+
+
+DFS + Backtracking:
+-------------------
+We start DFS from every cell.
+
+At each cell:
+
+    1. Check whether the character exists in the Trie.
+    2. If not -> stop.
+    3. If a complete word ends here -> save it.
+    4. Mark the cell as visited.
+    5. Explore UP, DOWN, LEFT, RIGHT.
+    6. Restore the cell afterward.
+
+The restore step is BACKTRACKING.
+
+
+Why mark the board with '#'
+---------------------------
+A cell cannot be used twice in the same word.
+
+So when visiting:
+
+    board[row][col]
+
+we temporarily change it to:
+
+    '#'
+
+This means:
+
+    "This cell is currently being used."
+
+After DFS finishes, restore the original character.
+
+
+Why set child.word = None?
+--------------------------
+The same word may be discovered multiple times
+from different starting paths.
+
+For example, "oath" could potentially be found
+more than once.
+
+After finding a word:
+
+    child.word = None
+
+means:
+
+    "We already added this word."
+
+So we don't add duplicates.
+
+
+Important:
+----------
+The Trie node passed to DFS represents the prefix
+formed so far.
+
+For example:
+
+    board path:
+
+        o -> a -> t -> h
+
+corresponds to:
+
+    Trie:
+
+        root
+         |
+         o
+         |
+         a
+         |
+         t
+         |
+         h
+
+This is why Trie + DFS works together.
+
+
+Time Complexity:
+----------------
+Let:
+
+    W = number of words
+    L = maximum word length
+    R = number of rows
+    C = number of columns
+
+Building the Trie:
+
+    O(W × L)
+
+DFS can explore neighboring cells while following
+Trie paths.
+
+In the worst case, the board search can be large,
+but the Trie prunes paths that cannot form any word.
+
+The practical performance is much better than
+searching every word independently.
+
+
+Space Complexity:
+-----------------
+Trie:
+
+    O(W × L)
+
+DFS recursion:
+
+    O(L)
+
+because a word cannot use the same cell twice
+and the maximum useful path length is bounded
+by the word length.
+"""
+
+
+class TrieNode:
+
+    def __init__(self):
+
+        # Store links to the next characters
+        #
+        # 0 -> a
+        # 1 -> b
+        # ...
+        # 25 -> z
+        self.children = [None] * 26
+
+        # Store the complete word if a word ends here
+        #
+        # Example:
+        #
+        # o -> a -> t -> h
+        #             ↓
+        #        word = "oath"
+        #
+        # Otherwise:
+        # word = None
+        self.word = None
+
+
+class Solution:
+
+    def findWords(self, board, words):
+
+        # -----------------------------------------
+        # STEP 1: Build the Trie
+        # -----------------------------------------
+
+        # Create the root node
+        root = TrieNode()
+
+        # Insert every word into the Trie
+        for word in words:
+
+            # Start from the root
+            current = root
+
+            # Process every character in the word
+            for char in word:
+
+                # Convert character to index
+                #
+                # 'a' -> 0
+                # 'b' -> 1
+                # ...
+                # 'z' -> 25
+                index = ord(char) - ord('a')
+
+                # If this character path does not exist,
+                # create a new TrieNode
+                if current.children[index] is None:
+                    current.children[index] = TrieNode()
+
+                # Move to the next Trie node
+                current = current.children[index]
+
+            # We reached the end of the word.
+            #
+            # Store the actual word here.
+            current.word = word
+
+
+        # Store all words found on the board
+        result = []
+
+        # Number of rows in the board
+        rows = len(board)
+
+        # Number of columns in the board
+        cols = len(board[0])
+
+
+        # -----------------------------------------
+        # STEP 2: DFS + Backtracking
+        # -----------------------------------------
+
+        def dfs(row, col, node):
+
+            # Get the character from the current board cell
+            char = board[row][col]
+
+            # Convert the character to a Trie index
+            index = ord(char) - ord('a')
+
+            # Follow this character in the Trie
+            child = node.children[index]
+
+            # If this character does not exist in the Trie,
+            # this path cannot form any word
+            if child is None:
+                return
+
+
+            # -----------------------------------------
+            # Check if a complete word was found
+            # -----------------------------------------
+
+            if child.word is not None:
+
+                # Add the complete word to the result
+                result.append(child.word)
+
+                # Remove the word from the Trie
+                #
+                # This prevents finding the same word again
+                child.word = None
+
+
+            # -----------------------------------------
+            # Mark current cell as visited
+            # -----------------------------------------
+
+            # Temporarily replace the character with '#'
+            #
+            # '#' means:
+            # "This cell is already being used."
+            board[row][col] = '#'
+
+
+            # -----------------------------------------
+            # Explore UP
+            # -----------------------------------------
+
+            if row > 0 and board[row - 1][col] != '#':
+                dfs(row - 1, col, child)
+
+
+            # -----------------------------------------
+            # Explore DOWN
+            # -----------------------------------------
+
+            if row + 1 < rows and board[row + 1][col] != '#':
+                dfs(row + 1, col, child)
+
+
+            # -----------------------------------------
+            # Explore LEFT
+            # -----------------------------------------
+
+            if col > 0 and board[row][col - 1] != '#':
+                dfs(row, col - 1, child)
+
+
+            # -----------------------------------------
+            # Explore RIGHT
+            # -----------------------------------------
+
+            if col + 1 < cols and board[row][col + 1] != '#':
+                dfs(row, col + 1, child)
+
+
+            # -----------------------------------------
+            # BACKTRACK
+            # -----------------------------------------
+
+            # Restore the original character
+            #
+            # Other DFS paths need to use this cell again.
+            board[row][col] = char
+
+
+        # -----------------------------------------
+        # STEP 3: Start DFS from every cell
+        # -----------------------------------------
+
+        for row in range(rows):
+
+            for col in range(cols):
+
+                # Start a new DFS from this board cell
+                dfs(row, col, root)
+
+
+        # Return all words found on the board
+        return result
