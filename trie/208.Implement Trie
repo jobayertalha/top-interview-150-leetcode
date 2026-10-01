@@ -1,0 +1,298 @@
+"""
+Problem:
+--------
+Implement a Trie (Prefix Tree) that supports three operations:
+
+    1. insert(word)
+    2. search(word)
+    3. startsWith(prefix)
+
+
+What is a Trie?
+----------------
+A Trie is a tree-like data structure used to store strings.
+
+Instead of storing every word separately, words with the
+same prefix share the same path.
+
+Example:
+
+    apple
+    app
+    apply
+
+The Trie looks conceptually like:
+
+                 root
+                  |
+                  a
+                  |
+                  p
+                  |
+                  p
+                /   \
+               l     ...
+               |
+               e
+              / \
+            end  ...
+
+The words "apple", "app", and "apply" share:
+
+    a -> p -> p
+
+
+Main Idea:
+----------
+Each TrieNode contains:
+
+    children
+        |
+        +-- 26 possible characters (a-z)
+
+and:
+
+    isEnd
+        |
+        +-- True if a complete word ends here
+
+
+For example:
+
+    self.children = [None] * 26
+
+means each node has 26 possible links:
+
+    index 0  -> a
+    index 1  -> b
+    index 2  -> c
+       ...
+    index 25 -> z
+
+
+How do we convert a character to an index?
+-------------------------------------------
+We use:
+
+    ord(char) - ord('a')
+
+For example:
+
+    ord('a') - ord('a') = 0
+    ord('b') - ord('a') = 1
+    ord('c') - ord('a') = 2
+    ...
+    ord('z') - ord('a') = 25
+
+
+Insert:
+-------
+To insert a word:
+
+    1. Start at root.
+    2. Go through each character.
+    3. Convert the character to an index.
+    4. Create a node if the path does not exist.
+    5. Move to that child.
+    6. Mark the final node as isEnd = True.
+
+
+Search:
+-------
+To search for a complete word:
+
+    1. Start at root.
+    2. Follow the path of every character.
+    3. If any path does not exist -> False.
+    4. After all characters, check isEnd.
+
+Why check isEnd?
+
+Suppose we inserted:
+
+    apple
+
+Then searching for:
+
+    app
+
+should return False.
+
+The path:
+
+    a -> p -> p
+
+exists, but "app" was not inserted as a complete word.
+
+Therefore:
+
+    current.isEnd
+
+is necessary.
+
+
+startsWith:
+-----------
+To check whether any word starts with a prefix:
+
+    1. Follow the prefix path.
+    2. If any character path is missing -> False.
+    3. If the entire prefix path exists -> True.
+
+Unlike search(), we do NOT need to check isEnd.
+
+Example:
+
+    Insert: apple
+
+    startsWith("app") -> True
+
+because "app" is a valid prefix of "apple".
+
+
+Time Complexity:
+----------------
+Let L = length of the word/prefix.
+
+insert():
+    O(L)
+
+search():
+    O(L)
+
+startsWith():
+    O(L)
+
+
+Space Complexity:
+-----------------
+O(N × L)
+
+where:
+
+    N = number of inserted words
+    L = average word length
+
+In the worst case, every character creates a new TrieNode.
+"""
+
+
+class TrieNode:
+
+    def __init__(self):
+
+        # Store links to the next characters
+        #
+        # There are 26 possible lowercase letters:
+        #
+        # 0  -> a
+        # 1  -> b
+        # 2  -> c
+        # ...
+        # 25 -> z
+        self.children = [None] * 26
+
+        # True means a complete word ends at this node
+        #
+        # Example:
+        #
+        # If "app" was inserted:
+        #
+        # a -> p -> p
+        #          ↑
+        #       isEnd = True
+        self.isEnd = False
+
+
+class Trie:
+
+    def __init__(self):
+
+        # Create the root node
+        #
+        # Root does not represent any character.
+        self.root = TrieNode()
+
+
+    def insert(self, word):
+
+        # Start from the root
+        current = self.root
+
+        # Process every character in the word
+        for char in word:
+
+            # Convert character to an index
+            #
+            # Example:
+            # 'a' -> 0
+            # 'b' -> 1
+            # 'c' -> 2
+            #
+            # Formula:
+            # ord(char) - ord('a')
+            index = ord(char) - ord('a')
+
+            # If this character path does not exist,
+            # create a new TrieNode
+            if current.children[index] is None:
+                current.children[index] = TrieNode()
+
+            # Move to the child node
+            current = current.children[index]
+
+        # We have reached the last character.
+        #
+        # Mark this node as the end of a complete word.
+        current.isEnd = True
+
+
+    def search(self, word):
+
+        # Start from the root
+        current = self.root
+
+        # Follow the path of every character
+        for char in word:
+
+            # Convert character to index
+            index = ord(char) - ord('a')
+
+            # If this character path does not exist,
+            # the word cannot exist
+            if current.children[index] is None:
+                return False
+
+            # Move to the next node
+            current = current.children[index]
+
+        # All characters exist.
+        #
+        # But we still need to check whether
+        # a COMPLETE word ends here.
+        return current.isEnd
+
+
+    def startsWith(self, prefix):
+
+        # Start from the root
+        current = self.root
+
+        # Follow every character of the prefix
+        for char in prefix:
+
+            # Convert character to index
+            index = ord(char) - ord('a')
+
+            # If the path does not exist,
+            # no word can start with this prefix
+            if current.children[index] is None:
+                return False
+
+            # Move to the next node
+            current = current.children[index]
+
+        # The complete prefix path exists.
+        #
+        # We do NOT care whether a word ends here.
+        return True
