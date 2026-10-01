@@ -1,0 +1,248 @@
+"""
+Problem:
+--------
+Given a start gene, an end gene, and a bank of valid genes,
+return the minimum number of single-character mutations needed
+to change startGene into endGene.
+
+A mutation means:
+- Change exactly ONE character.
+- The new gene must exist in the bank.
+
+Each gene contains 8 characters.
+
+The possible characters are:
+
+    A, C, G, T
+
+
+Example:
+
+    startGene = "AACCGGTT"
+    endGene   = "AAACGGTA"
+
+    bank = [
+        "AACCGGTA",
+        "AACCGCTA",
+        "AAACGGTA"
+    ]
+
+One possible path:
+
+    AACCGGTT
+        |
+        | 1 mutation
+        v
+    AACCGGTA
+        |
+        | 1 mutation
+        v
+    AAACGGTA
+
+Answer:
+
+    2
+
+
+Main Idea:
+----------
+Use BFS (Breadth-First Search).
+
+Think of every valid gene as a node in a graph.
+
+Two genes are connected if we can change one character
+of one gene to get the other gene.
+
+For example:
+
+    AACCGGTT
+        |
+        | change one character
+        v
+    AACCGGTA
+
+We need the MINIMUM number of mutations.
+
+BFS is perfect for finding the shortest path.
+
+BFS explores like this:
+
+    Level 0 -> 0 mutations
+    Level 1 -> 1 mutation
+    Level 2 -> 2 mutations
+    Level 3 -> 3 mutations
+    ...
+
+Therefore, the first time we reach endGene,
+we have found the minimum number of mutations.
+
+
+Why use a set for bank?
+-----------------------
+We convert:
+
+    bank = set(bank)
+
+because we repeatedly check:
+
+    if new_gene in bank
+
+A set provides approximately O(1) lookup time.
+
+
+How do we generate mutations?
+------------------------------
+For every current gene:
+
+    1. Choose each of the 8 positions.
+    2. Try A, C, G, and T.
+    3. Skip the character if it is already the same.
+    4. Create the new gene.
+    5. Check whether it exists in the bank.
+    6. If it is new, add it to the BFS queue.
+
+
+Why do we need visited?
+-----------------------
+A graph can contain cycles.
+
+For example:
+
+    Gene A
+      |
+      v
+    Gene B
+      |
+      v
+    Gene C
+      |
+      +------> Gene A
+
+Without visited, BFS could keep processing the
+same genes again and again.
+
+So we store every gene that we have already visited.
+
+    visited = {startGene}
+
+
+Important:
+----------
+We store:
+
+    (gene, mutations)
+
+in the queue.
+
+For example:
+
+    ("AACCGGTT", 0)
+    ("AACCGGTA", 1)
+    ("AAACGGTA", 2)
+
+The second value tells us how many mutations
+were required to reach that gene.
+
+
+Time Complexity:
+----------------
+Let N = number of genes in the bank.
+
+For every gene, we try:
+
+    8 positions × 4 characters
+
+So:
+
+    O(N × 8 × 4)
+
+Since 8 and 4 are constants:
+
+    O(N)
+
+
+Space Complexity:
+-----------------
+O(N)
+
+The bank set, visited set, and BFS queue can store
+up to O(N) genes.
+"""
+
+
+from collections import deque
+
+
+class Solution(object):
+
+    def minMutation(self, startGene, endGene, bank):
+
+        # Convert the bank into a set
+        # for fast O(1) lookup
+        bank = set(bank)
+
+        # If endGene is not in the bank,
+        # we are not allowed to reach it
+        if endGene not in bank:
+            return -1
+
+        # BFS queue
+        #
+        # Store:
+        # (current gene, number of mutations)
+        queue = deque([(startGene, 0)])
+
+        # Keep track of genes we have already visited
+        # to avoid processing the same gene again
+        visited = set([startGene])
+
+        # The only four possible characters
+        choices = ['A', 'C', 'G', 'T']
+
+        # Start BFS
+        while queue:
+
+            # Take the first gene from the queue
+            current_gene, mutations = queue.popleft()
+
+            # Try changing every position
+            # A gene always has 8 characters
+            for i in range(8):
+
+                # Try all four possible characters
+                for char in choices:
+
+                    # If the character is already the same,
+                    # changing it would not create a mutation
+                    if char == current_gene[i]:
+                        continue
+
+                    # Create the new gene
+                    #
+                    # Keep everything before i
+                    # Replace character at i
+                    # Keep everything after i
+                    new_gene = (
+                        current_gene[:i]
+                        + char
+                        + current_gene[i + 1:]
+                    )
+
+                    # The new gene must exist in the bank
+                    if new_gene not in bank:
+                        continue
+
+                    # Skip genes we have already visited
+                    if new_gene in visited:
+                        continue
+
+                    # If we reached the target,
+                    # return the number of mutations
+                    return mutations + 1 if new_gene == endGene else (
+                        visited.add(new_gene) or
+                        queue.append((new_gene, mutations + 1))
+                    )
+
+        # If BFS finishes without reaching endGene,
+        # there is no valid mutation path
+        return -1
