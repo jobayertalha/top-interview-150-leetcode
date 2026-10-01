@@ -1,0 +1,65 @@
+class Solution(object):
+    def solve(self, board):
+        
+        if not board:  # If the board is empty
+            return  # Nothing to do
+        
+        rows = len(board)  # Number of rows
+        cols = len(board[0])  # Number of columns
+        
+        def dfs(r, c):
+            
+            # If we go outside the board, stop
+            if r < 0 or r >= rows or c < 0 or c >= cols:
+                return
+            
+            # If this cell is not O, stop
+            if board[r][c] != "O":
+                return
+            
+            # Mark this O as SAFE
+            board[r][c] = "S"
+            
+            # Visit all 4 connected directions
+            dfs(r - 1, c)  # Up
+            dfs(r + 1, c)  # Down
+            dfs(r, c - 1)  # Left
+            dfs(r, c + 1)  # Right
+        
+        # ------------------------------------------------
+        # STEP 1: Find all O's connected to the TOP/BOTTOM
+        # ------------------------------------------------
+        for c in range(cols):
+            
+            if board[0][c] == "O":
+                dfs(0, c)  # This region cannot be surrounded
+            
+            if board[rows - 1][c] == "O":
+                dfs(rows - 1, c)
+        
+        # ------------------------------------------------
+        # STEP 2: Find all O's connected to LEFT/RIGHT
+        # ------------------------------------------------
+        for r in range(rows):
+            
+            if board[r][0] == "O":
+                dfs(r, 0)
+            
+            if board[r][cols - 1] == "O":
+                dfs(r, cols - 1)
+        
+        # ------------------------------------------------
+        # STEP 3: Process the whole board
+        # ------------------------------------------------
+        for r in range(rows):
+            for c in range(cols):
+                
+                if board[r][c] == "O":
+                    # This O is NOT connected to the border
+                    # So it is surrounded by X
+                    board[r][c] = "X"
+                
+                elif board[r][c] == "S":
+                    # This O was connected to the border
+                    # Restore it back to O
+                    board[r][c] = "O"
