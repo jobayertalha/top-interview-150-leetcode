@@ -1,0 +1,79 @@
+class Solution(object):
+    def canFinish(self, numCourses, prerequisites):
+
+        # -----------------------------------------
+        # STEP 1: Build the graph
+        # -----------------------------------------
+
+        # Create an empty list for every course
+        graph = [[] for _ in range(numCourses)]
+
+        # Build the directed graph
+        for course, prerequisite in prerequisites:
+
+            # To take "course",
+            # we must first take "prerequisite"
+            #
+            # So:
+            # prerequisite -> course
+            graph[prerequisite].append(course)
+
+        # -----------------------------------------
+        # STEP 2: Create course states
+        # -----------------------------------------
+
+        # 0 = not visited yet
+        # 1 = currently visiting
+        # 2 = completely finished
+        state = [0] * numCourses
+
+        # -----------------------------------------
+        # STEP 3: DFS
+        # -----------------------------------------
+
+        def dfs(course):
+
+            # If we reach a course that is
+            # already being visited,
+            # we found a cycle
+            if state[course] == 1:
+                return False
+
+            # If this course was already completely
+            # checked, no need to check again
+            if state[course] == 2:
+                return True
+
+            # Mark this course as currently visiting
+            state[course] = 1
+
+            # Visit every course that depends
+            # on the current course
+            for next_course in graph[course]:
+
+                # If a cycle is found,
+                # we cannot finish the courses
+                if not dfs(next_course):
+                    return False
+
+            # All dependent courses are safe
+            # Mark this course as completely finished
+            state[course] = 2
+
+            # No cycle was found
+            return True
+
+        # -----------------------------------------
+        # STEP 4: Check every course
+        # -----------------------------------------
+
+        for course in range(numCourses):
+
+            # If this course leads to a cycle,
+            # we cannot finish all courses
+            if not dfs(course):
+                return False
+
+        # No cycle exists
+        # Therefore, all courses can be finished
+        return True
