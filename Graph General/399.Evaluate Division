@@ -1,0 +1,98 @@
+class Solution(object):
+    def calcEquation(self, equations, values, queries):
+
+        # -----------------------------------------
+        # STEP 1: Create the graph
+        # -----------------------------------------
+        
+        graph = {}
+
+        # Build the graph from all equations
+        for i in range(len(equations)):
+
+            # Get the two variables
+            a = equations[i][0]
+            b = equations[i][1]
+
+            # Get the value of a / b
+            value = values[i]
+
+            # Create an empty list for a if it doesn't exist
+            if a not in graph:
+                graph[a] = []
+
+            # Create an empty list for b if it doesn't exist
+            if b not in graph:
+                graph[b] = []
+
+            # a / b = value
+            # So we can go from a -> b with weight = value
+            graph[a].append((b, value))
+
+            # b / a = 1 / value
+            # So we can also go from b -> a
+            graph[b].append((a, 1.0 / value))
+
+        # Store the answer for every query
+        result = []
+
+        # -----------------------------------------
+        # STEP 2: Process every query
+        # -----------------------------------------
+        
+        for start, end in queries:
+
+            # If either variable doesn't exist in the graph
+            if start not in graph or end not in graph:
+                result.append(-1.0)
+                continue
+
+            # x / x = 1
+            if start == end:
+                result.append(1.0)
+                continue
+
+            # Keep track of variables already visited
+            visited = set()
+
+            # -----------------------------------------
+            # DFS function
+            # -----------------------------------------
+            
+            def dfs(current, target, product):
+
+                # If we reached the target,
+                # product contains the answer
+                if current == target:
+                    return product
+
+                # Mark current variable as visited
+                visited.add(current)
+
+                # Explore all neighbors
+                for neighbor, weight in graph[current]:
+
+                    # Don't visit the same variable again
+                    if neighbor in visited:
+                        continue
+
+                    # Move to neighbor
+                    # and multiply the current product
+                    answer = dfs(
+                        neighbor,
+                        target,
+                        product * weight
+                    )
+
+                    # If we found a valid path
+                    if answer != -1.0:
+                        return answer
+
+                # No path exists from current to target
+                return -1.0
+
+            # Start DFS with product = 1
+            result.append(dfs(start, end, 1.0))
+
+        # Return all query answers
+        return result
