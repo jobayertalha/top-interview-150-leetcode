@@ -1,0 +1,346 @@
+"""
+Problem:
+--------
+Design a data structure that supports:
+
+    1. addWord(word)
+    2. search(word)
+
+The search word can contain:
+
+    - Normal lowercase letters
+    - '.' which means ANY single character
+
+
+Example:
+
+    addWord("bad")
+    addWord("dad")
+    addWord("mad")
+
+Then:
+
+    search("bad")  -> True
+    search("pad")  -> False
+    search(".ad")  -> True
+    search("b..")  -> True
+
+
+Main Idea:
+----------
+Use a Trie + DFS.
+
+A normal Trie works well when every character is known.
+
+For example:
+
+    "bad"
+
+creates:
+
+    root
+      |
+      b
+      |
+      a
+      |
+      d
+      |
+    isEnd
+
+
+The problem is the '.' character.
+
+'.' means:
+
+    "I don't know which character is here.
+     Try ANY character."
+
+So when we see '.' we cannot follow just one child.
+
+Instead, we use DFS and try every existing child.
+
+
+Example:
+--------
+Suppose the Trie contains:
+
+    bad
+    dad
+    mad
+
+Searching:
+
+    .ad
+
+At the first character we see '.'.
+
+So we try:
+
+        root
+       / | \
+      b  d  m
+      |  |  |
+      a  a  a
+      |  |  |
+      d  d  d
+
+If ANY path reaches the end of the word,
+the search returns True.
+
+
+Why DFS?
+---------
+When we encounter '.', there can be many possible paths.
+
+For example:
+
+    search("..d")
+
+The first '.' can choose:
+
+    a
+    b
+    c
+    ...
+
+Then the second '.' can choose another character.
+
+DFS explores these possible paths recursively.
+
+If one path matches:
+
+    return True
+
+If all paths fail:
+
+    return False.
+
+
+Important:
+----------
+For a normal character:
+
+    'a', 'b', 'c', ...
+
+we follow ONLY the corresponding child.
+
+For example:
+
+    search("bad")
+
+At 'b':
+
+    root -> b
+
+At 'a':
+
+    b -> a
+
+At 'd':
+
+    a -> d
+
+
+For '.':
+-------
+We try ALL existing children:
+
+    for child in current.children:
+
+because '.' can represent any character.
+
+
+Why check isEnd?
+----------------
+Reaching the end of the Trie path is not enough.
+
+Suppose we inserted:
+
+    "bad"
+
+and search:
+
+    "ba"
+
+The path:
+
+    b -> a
+
+exists.
+
+But "ba" was never inserted as a complete word.
+
+Therefore:
+
+    return current.isEnd
+
+is necessary when we reach the end of the search word.
+
+
+Time Complexity:
+----------------
+addWord():
+
+    O(L)
+
+where L = length of the word.
+
+
+search():
+
+For normal characters, we follow one path.
+
+For '.', we may explore multiple paths.
+
+In the worst case:
+
+    O(26^L)
+
+where L = length of the search word.
+
+However, the actual complexity depends on how many
+Trie branches exist.
+
+
+Space Complexity:
+-----------------
+Trie:
+
+    O(N × L)
+
+where N = number of inserted words
+and L = average word length.
+
+DFS recursion:
+
+    O(L)
+
+for the recursion stack.
+"""
+
+
+class TrieNode:
+
+    def __init__(self):
+
+        # Store links to the next characters
+        #
+        # 0 -> a
+        # 1 -> b
+        # 2 -> c
+        # ...
+        # 25 -> z
+        self.children = [None] * 26
+
+        # True means a complete word ends at this node
+        self.isEnd = False
+
+
+class WordDictionary:
+
+    def __init__(self):
+
+        # Create the root node
+        #
+        # Root does not represent any character.
+        self.root = TrieNode()
+
+
+    def addWord(self, word):
+
+        # Start from the root
+        current = self.root
+
+        # Go through every character in the word
+        for char in word:
+
+            # Convert character into an index
+            #
+            # Example:
+            # 'a' -> 0
+            # 'b' -> 1
+            # ...
+            # 'z' -> 25
+            index = ord(char) - ord('a')
+
+            # If this character path does not exist,
+            # create a new TrieNode
+            if current.children[index] is None:
+                current.children[index] = TrieNode()
+
+            # Move to the next node
+            current = current.children[index]
+
+        # We reached the end of the word
+        #
+        # Mark this node as a complete word
+        current.isEnd = True
+
+
+    def search(self, word):
+
+        # DFS is needed because '.'
+        # can represent any character
+        def dfs(current, index):
+
+            # If we have processed every character
+            # in the search word
+            if index == len(word):
+
+                # The search is successful only if
+                # a complete word ends at this node
+                return current.isEnd
+
+
+            # Get the current character
+            char = word[index]
+
+
+            # --------------------------------
+            # CASE 1: Current character is '.'
+            # --------------------------------
+            if char == '.':
+
+                # '.' can represent ANY character
+                #
+                # So try every possible child
+                for child in current.children:
+
+                    # Ignore characters that don't exist
+                    if child is not None:
+
+                        # Continue searching from this child
+                        #
+                        # Move to the next character
+                        if dfs(child, index + 1):
+
+                            # One valid path is enough
+                            return True
+
+                # None of the possible paths matched
+                return False
+
+
+            # --------------------------------
+            # CASE 2: Normal character
+            # --------------------------------
+
+            # Convert the character into an index
+            child_index = ord(char) - ord('a')
+
+            # Get the required child
+            child = current.children[child_index]
+
+            # If the required path does not exist,
+            # this path cannot match
+            if child is None:
+                return False
+
+            # Continue searching with the next character
+            return dfs(child, index + 1)
+
+
+        # Start DFS from the root
+        # and start at index 0 of the search word
+        return dfs(self.root, 0)
