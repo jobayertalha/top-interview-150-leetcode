@@ -1,0 +1,422 @@
+"""
+Problem:
+--------
+Given two integers n and k, return all possible combinations
+of k numbers chosen from the range:
+
+    1, 2, 3, ..., n
+
+The order of numbers does NOT matter.
+
+Example:
+
+    n = 4
+    k = 2
+
+We need to choose 2 numbers from:
+
+    1, 2, 3, 4
+
+Possible combinations:
+
+    [1,2]
+    [1,3]
+    [1,4]
+    [2,3]
+    [2,4]
+    [3,4]
+
+Answer:
+
+    [
+        [1,2],
+        [1,3],
+        [1,4],
+        [2,3],
+        [2,4],
+        [3,4]
+    ]
+
+
+Main Idea:
+----------
+Use BACKTRACKING.
+
+We build each combination one number at a time.
+
+For example:
+
+    n = 4
+    k = 2
+
+Start with:
+
+    []
+
+Choose 1:
+
+    [1]
+
+Then we can choose:
+
+    2 -> [1,2]
+    3 -> [1,3]
+    4 -> [1,4]
+
+Then go back and choose 2:
+
+    [2]
+
+Now we can choose:
+
+    3 -> [2,3]
+    4 -> [2,4]
+
+Then:
+
+    [3]
+
+Choose 4:
+
+    [3,4]
+
+
+Backtracking works like:
+
+    Choose
+       ↓
+    Explore
+       ↓
+      Undo
+       ↓
+    Choose next option
+
+
+Why Backtracking?
+-----------------
+At every step, we have multiple numbers to choose from.
+
+For example:
+
+    []
+
+    Choose 1
+       / | \
+      2  3  4
+
+    Choose 2
+       / \
+      3   4
+
+We need to explore ALL possible choices.
+
+So DFS + Backtracking is a natural solution.
+
+
+Important Rule:
+---------------
+A combination should not contain the same numbers
+in different orders.
+
+For example:
+
+    [1,2]
+
+and:
+
+    [2,1]
+
+represent the SAME combination.
+
+So we only choose numbers greater than
+the number we just selected.
+
+For example:
+
+    Choose 1
+       ↓
+    Next choices: 2, 3, 4
+
+If we choose 2:
+
+    Next choices: 3, 4
+
+If we choose 3:
+
+    Next choices: 4
+
+This is why we use:
+
+    backtrack(num + 1)
+
+
+Important:
+----------
+The variable "current" stores the combination
+we are currently building.
+
+For example:
+
+    current = [1,3]
+
+means:
+
+    We have currently selected 1 and 3.
+
+
+When len(current) == k:
+-----------------------
+
+We have selected exactly k numbers.
+
+For example:
+
+    k = 2
+    current = [1,3]
+
+Now the combination is complete.
+
+So we add it to the answer:
+
+    result.append(current[:])
+
+
+Why current[:]?
+----------------
+current is a mutable list.
+
+If we directly stored:
+
+    result.append(current)
+
+then later backtracking would modify
+the same list.
+
+So we create a COPY:
+
+    current[:]
+
+For example:
+
+    current = [1,2]
+
+    result.append(current[:])
+
+Now result contains an independent copy:
+
+    [[1,2]]
+
+
+Choose → Explore → Undo:
+------------------------
+
+Choose:
+
+    current.append(num)
+
+Explore:
+
+    backtrack(num + 1)
+
+Undo:
+
+    current.pop()
+
+
+Example:
+
+    current = []
+
+Choose 1:
+
+    [1]
+
+Explore 2:
+
+    [1,2]
+
+Combination complete.
+
+Undo:
+
+    [1]
+
+Explore 3:
+
+    [1,3]
+
+Combination complete.
+
+Undo:
+
+    [1]
+
+Explore 4:
+
+    [1,4]
+
+Combination complete.
+
+Undo:
+
+    []
+
+
+Decision Tree:
+--------------
+
+For n = 4 and k = 2:
+
+                    []
+              /      |      \
+             1       2       3
+           / | \    / \       \
+          2  3  4  3   4       4
+          ↓  ↓  ↓  ↓   ↓       ↓
+        [1,2][1,3][1,4]
+                  [2,3][2,4]  [3,4]
+
+
+The important part is that after choosing
+a number, we only move forward.
+
+So:
+
+    [1,2]   ✅
+
+but:
+
+    [2,1]   ❌
+
+because after choosing 2, we never go back
+to numbers smaller than 2.
+
+
+Time Complexity:
+----------------
+There are:
+
+    C(n, k)
+
+possible combinations.
+
+Each combination contains k numbers.
+
+Therefore:
+
+    O(C(n,k) × k)
+
+The × k comes from storing/copying each
+combination of length k.
+
+
+Space Complexity:
+-----------------
+The recursion depth can be at most k.
+
+The current combination also contains
+at most k elements.
+
+So auxiliary space is:
+
+    O(k)
+
+The output itself requires:
+
+    O(C(n,k) × k)
+
+because we must store every combination.
+"""
+
+
+class Solution(object):
+
+    def combine(self, n, k):
+
+        # Store all complete combinations
+        result = []
+
+        # Store the combination we are currently building
+        current = []
+
+
+        # Backtracking function
+        #
+        # start -> the first number we are allowed to choose
+        #
+        # For example:
+        #
+        # start = 1
+        # We can choose: 1, 2, 3, ..., n
+        #
+        # If we choose 2:
+        #
+        # start becomes 3
+        # because we cannot choose 1 or 2 again
+        def backtrack(start):
+
+            # If we have selected exactly k numbers,
+            # we have created one complete combination
+            if len(current) == k:
+
+                # Save a COPY of the current combination
+                #
+                # current[:] creates a new list
+                # so future pop() operations do not
+                # modify the saved answer
+                result.append(current[:])
+
+                # This combination is complete,
+                # so stop exploring this branch
+                return
+
+
+            # Try every possible number
+            # from "start" up to "n"
+            #
+            # n + 1 is used because range()
+            # does not include the ending value
+            for num in range(start, n + 1):
+
+                # CHOOSE
+                #
+                # Add the current number
+                # to our combination
+                current.append(num)
+
+
+                # EXPLORE
+                #
+                # Move to the next number
+                #
+                # num + 1 ensures that we only choose
+                # numbers greater than the current number
+                #
+                # This prevents:
+                #
+                # [1,1]
+                # [2,1]
+                # [3,2]
+                #
+                # and avoids duplicate combinations
+                backtrack(num + 1)
+
+
+                # UNDO
+                #
+                # Remove the number we just selected
+                #
+                # This allows us to try another number
+                current.pop()
+
+
+        # Start choosing numbers from 1
+        #
+        # Initially:
+        #
+        # current = []
+        # start = 1
+        backtrack(1)
+
+        # Return all possible combinations
+        return result
