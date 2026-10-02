@@ -1,0 +1,254 @@
+"""
+Problem:
+--------
+Given a string containing digits from 2 to 9, return all possible
+letter combinations that the digits could represent.
+
+Each digit maps to several letters, just like a telephone keypad.
+
+Mapping:
+
+    2 -> abc
+    3 -> def
+    4 -> ghi
+    5 -> jkl
+    6 -> mno
+    7 -> pqrs
+    8 -> tuv
+    9 -> wxyz
+
+Example:
+
+    digits = "23"
+
+For digit 2, we have:
+
+    a, b, c
+
+For digit 3, we have:
+
+    d, e, f
+
+So we can combine every letter from 2 with every letter from 3:
+
+    ad  ae  af
+    bd  be  bf
+    cd  ce  cf
+
+Answer:
+
+    ["ad","ae","af","bd","be","bf","cd","ce","cf"]
+
+
+Main Idea:
+----------
+Use BACKTRACKING.
+
+We build the answer one character at a time.
+
+For example:
+
+    digits = "23"
+
+Start with:
+
+    ""
+
+Process digit 2:
+
+    "a"
+    "b"
+    "c"
+
+Then process digit 3.
+
+From "a":
+
+    "ad"
+    "ae"
+    "af"
+
+From "b":
+
+    "bd"
+    "be"
+    "bf"
+
+From "c":
+
+    "cd"
+    "ce"
+    "cf"
+
+
+Backtracking works like:
+
+    Choose
+       ↓
+    Explore
+       ↓
+    Undo
+       ↓
+    Choose next option
+
+
+Why Backtracking?
+-----------------
+At every digit, we have multiple choices.
+
+For example:
+
+    2 -> a, b, c
+    3 -> d, e, f
+
+We need to try ALL combinations.
+
+This creates a decision tree:
+
+                    ""
+                 /  |  \
+                a   b   c
+              /|\ /|\ /|\
+             ad ae af ...
+             
+The DFS explores every possible path.
+
+
+Important:
+----------
+The variable "path" stores the letters
+we have currently selected.
+
+For example:
+
+    path = "ad"
+
+means:
+
+    digit 2 -> 'a'
+    digit 3 -> 'd'
+
+When we reach the end of digits,
+the path is a complete combination.
+
+So we add:
+
+    result.append(path)
+
+
+Why use path + char?
+--------------------
+We can simply create a new string:
+
+    path + char
+
+and pass it to the next recursive call.
+
+Example:
+
+    path = "a"
+    char = "d"
+
+Then:
+
+    path + char = "ad"
+
+
+Time Complexity:
+----------------
+Each digit has either 3 or 4 possible letters.
+
+In the worst case, all digits are 7 or 9,
+which have 4 letters.
+
+For N digits:
+
+    O(4^N × N)
+
+The extra N comes from creating/storing each
+combination of length N.
+
+Since N <= 4, this is very small.
+
+
+Space Complexity:
+-----------------
+O(N)
+
+for the recursion depth.
+
+The output itself requires:
+
+    O(4^N × N)
+
+space because we must store all combinations.
+"""
+
+
+class Solution(object):
+
+    def letterCombinations(self, digits):
+
+        # If the input is empty,
+        # there are no combinations
+        if not digits:
+            return []
+
+        # Map each digit to its corresponding letters
+        phone = {
+            '2': 'abc',
+            '3': 'def',
+            '4': 'ghi',
+            '5': 'jkl',
+            '6': 'mno',
+            '7': 'pqrs',
+            '8': 'tuv',
+            '9': 'wxyz'
+        }
+
+        # Store all complete combinations
+        result = []
+
+
+        # Backtracking function
+        #
+        # index -> which digit we are currently processing
+        # path  -> letters chosen so far
+        def backtrack(index, path):
+
+            # If we have processed every digit,
+            # the current path is a complete combination
+            if index == len(digits):
+
+                # Add the complete combination
+                result.append(path)
+
+                return
+
+
+            # Get the current digit
+            digit = digits[index]
+
+            # Get all letters corresponding to this digit
+            letters = phone[digit]
+
+            # Try every possible letter
+            for char in letters:
+
+                # Choose this character
+                #
+                # Add it to the current path
+                new_path = path + char
+
+                # Move to the next digit
+                backtrack(index + 1, new_path)
+
+
+        # Start from:
+        #
+        # index = 0
+        # path = ""
+        backtrack(0, "")
+
+        # Return all possible combinations
+        return result
