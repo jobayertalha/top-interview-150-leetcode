@@ -1,0 +1,743 @@
+"""
+Problem:
+--------
+Given an integer n, generate all combinations of n pairs
+of parentheses that are correctly balanced.
+
+A valid parentheses string must follow two rules:
+
+    1. It must contain exactly n opening brackets "("
+       and n closing brackets ")".
+
+    2. At every point, we cannot have more closing brackets
+       than opening brackets.
+
+Example:
+
+    n = 3
+
+Possible valid combinations:
+
+    "((()))"
+    "(()())"
+    "(())()"
+    "()(())"
+    "()()()"
+
+Answer:
+
+    [
+        "((()))",
+        "(()())",
+        "(())()",
+        "()(())",
+        "()()()"
+    ]
+
+
+Main Idea:
+----------
+Use BACKTRACKING.
+
+At every step, we have two possible choices:
+
+    Add "("
+    Add ")"
+
+But we cannot choose them freely.
+
+We can add "(" if:
+
+    open_count < n
+
+because we still have opening brackets available.
+
+We can add ")" only if:
+
+    close_count < open_count
+
+because there must already be an unmatched "("
+to close.
+
+So the main idea is:
+
+    Add "(" → if we have opening brackets left
+
+    Add ")" → if there is an unmatched "("
+
+
+Backtracking works like:
+
+    Choose
+       ↓
+    Explore
+       ↓
+      Undo
+       ↓
+    Try another choice
+
+
+Why Backtracking?
+-----------------
+For n = 3, we need to try different arrangements
+of:
+
+    (
+    (
+    (
+    )
+    )
+    )
+
+But many arrangements are invalid.
+
+For example:
+
+    "())"
+
+is invalid because after:
+
+    ()
+    
+we already closed the only opening bracket.
+
+Adding another ")" gives:
+
+    ())
+
+At that point:
+
+    close_count > open_count
+
+So we never explore that invalid branch.
+
+This is called PRUNING.
+
+Instead of generating every possible string,
+we only explore strings that can still become valid.
+
+
+Important Variables:
+--------------------
+
+open_count:
+    Number of "(" used so far.
+
+close_count:
+    Number of ")" used so far.
+
+current:
+    The parentheses string we are currently building.
+
+result:
+    Stores all complete valid strings.
+
+
+Example:
+
+    current = ['(', '(', ')']
+
+means:
+
+    "((" + ")"
+
+which gives:
+
+    "(()"
+
+
+open_count = 2
+close_count = 1
+
+
+Important Rule #1:
+------------------
+We can add "(" if:
+
+    open_count < n
+
+Example:
+
+    n = 3
+
+If:
+
+    open_count = 2
+
+we can still add another "(":
+
+    ((
+
+becomes:
+
+    (((
+
+
+But if:
+
+    open_count = 3
+
+we have already used all opening brackets.
+
+So we cannot add another "(".
+
+
+Important Rule #2:
+------------------
+We can add ")" only if:
+
+    close_count < open_count
+
+Why?
+
+Because every ")" must close an existing "(".
+
+For example:
+
+    "("
+
+We have:
+
+    open_count = 1
+    close_count = 0
+
+So we can add:
+
+    ")"
+
+giving:
+
+    "()"
+
+
+But:
+
+    ""
+
+has:
+
+    open_count = 0
+    close_count = 0
+
+We cannot add ")" because:
+
+    close_count < open_count
+
+becomes:
+
+    0 < 0
+
+which is FALSE.
+
+
+This prevents invalid strings such as:
+
+    ")("
+    "())("
+    ")))"
+
+
+Base Case:
+----------
+When:
+
+    open_count == n
+    AND
+    close_count == n
+
+we have used all brackets.
+
+For example:
+
+    n = 3
+
+    open_count = 3
+    close_count = 3
+
+Then current contains exactly:
+
+    3 "("
+    3 ")"
+
+and because we never allowed
+close_count > open_count,
+
+the string must be valid.
+
+So we save it.
+
+
+Why use "".join(current)?
+-------------------------
+current is a list.
+
+For example:
+
+    current = ['(', '(', ')', ')']
+
+We need:
+
+    "(())"
+
+So:
+
+    "".join(current)
+
+converts:
+
+    ['(', '(', ')', ')']
+
+into:
+
+    "(())"
+
+
+Choose → Explore → Undo:
+------------------------
+
+For "(":
+
+    current.append("(")
+
+    backtrack(open_count + 1, close_count)
+
+    current.pop()
+
+
+For ")":
+
+    current.append(")")
+
+    backtrack(open_count, close_count + 1)
+
+    current.pop()
+
+
+This follows the standard pattern:
+
+    CHOOSE
+       ↓
+    EXPLORE
+       ↓
+      UNDO
+
+
+Decision Tree:
+--------------
+
+For n = 2:
+
+                    ""
+                    |
+                   "("
+                 /     \
+               "(("    "()"
+                |       |
+              "(()"   "()("
+                |       |
+             "(())"  "()()"
+
+
+The valid answers are:
+
+    "(())"
+    "()()"
+
+
+Notice that we never create:
+
+    ")("
+    "))(("
+    "())("
+
+because the rules prevent invalid branches early.
+
+
+Example Trace:
+--------------
+
+n = 2
+
+Start:
+
+    open_count = 0
+    close_count = 0
+    current = []
+
+
+Step 1:
+-------
+We cannot add ")".
+
+Why?
+
+    close_count < open_count
+    0 < 0 → FALSE
+
+So we must add "(".
+
+    current = ['(']
+
+    open_count = 1
+    close_count = 0
+
+
+Step 2:
+-------
+We can add another "(":
+
+    current = ['(', '(']
+
+    open_count = 2
+    close_count = 0
+
+
+Now we cannot add another "(" because:
+
+    open_count == n
+
+So we add ")":
+
+    current = ['(', '(', ')']
+
+    open_count = 2
+    close_count = 1
+
+
+Add another ")":
+
+    current = ['(', '(', ')', ')']
+
+    open_count = 2
+    close_count = 2
+
+We reached the base case.
+
+Save:
+
+    "(())"
+
+
+Backtrack.
+
+We return to:
+
+    current = ['(', '(']
+
+Then undo again:
+
+    current = ['(']
+
+Now instead of choosing "(",
+we choose ")":
+
+    current = ['(', ')']
+
+Then:
+
+    open_count = 1
+    close_count = 1
+
+We cannot add ")" because:
+
+    close_count < open_count
+    1 < 1 → FALSE
+
+So we add "(":
+
+    current = ['(', ')', '(']
+
+Then finally:
+
+    current = ['(', ')', '(', ')']
+
+Save:
+
+    "()()"
+
+
+Final answer:
+
+    [
+        "(())",
+        "()()"
+    ]
+
+
+Why do we check close_count < open_count?
+------------------------------------------
+This is the MOST IMPORTANT condition.
+
+Think of "(" as opening a door
+and ")" as closing the door.
+
+You cannot close a door
+that hasn't been opened.
+
+For example:
+
+    "("
+    
+means:
+
+    1 open door
+    0 closed doors
+
+So ")" is allowed.
+
+But:
+
+    ""
+
+means:
+
+    0 open doors
+    0 closed doors
+
+")" is NOT allowed.
+
+
+Another way to remember:
+
+    Number of ")" can NEVER be greater
+    than the number of "(".
+
+So always maintain:
+
+    close_count <= open_count
+
+
+Important Difference:
+---------------------
+
+We don't need to check the entire string
+to see whether it is valid.
+
+We maintain the rule during construction:
+
+    close_count <= open_count
+
+Therefore every partial string we explore
+can still potentially become valid.
+
+
+Time Complexity:
+----------------
+The number of valid parentheses combinations
+is the nth Catalan number:
+
+    C(n) = 1/(n+1) × C(2n,n)
+
+So the number of valid answers grows
+exponentially.
+
+A commonly used complexity description is:
+
+    O(C_n × n)
+
+where C_n is the nth Catalan number.
+
+The extra n comes from constructing/storing
+each string of length 2n.
+
+
+Space Complexity:
+-----------------
+The recursion depth is:
+
+    2n
+
+because every valid string contains:
+
+    n "(" + n ")"
+
+So recursion/current space is:
+
+    O(n)
+
+The output itself requires:
+
+    O(C_n × n)
+
+because there are C_n valid strings
+and each string has length 2n.
+
+
+Memory Trick:
+-------------
+Generate Parentheses has TWO rules:
+
+    "(" → if open_count < n
+
+    ")" → if close_count < open_count
+
+
+Think:
+
+    OPEN → Do we have opens left?
+    CLOSE → Do we have something to close?
+
+
+The golden rule:
+
+    close_count can NEVER be greater
+    than open_count.
+
+
+One-line memory trick:
+
+    "Open if available, Close if possible."
+
+
+Backtracking pattern:
+
+    Choose
+       ↓
+    Explore
+       ↓
+      Undo
+
+
+Code pattern:
+
+    current.append("(")
+    backtrack(...)
+    current.pop()
+
+    current.append(")")
+    backtrack(...)
+    current.pop()
+"""
+
+
+class Solution(object):
+
+    def generateParenthesis(self, n):
+
+        # Store all valid parentheses combinations
+        result = []
+
+        # Store the parentheses string
+        # we are currently building
+        #
+        # Example:
+        #
+        # current = ['(', '(', ')']
+        #
+        # represents:
+        #
+        # "(()"
+        current = []
+
+
+        # Backtracking function
+        #
+        # open_count:
+        #     Number of "(" used so far
+        #
+        # close_count:
+        #     Number of ")" used so far
+        def backtrack(open_count, close_count):
+
+            # If we have used all n opening brackets
+            # AND all n closing brackets,
+            # we have created one complete valid string
+            if open_count == n and close_count == n:
+
+                # Convert the list of characters
+                # into one string
+                #
+                # Example:
+                #
+                # ['(', '(', ')', ')']
+                #
+                # becomes:
+                #
+                # "(())"
+                result.append("".join(current))
+
+                # This combination is complete
+                return
+
+
+            # -------------------------
+            # CHOOSE "("
+            # -------------------------
+
+            # We can add "(" only if
+            # we still have opening brackets available
+            #
+            # Example:
+            #
+            # n = 3
+            # open_count = 2
+            #
+            # We can still add one more "("
+            if open_count < n:
+
+                # Add an opening bracket
+                current.append("(")
+
+                # Explore the next state
+                #
+                # We used one more opening bracket
+                backtrack(
+                    open_count + 1,
+                    close_count
+                )
+
+                # UNDO
+                #
+                # Remove the opening bracket
+                # so we can try another possibility
+                current.pop()
+
+
+            # -------------------------
+            # CHOOSE ")"
+            # -------------------------
+
+            # We can add ")" only when
+            # there is an unmatched "("
+            #
+            # This means:
+            #
+            # close_count < open_count
+            #
+            # Example:
+            #
+            # open_count = 2
+            # close_count = 1
+            #
+            # We have one unmatched "(",
+            # so adding ")" is safe.
+            if close_count < open_count:
+
+                # Add a closing bracket
+                current.append(")")
+
+                # Explore the next state
+                #
+                # We used one more closing bracket
+                backtrack(
+                    open_count,
+                    close_count + 1
+                )
+
+                # UNDO
+                #
+                # Remove the closing bracket
+                # so we can try another possibility
+                current.pop()
+
+
+        # Start with:
+        #
+        # 0 opening brackets
+        # 0 closing brackets
+        # empty current string
+        backtrack(0, 0)
+
+
+        # Return all valid combinations
+        return result
