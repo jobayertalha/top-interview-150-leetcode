@@ -1,0 +1,318 @@
+"""
+Problem:
+--------
+Given a 2D board of characters and a word, return True if the word
+exists in the board.
+
+The word can be constructed from letters of sequentially adjacent
+cells.
+
+Adjacent cells can be:
+    - Up
+    - Down
+    - Left
+    - Right
+
+The same cell cannot be used more than once in the same word path.
+
+Example:
+
+    board =
+    [
+        ["A","B","C","E"],
+        ["S","F","C","S"],
+        ["A","D","E","E"]
+    ]
+
+    word = "ABCCED"
+
+    Output:
+    True
+
+
+Main Idea:
+----------
+Use DFS + BACKTRACKING.
+
+For every cell:
+    1. Check whether it matches the current character.
+    2. Mark it as visited.
+    3. Explore all 4 directions.
+    4. If the word is found, return True.
+    5. Otherwise, restore the cell.
+    6. Try another path.
+
+
+Why Backtracking?
+-----------------
+There can be many possible paths.
+
+For example, if we match "A":
+
+                    A
+                  / | \
+                 B  C  D
+
+We don't know which direction will eventually form the word.
+
+So we:
+    Choose a cell
+        ↓
+    Explore a direction
+        ↓
+    If it fails, undo the choice
+        ↓
+    Try another direction
+
+
+Important Variables:
+--------------------
+
+rows:
+    Number of rows in the board.
+
+cols:
+    Number of columns in the board.
+
+index:
+    Which character of the word we are currently looking for.
+
+For example:
+
+    word = "CAT"
+
+    index = 0  → looking for 'C'
+    index = 1  → looking for 'A'
+    index = 2  → looking for 'T'
+    index = 3  → entire word matched
+
+
+Why do we use index + 1?
+------------------------
+Suppose:
+
+    word = "CAT"
+
+We are currently matching:
+
+    index = 0 → 'C'
+
+After finding 'C', the next cell must contain:
+
+    index = 1 → 'A'
+
+So we call:
+
+    dfs(next_row, next_col, index + 1)
+
+
+Base Case:
+----------
+if index == len(word):
+    return True
+
+This means we have successfully matched every character.
+
+For:
+
+    word = "CAT"
+
+After matching:
+
+    C → A → T
+
+index becomes 3.
+
+Since:
+
+    len("CAT") = 3
+
+we return True.
+
+
+Why mark the cell as "#"
+------------------------
+A cell cannot be used twice in the same path.
+
+Suppose:
+
+    A B
+    C D
+
+If we are currently using A, we cannot immediately come back
+to A again.
+
+So we temporarily change:
+
+    A → #
+
+This tells DFS:
+
+    "This cell is already being used."
+
+
+Why do we restore the cell?
+---------------------------
+After exploring the current path, we must allow the cell to be
+used in another possible path.
+
+So:
+
+    original = board[row][col]
+
+    board[row][col] = "#"
+
+    ... DFS ...
+
+    board[row][col] = original
+
+This is the BACKTRACKING step.
+
+Choose → Explore → Undo
+
+
+Why use OR between the 4 DFS calls?
+-----------------------------------
+We only need ONE valid path.
+
+So:
+
+    down OR up OR right OR left
+
+If any direction returns True, the whole expression becomes True.
+
+For example:
+
+    True or False or False or False
+
+gives:
+
+    True
+
+
+Four Directions:
+-----------------
+
+        UP
+         ↑
+         |
+    LEFT ← X → RIGHT
+         |
+         ↓
+       DOWN
+
+
+Important:
+----------
+We try every cell as a possible starting point because the first
+letter of the word can appear anywhere on the board.
+
+    for row in range(rows):
+        for col in range(cols):
+            dfs(row, col, 0)
+
+
+Full Decision Process:
+----------------------
+
+Start at a cell
+      ↓
+Does it match word[index]?
+      ↓
+    NO → False
+      |
+     YES
+      ↓
+Mark as visited
+      ↓
+Try 4 directions
+      ↓
+Does any path find the rest?
+      |
+   YES ─────→ True
+      |
+     NO
+      ↓
+Restore cell
+      ↓
+Try another path
+
+
+Example Trace:
+--------------
+
+Board:
+
+    A B C
+    D E F
+    G H I
+
+Word = "ABE"
+
+Start at A:
+
+    A
+    ↓
+    B
+    ↓
+    E
+
+Path:
+
+    A → B → E
+
+Therefore:
+
+    True
+
+
+Time Complexity:
+----------------
+There are R × C possible starting cells.
+
+For each cell, DFS can explore up to 4 directions for each
+character in the word.
+
+Worst case:
+
+    O(R × C × 4^L)
+
+where:
+
+    R = number of rows
+    C = number of columns
+    L = length of word
+
+
+Space Complexity:
+-----------------
+The recursion depth can be at most L.
+
+Therefore:
+
+    O(L)
+
+The board is modified in-place, so we do not need a separate
+visited matrix.
+
+
+Memory Trick:
+-------------
+Remember:
+
+    "MATCH → MARK → EXPLORE 4 → RESTORE"
+
+or simply:
+
+    Choose → Explore → Undo
+
+For Word Search:
+
+    Find matching character
+            ↓
+       Mark visited
+            ↓
+       Try 4 directions
+            ↓
+       Restore character
+"""
