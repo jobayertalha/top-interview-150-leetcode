@@ -1,0 +1,46 @@
+"""
+Problem:
+--------
+Given an integer array where every number appears twice except one number,
+return the number that appears only once.
+
+Example:
+    Input:  nums = [4, 1, 2, 1, 2]
+    Output: 4
+
+Key Idea:
+---------
+Use XOR (^).
+
+Important XOR Rules:
+--------------------
+x ^ x = 0       # Same numbers cancel each other
+x ^ 0 = x       # XOR with 0 keeps the number
+
+So:
+    4 ^ 1 ^ 2 ^ 1 ^ 2
+    = 4 ^ (1 ^ 1) ^ (2 ^ 2)
+    = 4 ^ 0 ^ 0
+    = 4
+
+Complexity:
+-----------
+Time:  O(n)
+Space: O(1)
+
+Memory Trick:
+-------------
+Same numbers CANCEL with XOR.
+The number left is the SINGLE number.
+"""
+
+class Solution:
+    def singleNumber(self, nums):
+
+        result = 0                    # Start with 0
+
+        for num in nums:              # Go through every number
+
+            result = result ^ num     # XOR: duplicate numbers cancel out
+
+        return result                  # Only the single number remains
