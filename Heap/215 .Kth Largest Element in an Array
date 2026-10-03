@@ -1,0 +1,165 @@
+"""
+Problem:
+--------
+Given an integer array, return the kth largest element.
+
+Example:
+    nums = [3, 2, 1, 5, 6, 4]
+    k = 2
+
+    Sorted:
+        [1, 2, 3, 4, 5, 6]
+
+    2nd largest = 5
+
+Key Idea:
+---------
+Use Quickselect instead of fully sorting the array.
+
+Convert "kth largest" into an index in ascending order:
+
+    target = len(nums) - k
+
+Example:
+    nums = [1,2,3,4,5,6]
+    k = 2
+
+    target = 6 - 2 = 4
+
+So we need the element at index 4 → 5.
+
+3-Way Partition:
+----------------
+Choose a pivot and divide the current range into:
+
+    smaller | equal | greater
+
+Using:
+    low → first equal position
+    i   → current element
+    high → last equal position
+
+After partition:
+
+    [left ... low-1]   → smaller
+    [low ... high]     → equal
+    [high+1 ... right] → greater
+
+Then check where `target` lies.
+
+If:
+    target < low
+        → search smaller section
+
+If:
+    target > high
+        → search greater section
+
+Otherwise:
+    target is inside the equal section
+        → return nums[target]
+
+Why 3-way partition?
+--------------------
+It handles duplicate values efficiently by grouping all values
+equal to the pivot together.
+
+Important:
+----------
+When nums[i] > pivot:
+
+    swap(nums[i], nums[high])
+    high -= 1
+
+We do NOT increase `i` here because the new value moved from
+`high` still needs to be checked.
+
+Complexity:
+-----------
+Average Time: O(n)
+Worst Time:   O(n²)
+Space:        O(1)
+
+Memory Trick:
+-------------
+    kth largest
+        ↓
+    target = n - k
+        ↓
+    Partition:
+    SMALL | EQUAL | GREATER
+        ↓
+    Find target section
+"""
+    
+
+class Solution:
+    def findKthLargest(self, nums, k):
+
+        # Convert kth largest into ascending-order index
+        target = len(nums) - k
+
+        # Start of the search range
+        left = 0
+
+        # End of the search range
+        right = len(nums) - 1
+
+        # Continue until target is found
+        while left <= right:
+
+            # Choose middle element as pivot
+            pivot = nums[(left + right) // 2]
+
+            # 3-way partition pointers
+            low = left
+            i = left
+            high = right
+
+            # Partition the current range
+            while i <= high:
+
+                # Current value is smaller than pivot
+                if nums[i] < pivot:
+
+                    # Move smaller value to the left
+                    nums[low], nums[i] = nums[i], nums[low]
+
+                    # Move both pointers forward
+                    low += 1
+                    i += 1
+
+                # Current value is greater than pivot
+                elif nums[i] > pivot:
+
+                    # Move greater value to the right
+                    nums[i], nums[high] = nums[high], nums[i]
+
+                    # Shrink the right section
+                    high -= 1
+
+                    # Do NOT increment i
+                    # New nums[i] still needs to be checked
+
+                # Current value equals pivot
+                else:
+
+                    # Keep it in the equal section
+                    i += 1
+
+            # Smaller | Equal | Greater
+            # [left ... low-1]
+            # [low ... high]
+            # [high+1 ... right]
+
+            # Target is in the smaller section
+            if target < low:
+                right = low - 1
+
+            # Target is in the greater section
+            elif target > high:
+                left = high + 1
+
+            # Target is inside the equal section
+            else:
+                return nums[target]
