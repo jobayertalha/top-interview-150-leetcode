@@ -1,0 +1,108 @@
+"""
+Problem:
+--------
+A peak element is an element that is greater than its neighbors.
+
+Return the index of any peak element.
+
+Example:
+    nums = [1, 2, 3, 1]
+
+    Output:
+        2
+
+    Because nums[2] = 3 is greater than 2 and 1.
+
+Key Idea:
+---------
+Use Binary Search by checking:
+
+    nums[mid] < nums[mid + 1]
+
+If true:
+    We are going uphill.
+    A peak must exist on the RIGHT side.
+
+Otherwise:
+    We are going downhill.
+    `mid` itself could be a peak,
+    so keep `mid` in the search range.
+
+Important:
+----------
+We use:
+
+    right = mid
+
+NOT:
+
+    right = mid - 1
+
+Because `mid` can itself be the peak.
+
+The loop continues while:
+
+    left < right
+
+When:
+    left == right
+
+that index must be a peak.
+
+Why does a peak always exist?
+-----------------------------
+The array is considered to have:
+
+    nums[-1] = -∞
+    nums[n]  = -∞
+
+So even if the array keeps increasing or decreasing,
+there will always be a peak.
+
+Complexity:
+-----------
+Time:  O(log n)
+Space: O(1)
+
+Memory Trick:
+-------------
+    nums[mid] < nums[mid+1]
+        → Going UP → move RIGHT
+
+    nums[mid] >= nums[mid+1]
+        → Going DOWN → keep MID
+
+    left == right
+        → Peak found
+"""
+
+
+class Solution:
+    def findPeakElement(self, nums):
+
+        # Start of the search range
+        left = 0
+
+        # End of the search range
+        right = len(nums) - 1
+
+        # Continue until only one index remains
+        while left < right:
+
+            # Find the middle index
+            mid = (left + right) // 2
+
+            # Check whether we are going uphill
+            if nums[mid] < nums[mid + 1]:
+
+                # Going UP → a peak must be on the right
+                left = mid + 1
+
+            else:
+
+                # Going DOWN → mid could be the peak
+                # Keep mid in the search range
+                right = mid
+
+        # left == right → peak index
+        return left
