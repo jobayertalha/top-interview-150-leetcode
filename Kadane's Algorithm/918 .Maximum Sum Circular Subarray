@@ -1,0 +1,200 @@
+"""
+Problem:
+--------
+Given a circular integer array, find the maximum possible
+sum of a non-empty subarray.
+
+In a circular array, the end connects back to the beginning.
+
+Example:
+    nums = [5, -3, 5]
+
+    Normal maximum:
+        5 + (-3) + 5 = 7
+
+    Circular maximum:
+        5 + 5 = 10
+
+    Output:
+        10
+
+
+Key Idea:
+---------
+There are TWO possible answers:
+
+    1. Normal maximum subarray
+    2. Circular maximum subarray
+
+For the circular case:
+
+    total_sum - minimum_subarray_sum
+
+Why?
+----
+If we remove the minimum-sum middle part, the remaining
+elements wrap around the ends.
+
+Example:
+
+    [5, -3, 5]
+
+    Total = 7
+
+    Minimum subarray = [-3]
+
+    Circular sum = 7 - (-3)
+                 = 10
+
+So we need BOTH:
+
+    Maximum subarray
+    Minimum subarray
+
+
+Main Formula:
+-------------
+    circular_sum = total_sum - min_sum
+
+Then:
+
+    answer = max(max_sum, circular_sum)
+
+
+Why find the minimum subarray?
+------------------------------
+The maximum circular subarray is everything EXCEPT
+some middle section.
+
+To make the remaining sum as large as possible,
+we remove the smallest possible middle section.
+
+Therefore:
+
+    Maximum circular sum
+        =
+    Total sum - Minimum subarray sum
+
+
+Important Variables:
+--------------------
+
+current_max:
+    Best subarray sum ending at the current position.
+
+max_sum:
+    Best normal subarray sum found so far.
+
+current_min:
+    Smallest subarray sum ending at the current position.
+
+min_sum:
+    Smallest subarray sum found so far.
+
+total_sum:
+    Sum of all elements.
+
+
+Why do we need the all-negative check?
+---------------------------------------
+Example:
+
+    nums = [-3, -2, -5]
+
+    total_sum = -10
+    min_sum = -10
+
+Then:
+
+    total_sum - min_sum
+    = -10 - (-10)
+    = 0
+
+But 0 means selecting nothing.
+
+The problem requires a NON-EMPTY subarray.
+
+So if:
+
+    max_sum < 0
+
+all numbers are negative, and we return max_sum.
+
+
+Time Complexity:
+----------------
+O(n)
+
+We visit every element once.
+
+Space Complexity:
+-----------------
+O(1)
+
+Only a few variables are used.
+
+
+Memory Trick:
+-------------
+Normal case:
+    Find MAX
+
+Circular case:
+    TOTAL - MIN
+
+Final:
+    max(MAX, TOTAL - MIN)
+
+Special case:
+    ALL NEGATIVE → return MAX
+"""
+
+class Solution:
+    def maxSubarraySumCircular(self, nums):
+
+        # Start Kadane's maximum with the first number
+        current_max = nums[0]
+        max_sum = nums[0]
+
+        # Start Kadane's minimum with the first number
+        current_min = nums[0]
+        min_sum = nums[0]
+
+        # Total sum of the entire array
+        total_sum = nums[0]
+
+        # Process the remaining elements
+        for i in range(1, len(nums)):
+
+            # Add current number to total sum
+            total_sum += nums[i]
+
+            # Find the best maximum subarray ending here
+            current_max = max(
+                nums[i],
+                current_max + nums[i]
+            )
+
+            # Update overall maximum
+            max_sum = max(max_sum, current_max)
+
+            # Find the smallest subarray ending here
+            current_min = min(
+                nums[i],
+                current_min + nums[i]
+            )
+
+            # Update overall minimum
+            min_sum = min(min_sum, current_min)
+
+        # If every number is negative,
+        # circular calculation would incorrectly give 0.
+        if max_sum < 0:
+            return max_sum
+
+        # Remove the minimum subarray from the total.
+        # The remaining elements form the best circular sum.
+        circular_sum = total_sum - min_sum
+
+        # Compare normal and circular answers
+        return max(max_sum, circular_sum)
