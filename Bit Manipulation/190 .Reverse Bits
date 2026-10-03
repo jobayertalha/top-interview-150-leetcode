@@ -1,0 +1,91 @@
+"""
+Problem:
+--------
+Reverse the bits of a given 32-bit unsigned integer.
+
+Example:
+
+    Input:
+        n = 00000010100101000001111010011100
+
+    Output:
+        00111001011110000010100101000000
+
+Key Idea:
+---------
+Process exactly 32 bits from RIGHT to LEFT.
+
+For every bit:
+
+    1. Get the last bit of n.
+    2. Shift result LEFT.
+    3. Add the extracted bit to result.
+    4. Shift n RIGHT to remove its last bit.
+
+Important Bit Operations:
+-------------------------
+    n & 1
+        → Gets the last bit.
+
+    result << 1
+        → Moves result left and creates space.
+
+    result | bit
+        → Adds the new bit.
+
+    n >> 1
+        → Removes the last bit of n.
+
+Why exactly 32 iterations?
+---------------------------
+The problem uses a 32-bit integer.
+
+So even if n has leading zeros, we must process all 32 positions.
+
+Example:
+    101
+
+As 32 bits:
+    000...000101
+
+We still process all 32 bits.
+
+Complexity:
+-----------
+Time:  O(32) = O(1)
+Space: O(1)
+
+Memory Trick:
+-------------
+    GET → SHIFT → ADD → REMOVE
+
+    `n & 1`  → get bit
+    `<< 1`   → make space
+    `| bit`  → add bit
+    `>> 1`   → remove bit
+"""
+
+
+class Solution:
+    def reverseBits(self, n):
+
+        # Store the reversed bits
+        result = 0
+
+        # Process exactly 32 bits
+        for _ in range(32):
+
+            # Get the last bit of n
+            bit = n & 1
+
+            # Shift result left to make space
+            result = result << 1
+
+            # Add the extracted bit
+            result = result | bit
+
+            # Remove the last bit from n
+            n = n >> 1
+
+        # Return the reversed 32-bit number
+        return result
