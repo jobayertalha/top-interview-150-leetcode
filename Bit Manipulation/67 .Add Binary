@@ -1,0 +1,119 @@
+"""
+Problem:
+--------
+Given two binary strings `a` and `b`, return their sum as a binary string.
+
+Example:
+    a = "11"
+    b = "1"
+
+    11
+  +  1
+  ----
+   100
+
+    Output = "100"
+
+Key Idea:
+---------
+Perform binary addition from RIGHT to LEFT,
+just like normal addition.
+
+Use:
+    i     → last index of a
+    j     → last index of b
+    carry → carry from the previous addition
+
+For every position:
+
+    total = digit_a + digit_b + carry
+
+Then:
+
+    current digit = total % 2
+    new carry     = total // 2
+
+Why `% 2`?
+-----------
+It gives the current binary digit.
+
+    total = 0 → 0
+    total = 1 → 1
+    total = 2 → 0
+    total = 3 → 1
+
+Why `// 2`?
+------------
+It gives the carry.
+
+    total = 0 → 0
+    total = 1 → 0
+    total = 2 → 1
+    total = 3 → 1
+
+Important:
+----------
+If one string becomes empty, use `0`.
+
+Continue while:
+
+    i >= 0 OR j >= 0 OR carry
+
+The `carry` condition is important because there may be
+one final digit left after both strings are finished.
+
+Complexity:
+-----------
+Time:  O(max(m, n))
+Space: O(max(m, n))
+
+Memory Trick:
+-------------
+    Add → `% 2` gives digit
+        → `// 2` gives carry
+
+    RIGHT → LEFT → REVERSE
+"""
+
+
+class Solution:
+    def addBinary(self, a, b):
+
+        # Start from the last digit of both strings
+        i = len(a) - 1
+        j = len(b) - 1
+
+        # Initially there is no carry
+        carry = 0
+
+        # Store result digits
+        result = []
+
+        # Continue while digits or carry remain
+        while i >= 0 or j >= 0 or carry:
+
+            # Get digit from a, or 0 if finished
+            digit_a = int(a[i]) if i >= 0 else 0
+
+            # Get digit from b, or 0 if finished
+            digit_b = int(b[j]) if j >= 0 else 0
+
+            # Add both digits and carry
+            total = digit_a + digit_b + carry
+
+            # Get current binary digit
+            result.append(str(total % 2))
+
+            # Calculate new carry
+            carry = total // 2
+
+            # Move to the previous digits
+            i -= 1
+            j -= 1
+
+        # Digits were added from right to left
+        # so reverse them
+        result.reverse()
+
+        # Join all digits into one string
+        return "".join(result)
