@@ -1,0 +1,66 @@
+"""
+Problem:
+--------
+Given two integers left and right, return the bitwise AND of every number
+between left and right (inclusive).
+
+Example:
+    Input:  left = 5, right = 7
+
+    5 = 101
+    6 = 110
+    7 = 111
+
+    101 & 110 & 111 = 100
+
+    Output: 4
+
+Key Idea:
+---------
+We only keep the bits that remain unchanged throughout the range.
+
+The trick:
+    right & (right - 1)
+
+This removes the lowest set bit (rightmost 1-bit).
+
+Keep doing this until right == left.
+The remaining value contains the common prefix bits.
+
+Why it works:
+-------------
+Any bit that changes somewhere between left and right
+cannot be 1 in the final AND.
+
+So we remove those changing set bits from right until
+both numbers become the same.
+
+Important Expression:
+---------------------
+right & (right - 1)
+    → Removes the lowest 1-bit.
+
+Example:
+    1100
+    1011
+    ----
+    1000
+
+Complexity:
+-----------
+Time:  O(number of bits) ≈ O(log n)
+Space: O(1)
+
+Memory Trick:
+-------------
+REMOVE RIGHTMOST 1 → UNTIL LEFT == RIGHT
+"""
+
+class Solution:
+    def rangeBitwiseAnd(self, left, right):
+
+        while right > left:              # Remove changing bits
+
+            right = right & (right - 1)  # Remove the lowest set bit
+
+        return right                     # Remaining common bits = answer
