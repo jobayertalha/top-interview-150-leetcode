@@ -1,0 +1,165 @@
+"""
+Problem:
+--------
+Design a data structure that supports:
+
+    1. addNum(num)     → add a number
+    2. findMedian()    → return the median
+
+Example:
+    addNum(1)
+    addNum(2)
+
+    Median = (1 + 2) / 2 = 1.5
+
+    addNum(3)
+
+    Median = 2
+
+Key Idea:
+---------
+Use TWO heaps:
+
+    left  → MAX HEAP → smaller half
+    right → MIN HEAP → larger half
+
+Example:
+
+    Numbers: [1, 2, 3, 4, 5]
+
+    left:  [1, 2, 3]
+                    ↑
+                 largest
+
+    right: [4, 5]
+            ↑
+          smallest
+
+The two heaps split the numbers around the median.
+
+Important Rules:
+----------------
+1. Every value in left <= every value in right.
+
+2. left can have ONE extra element.
+
+So:
+
+    len(left) == len(right)
+        OR
+    len(left) == len(right) + 1
+
+Why max heap for left?
+----------------------
+We need the largest value of the smaller half.
+
+Python only has a MIN heap, so store negative values:
+
+    value = 5
+    stored = -5
+
+Then:
+
+    -left[0]
+
+gives the actual largest value in left.
+
+Why min heap for right?
+-----------------------
+We need the smallest value of the larger half.
+
+`right[0]` directly gives it.
+
+How addNum works:
+-----------------
+1. Put num into left.
+2. If left's largest > right's smallest,
+   move that value from left → right.
+3. Balance the sizes.
+
+How findMedian works:
+---------------------
+If left has one extra:
+
+    median = largest value in left
+
+If both have equal size:
+
+    median = (largest left + smallest right) / 2
+
+Complexity:
+-----------
+addNum:     O(log n)
+findMedian: O(1)
+Space:      O(n)
+
+Memory Trick:
+-------------
+    LEFT  = smaller half = MAX HEAP
+    RIGHT = larger half  = MIN HEAP
+
+    Left can have ONE extra.
+
+    Odd  → top of LEFT
+    Even → (top LEFT + top RIGHT) / 2
+"""
+
+
+import heapq
+
+
+class MedianFinder:
+
+    def __init__(self):
+
+        # Max heap for the smaller half
+        # Store negative values because heapq is a min heap
+        self.left = []
+
+        # Min heap for the larger half
+        self.right = []
+
+    def addNum(self, num):
+
+        # First add the number to the left heap
+        heapq.heappush(self.left, -num)
+
+        # Make sure:
+        # largest(left) <= smallest(right)
+        if self.right and -self.left[0] > self.right[0]:
+
+            # Remove the largest value from left
+            largest_left = -heapq.heappop(self.left)
+
+            # Move it to right
+            heapq.heappush(self.right, largest_left)
+
+        # Left can have at most ONE extra element
+        if len(self.left) > len(self.right) + 1:
+
+            # Move largest value from left to right
+            largest_left = -heapq.heappop(self.left)
+
+            heapq.heappush(self.right, largest_left)
+
+        # If right becomes larger, move its smallest value to left
+        elif len(self.left) < len(self.right):
+
+            # Remove smallest value from right
+            smallest_right = heapq.heappop(self.right)
+
+            # Store it as negative in left
+            heapq.heappush(self.left, -smallest_right)
+
+    def findMedian(self):
+
+        # Odd number of elements
+        # Left has one extra element
+        if len(self.left) > len(self.right):
+
+            # Largest value in left is the median
+            return -self.left[0]
+
+        # Even number of elements
+        # Average the two middle values
+        return (-self.left[0] + self.right[0]) / 2.0
