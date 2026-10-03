@@ -1,0 +1,106 @@
+"""
+Problem:
+--------
+Given a sorted array, convert it into a height-balanced
+Binary Search Tree (BST).
+
+Example:
+    nums = [-10, -3, 0, 5, 9]
+
+    Output:
+
+          0
+        /   \
+      -3     9
+      /     /
+   -10     5
+
+
+Key Idea:
+---------
+Always choose the MIDDLE element as the root.
+
+    Left half  → Left subtree
+    Middle     → Root
+    Right half → Right subtree
+
+Then repeat the same process recursively.
+
+Why middle?
+-----------
+Because the array is sorted.
+
+Example:
+
+    [1, 2, 3, 4, 5]
+
+         3
+        / \
+      1     4
+       \     \
+        2     5
+
+Choosing the middle keeps the tree balanced.
+
+Base Case:
+----------
+If nums is empty:
+
+    return None
+
+Important:
+----------
+    mid = len(nums) // 2
+
+finds the middle index.
+
+    nums[:mid]
+
+contains elements before the middle.
+
+    nums[mid + 1:]
+
+contains elements after the middle.
+
+Time Complexity:
+----------------
+O(n)
+
+Every element becomes one tree node.
+
+Space Complexity:
+-----------------
+O(n)
+
+O(log n) recursion stack + the output tree.
+
+Memory Trick:
+-------------
+    MIDDLE → ROOT
+    LEFT   → LEFT
+    RIGHT  → RIGHT
+
+Then repeat recursively.
+"""
+
+class Solution:
+    def sortedArrayToBST(self, nums):
+
+        # No elements → no tree
+        if not nums:
+            return None
+
+        # Find the middle index
+        mid = len(nums) // 2
+
+        # Middle element becomes the root
+        root = TreeNode(nums[mid])
+
+        # Left half becomes the left subtree
+        root.left = self.sortedArrayToBST(nums[:mid])
+
+        # Right half becomes the right subtree
+        root.right = self.sortedArrayToBST(nums[mid + 1:])
+
+        # Return the root
+        return root
