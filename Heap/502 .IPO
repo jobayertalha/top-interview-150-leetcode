@@ -1,0 +1,150 @@
+"""
+Problem:
+--------
+You have some initial capital `w`.
+
+Each project requires a certain amount of capital and gives
+a certain profit.
+
+You can complete at most `k` projects.
+
+After completing a project:
+
+    new capital = current capital + profit
+
+Return the maximum possible capital.
+
+Example:
+    k = 2
+    w = 0
+    profits = [1, 2, 3]
+    capital = [0, 1, 1]
+
+    Start: w = 0
+    → Project with capital 0, profit 1
+    → w = 1
+
+    Now projects requiring capital 1 are affordable.
+    → Choose profit 3
+    → w = 4
+
+    Output = 4
+
+Key Idea:
+---------
+Use TWO things:
+
+    1. Sort projects by required capital.
+    2. Use a MAX HEAP to choose the largest profit
+       among currently affordable projects.
+
+At every step:
+
+    Add all affordable projects to the heap
+            ↓
+    Pick the project with maximum profit
+            ↓
+    Add profit to capital
+            ↓
+    Repeat up to k times
+
+Why sort by capital?
+--------------------
+It lets us efficiently find all projects that are currently affordable.
+
+Why max heap?
+-------------
+There may be many affordable projects.
+
+We always want the one with the largest profit because
+that gives us the most capital for the next projects.
+
+Python's heapq is a MIN heap.
+
+So store:
+
+    -profit
+
+The largest profit becomes the smallest negative number.
+
+Important:
+----------
+`i` points to the next project that has not yet been added
+to the heap.
+
+Once a project becomes affordable, it stays affordable because
+our capital only increases.
+
+Complexity:
+-----------
+Sorting: O(n log n)
+Heap operations: O(n log n)
+
+Overall:
+    O(n log n + k log n)
+
+Space:
+    O(n)
+
+Memory Trick:
+-------------
+    SORT by capital
+        ↓
+    ADD affordable projects
+        ↓
+    MAX HEAP by profit
+        ↓
+    TAKE biggest profit
+        ↓
+    Increase capital
+"""
+
+
+import heapq
+
+
+class Solution:
+    def findMaximizedCapital(self, k, w, profits, capital):
+
+        # Create (required capital, profit) pairs
+        projects = []
+
+        for i in range(len(profits)):
+
+            # Store capital requirement and profit together
+            projects.append((capital[i], profits[i]))
+
+        # Sort projects by required capital
+        projects.sort()
+
+        # Max heap for profits
+        # Python has a min heap, so store negative profits
+        max_heap = []
+
+        # Pointer to the next project
+        i = 0
+
+        # We can choose at most k projects
+        for _ in range(k):
+
+            # Add every currently affordable project
+            while i < len(projects) and projects[i][0] <= w:
+
+                # Negative profit simulates a max heap
+                heapq.heappush(max_heap, -projects[i][1])
+
+                # Move to the next project
+                i += 1
+
+            # No affordable project → cannot continue
+            if not max_heap:
+                break
+
+            # Take the project with maximum profit
+            profit = -heapq.heappop(max_heap)
+
+            # Increase our capital
+            w += profit
+
+        # Return maximum final capital
+        return w
