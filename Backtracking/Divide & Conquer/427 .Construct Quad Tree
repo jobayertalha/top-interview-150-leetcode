@@ -1,0 +1,250 @@
+"""
+Problem:
+--------
+Given an n × n binary grid, construct a Quad-Tree.
+
+Each node represents a square region of the grid.
+
+A node is:
+
+    Leaf     → if the whole region has the same value
+    Internal → if the region contains both 0 and 1
+
+For an internal node, divide the region into 4 parts:
+
+        TopLeft     TopRight
+        ┌───────┬───────┐
+        │       │       │
+        ├───────┼───────┤
+        │       │       │
+        └───────┴───────┘
+        BottomLeft  BottomRight
+
+
+Key Idea:
+---------
+Use RECURSION + DIVIDE AND CONQUER.
+
+For each square:
+
+    1. Check if all cells have the same value.
+    2. If yes → create a leaf node.
+    3. If not → divide into 4 smaller squares.
+    4. Recursively build all 4 children.
+
+
+Important Variables:
+--------------------
+
+row, col:
+    Top-left corner of the current square.
+
+size:
+    Size of the current square.
+
+Example:
+
+    row = 0
+    col = 0
+    size = 4
+
+means:
+
+    Start from grid[0][0]
+    and process a 4 × 4 square.
+
+
+How do we know if a square is uniform?
+--------------------------------------
+Take the first cell:
+
+    first_value = grid[row][col]
+
+Then compare every other cell with it.
+
+If any cell is different:
+
+    same = False
+
+Otherwise:
+
+    same = True
+
+
+Leaf Node:
+----------
+If every cell has the same value:
+
+    0 0
+    0 0
+
+or:
+
+    1 1
+    1 1
+
+create a leaf node.
+
+    isLeaf = True
+
+
+Internal Node:
+--------------
+If the square contains different values:
+
+    0 1
+    1 0
+
+we divide it into 4 smaller squares.
+
+    TopLeft
+    TopRight
+    BottomLeft
+    BottomRight
+
+
+Why use half = size // 2?
+-------------------------
+If the current square has size 4:
+
+    half = 4 // 2 = 2
+
+So we divide:
+
+    4 × 4
+
+into four:
+
+    2 × 2
+
+
+Important Coordinates:
+----------------------
+
+Top-left:
+    build(row, col, half)
+
+Top-right:
+    build(row, col + half, half)
+
+Bottom-left:
+    build(row + half, col, half)
+
+Bottom-right:
+    build(row + half, col + half, half)
+
+
+Base Case:
+----------
+If the current square is uniform, stop dividing
+and create a leaf node.
+
+There is no need to explicitly check size == 1 because
+a 1 × 1 square is automatically uniform.
+
+
+Time Complexity:
+----------------
+O(n² log n) in the worst case because regions may be checked
+at multiple recursion levels.
+
+Space Complexity:
+-----------------
+O(log n) recursion stack, excluding the Quad-Tree itself.
+
+
+Memory Trick:
+-------------
+    CHECK → LEAF?
+             ↓ NO
+           SPLIT × 4
+             ↓
+          RECURSE
+
+Remember:
+
+    "Same → Leaf
+     Mixed → 4 parts"
+"""
+
+class Solution:
+    def construct(self, grid):
+
+        # ---------------------------------------------
+        # Build a Quad-Tree for one square region
+        # ---------------------------------------------
+        #
+        # row, col = top-left corner
+        # size     = size of current square
+        #
+        def build(row, col, size):
+
+            # Use the top-left cell as the value
+            # to compare all other cells with.
+            first_value = grid[row][col]
+
+            # Assume the whole square is uniform
+            same = True
+
+            # Check every cell inside the square
+            for r in range(row, row + size):
+                for c in range(col, col + size):
+
+                    # Found a different value
+                    if grid[r][c] != first_value:
+                        same = False
+                        break
+
+                # Stop checking if already different
+                if not same:
+                    break
+
+            # -----------------------------------------
+            # If the whole square is uniform
+            # create a leaf node.
+            # -----------------------------------------
+            if same:
+                return Node(
+                    first_value == 1,  # val: True for 1
+                    True,               # isLeaf
+                    None,              # topLeft
+                    None,              # topRight
+                    None,              # bottomLeft
+                    None               # bottomRight
+                )
+
+            # -----------------------------------------
+            # Square is mixed → divide into 4 parts
+            # -----------------------------------------
+
+            # Size of each smaller square
+            half = size // 2
+
+            # Top-left quarter
+            topLeft = build(row, col, half)
+
+            # Top-right quarter
+            topRight = build(row, col + half, half)
+
+            # Bottom-left quarter
+            bottomLeft = build(row + half, col, half)
+
+            # Bottom-right quarter
+            bottomRight = build(
+                row + half,
+                col + half,
+                half
+            )
+
+            # Create an internal node
+            return Node(
+                True,          # val doesn't matter here
+                False,         # isLeaf = False
+                topLeft,
+                topRight,
+                bottomLeft,
+                bottomRight
+            )
+
+        # Start with the entire grid
+        return build(0, 0, len(grid))
