@@ -1,0 +1,96 @@
+"""
+Problem:
+--------
+Given a sorted array rotated at some unknown point, find the minimum element.
+
+Example:
+    nums = [4, 5, 6, 7, 0, 1, 2]
+
+    Output:
+        0
+
+Key Idea:
+---------
+Use Binary Search.
+
+Compare `nums[mid]` with `nums[right]`.
+
+If:
+
+    nums[mid] > nums[right]
+
+then the minimum must be on the RIGHT.
+
+Otherwise:
+
+    nums[mid] <= nums[right]
+
+then the minimum is at `mid` or somewhere on the LEFT.
+
+Important:
+----------
+When moving LEFT, use:
+
+    right = mid
+
+NOT:
+
+    right = mid - 1
+
+because `mid` itself could be the minimum.
+
+When moving RIGHT:
+
+    left = mid + 1
+
+because `nums[mid]` is definitely NOT the minimum.
+
+The loop stops when:
+
+    left == right
+
+That remaining index contains the minimum.
+
+Complexity:
+-----------
+Time:  O(log n)
+Space: O(1)
+
+Memory Trick:
+-------------
+    mid > right → Minimum RIGHT
+    mid <= right → Keep MID, search LEFT
+
+    left == right → Minimum found
+"""
+
+
+class Solution:
+    def findMin(self, nums):
+
+        # Start of the search range
+        left = 0
+
+        # End of the search range
+        right = len(nums) - 1
+
+        # Continue until only one index remains
+        while left < right:
+
+            # Find the middle index
+            mid = (left + right) // 2
+
+            # Minimum must be on the RIGHT
+            if nums[mid] > nums[right]:
+
+                # mid cannot be the minimum
+                left = mid + 1
+
+            else:
+
+                # Minimum is at mid or on the LEFT
+                # Keep mid in the search range
+                right = mid
+
+        # left == right → minimum element
+        return nums[left]
