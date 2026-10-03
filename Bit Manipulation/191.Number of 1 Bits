@@ -1,0 +1,45 @@
+"""
+Problem:
+--------
+Given an integer n, return the number of '1' bits in its binary representation.
+
+Example:
+    Input:  n = 11
+    Binary: 1011
+    Output: 3
+
+Key Idea:
+---------
+Check the last bit using (n & 1).
+- If it is 1 → increase count.
+- Right shift n by 1 to remove the last bit.
+- Repeat until n becomes 0.
+
+Important:
+----------
+n & 1  → checks the last bit
+n >> 1 → removes the last bit
+
+Complexity:
+-----------
+Time:  O(log n)   # Process each bit
+Space: O(1)
+
+Memory Trick:
+-------------
+CHECK → COUNT → SHIFT
+"""
+
+class Solution:
+    def hammingWeight(self, n):
+
+        count = 0                 # Stores number of 1-bits
+
+        while n > 0:              # Process bits until n becomes 0
+
+            if n & 1:             # Check if the last bit is 1
+                count += 1        # Count this 1-bit
+
+            n = n >> 1            # Remove the last bit
+
+        return count               # Return total number of 1-bits
