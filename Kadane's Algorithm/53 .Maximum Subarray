@@ -1,0 +1,147 @@
+"""
+Problem:
+--------
+Given an integer array nums, find the contiguous subarray
+with the largest sum and return that sum.
+
+Example:
+    nums = [-2,1,-3,4,-1,2,1,-5,4]
+
+    Output:
+        6
+
+    Because:
+
+        [4,-1,2,1] = 6
+
+
+Key Idea:
+---------
+Use Kadane's Algorithm.
+
+At every number, decide:
+
+    1. Start a new subarray from this number
+    2. Continue the previous subarray
+
+So:
+
+    current_sum = max(nums[i],
+                      current_sum + nums[i])
+
+
+Important:
+----------
+current_sum:
+    Best sum of a subarray that MUST end at the current position.
+
+max_sum:
+    Best subarray sum found anywhere so far.
+
+
+Why max(nums[i], current_sum + nums[i])?
+-----------------------------------------
+Suppose:
+
+    current_sum = -5
+    nums[i] = 4
+
+Continuing gives:
+
+    -5 + 4 = -1
+
+Starting fresh gives:
+
+    4
+
+So choose:
+
+    max(4, -1) = 4
+
+A negative previous sum is hurting us, so we start again.
+
+
+Example Trace:
+--------------
+
+nums = [-2, 1, -3, 4, -1, 2, 1]
+
+Start:
+
+    current_sum = -2
+    max_sum = -2
+
+Then:
+
+    1  → max(1, -2+1) = 1
+    -3 → max(-3, 1-3) = -2
+    4  → max(4, -2+4) = 4
+    -1 → max(-1, 4-1) = 3
+    2  → max(2, 3+2) = 5
+    1  → max(1, 5+1) = 6
+
+Answer:
+
+    6
+
+
+Important:
+----------
+We don't reset current_sum manually.
+
+This line automatically decides whether to
+continue or start over:
+
+    current_sum = max(nums[i], current_sum + nums[i])
+
+
+Time Complexity:
+----------------
+O(n)
+
+We visit every element once.
+
+Space Complexity:
+-----------------
+O(1)
+
+Only two variables are used.
+
+
+Memory Trick:
+-------------
+    TAKE OR RESTART
+
+At every number:
+
+    Continue previous sum
+            OR
+    Start from current number
+
+Then:
+
+    Update global maximum.
+"""
+
+class Solution:
+    def maxSubArray(self, nums):
+
+        # Start with the first number
+        current_sum = nums[0]
+
+        # Best sum found so far
+        max_sum = nums[0]
+
+        # Check the remaining numbers
+        for i in range(1, len(nums)):
+
+            # Either:
+            # 1. Start a new subarray at nums[i]
+            # 2. Continue the previous subarray
+            current_sum = max(nums[i], current_sum + nums[i])
+
+            # Update the overall maximum
+            max_sum = max(max_sum, current_sum)
+
+        # Return the largest subarray sum
+        return max_sum
