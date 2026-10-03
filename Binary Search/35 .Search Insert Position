@@ -1,0 +1,134 @@
+"""
+Problem:
+--------
+Given a sorted array and a target value, return the index if the
+target is found.
+
+If the target is not found, return the index where it should be
+inserted to keep the array sorted.
+
+Example:
+    nums = [1, 3, 5, 6]
+    target = 5
+
+    Output:
+        2
+
+Example:
+    nums = [1, 3, 5, 6]
+    target = 2
+
+    Output:
+        1
+
+Key Idea:
+---------
+Use Binary Search.
+
+Instead of checking every element, repeatedly divide the
+search range into half.
+
+    left        mid        right
+      ↓          ↓           ↓
+    [1, 3, 5, 6]
+
+If nums[mid] is:
+    target       → found
+    smaller      → search right half
+    larger       → search left half
+
+
+Important Variables:
+--------------------
+left:
+    Start of the current search range.
+
+right:
+    End of the current search range.
+
+mid:
+    Middle index of the current range.
+
+
+Why return left at the end?
+---------------------------
+When the target is not found, the search ends when:
+
+    left > right
+
+At that point, left is exactly the position where the target
+should be inserted.
+
+Example:
+
+    nums = [1, 3, 5, 6]
+    target = 2
+
+Eventually:
+
+    left = 1
+    right = 0
+
+So target 2 should be inserted at index 1:
+
+    [1, 2, 3, 5, 6]
+        ↑
+      index 1
+
+
+Time Complexity:
+----------------
+O(log n)
+
+Each step removes half of the search space.
+
+Space Complexity:
+-----------------
+O(1)
+
+Only a few variables are used.
+
+
+Memory Trick:
+-------------
+    FOUND    → return mid
+    TOO SMALL → move left
+    TOO LARGE → move right
+
+If not found:
+
+    return left
+"""
+
+class Solution:
+    def searchInsert(self, nums, target):
+
+        # Left boundary of the search range
+        left = 0
+
+        # Right boundary of the search range
+        right = len(nums) - 1
+
+        # Continue while the search range is valid
+        while left <= right:
+
+            # Find the middle index
+            mid = (left + right) // 2
+
+            # Target found
+            if nums[mid] == target:
+                return mid
+
+            # Middle value is too small,
+            # so search the right half
+            elif nums[mid] < target:
+                left = mid + 1
+
+            # Middle value is too large,
+            # so search the left half
+            else:
+                right = mid - 1
+
+        # Target was not found.
+        # left is the correct insertion position.
+        return left
