@@ -1,0 +1,68 @@
+"""
+Problem:
+--------
+Every number appears 3 times except one number.
+Find the number that appears only once.
+
+Example:
+    Input:  nums = [2, 2, 3, 2]
+    Output: 3
+
+Key Idea:
+---------
+Check each of the 32 bit positions separately.
+
+For every bit:
+- Count how many numbers have that bit = 1.
+- Numbers appearing 3 times contribute multiples of 3.
+- So count % 3 gives the bit of the single number.
+
+Important Expressions:
+----------------------
+(num >> bit) & 1
+    → Check whether this bit is 1.
+
+1 << bit
+    → Create a number with this bit ON.
+
+result | (1 << bit)
+    → Turn that bit ON in result.
+
+Negative Numbers:
+-----------------
+Python integers do not automatically behave like 32-bit integers.
+So after building the 32-bit result:
+- If the 32nd bit is ON, convert it to a negative number.
+
+Complexity:
+-----------
+Time:  O(32 × n) = O(n)
+Space: O(1)
+
+Memory Trick:
+-------------
+COUNT EACH BIT → MOD 3 → BUILD ANSWER
+"""
+
+class Solution:
+    def singleNumber(self, nums):
+
+        result = 0                         # Stores the final answer
+
+        for bit in range(32):              # Check all 32 bit positions
+
+            count = 0                      # Count 1s at this bit
+
+            for num in nums:               # Check every number
+
+                if (num >> bit) & 1:       # Is this bit equal to 1?
+                    count += 1             # Count the 1
+
+            if count % 3 != 0:             # 1 remains after removing groups of 3
+                result = result | (1 << bit)  # Turn this bit ON
+
+        # Convert unsigned 32-bit result to signed negative number
+        if result >= 2**31:
+            result -= 2**32
+
+        return result                      # Return the single number
