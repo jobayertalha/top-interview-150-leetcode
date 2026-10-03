@@ -1,0 +1,121 @@
+"""
+Problem:
+--------
+Given a sorted array that has been rotated, find the index of target.
+
+Example:
+    nums = [4, 5, 6, 7, 0, 1, 2]
+    target = 0
+
+    Output:
+        4
+
+Key Idea:
+---------
+Even after rotation, at least ONE half of the array is always sorted.
+
+At every step:
+
+    1. Find mid.
+    2. Check which half is sorted.
+    3. Check whether target belongs to that sorted half.
+    4. Search the correct half.
+
+Important:
+----------
+If:
+
+    nums[left] <= nums[mid]
+
+the LEFT half is sorted.
+
+Otherwise:
+
+    RIGHT half is sorted.
+
+For a sorted left half:
+    nums[left] <= target < nums[mid]
+        → target is in LEFT
+
+    Otherwise
+        → target is in RIGHT
+
+For a sorted right half:
+    nums[mid] < target <= nums[right]
+        → target is in RIGHT
+
+    Otherwise
+        → target is in LEFT
+
+Why use <= ?
+-------------
+`nums[left] <= nums[mid]` also handles the case where
+left and mid contain equal values.
+
+Complexity:
+-----------
+Time:  O(log n)
+Space: O(1)
+
+Memory Trick:
+-------------
+    Find MID
+       ↓
+    Which half is SORTED?
+       ↓
+    Is TARGET inside it?
+       ↓
+    YES → search that half
+    NO  → search the other half
+"""
+
+
+class Solution:
+    def search(self, nums, target):
+
+        # Start of the search range
+        left = 0
+
+        # End of the search range
+        right = len(nums) - 1
+
+        # Continue while the range is valid
+        while left <= right:
+
+            # Find the middle index
+            mid = (left + right) // 2
+
+            # Target found
+            if nums[mid] == target:
+                return mid
+
+            # Check if the LEFT half is sorted
+            if nums[left] <= nums[mid]:
+
+                # Target lies inside the sorted LEFT half
+                if nums[left] <= target < nums[mid]:
+
+                    # Search left
+                    right = mid - 1
+
+                else:
+
+                    # Target must be in the right half
+                    left = mid + 1
+
+            # Otherwise, the RIGHT half is sorted
+            else:
+
+                # Target lies inside the sorted RIGHT half
+                if nums[mid] < target <= nums[right]:
+
+                    # Search right
+                    left = mid + 1
+
+                else:
+
+                    # Target must be in the left half
+                    right = mid - 1
+
+        # Target was not found
+        return -1
