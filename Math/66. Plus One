@@ -1,0 +1,53 @@
+"""
+Problem:
+--------
+Given an array of digits representing a non-negative integer,
+add 1 to the integer and return the resulting digits.
+
+Example:
+    Input:  [1, 2, 9]
+    Output: [1, 3, 0]
+
+Key Idea:
+---------
+Start from the last digit because addition begins from the right.
+
+- If digit < 9 → add 1 and return immediately.
+- If digit == 9 → change it to 0 and carry 1 to the left.
+- If every digit is 9 → add 1 at the beginning.
+
+Important:
+----------
+[1, 2, 3] → [1, 2, 4]
+[1, 2, 9] → [1, 3, 0]
+[9, 9, 9] → [1, 0, 0, 0]
+
+Complexity:
+-----------
+Time:  O(n)   # In the worst case, all digits are 9
+Space: O(n)   # For the new list when all digits are 9
+
+Memory Trick:
+-------------
+START RIGHT → 9 becomes 0 → CARRY LEFT → DONE
+"""
+
+class Solution:
+    def plusOne(self, digits):
+
+        # Start from the last digit
+        for i in range(len(digits) - 1, -1, -1):
+
+            # If digit is less than 9, no carry is needed
+            if digits[i] < 9:
+
+                digits[i] += 1       # Simply add 1
+
+                return digits        # We are done
+
+            # If digit is 9, it becomes 0 and carry moves left
+            digits[i] = 0
+
+        # If all digits were 9, add 1 at the front
+        # Example: [9,9,9] → [1,0,0,0]
+        return [1] + digits
