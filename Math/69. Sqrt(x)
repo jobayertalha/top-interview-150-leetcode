@@ -1,0 +1,77 @@
+"""
+Problem:
+--------
+Given a non-negative integer x, return the integer square root of x.
+
+The integer square root is the largest integer whose square is <= x.
+
+Example:
+    Input:  x = 8
+    Output: 2
+
+    Because:
+        2² = 4 <= 8
+        3² = 9 > 8
+
+Key Idea:
+---------
+Use Binary Search to find the largest number whose square is <= x.
+
+Search range:
+    left = 0
+    right = x
+
+If mid² <= x:
+    mid is valid → save it and search RIGHT for a larger answer.
+
+If mid² > x:
+    mid is too large → search LEFT.
+
+Important Expression:
+---------------------
+mid <= x // mid
+
+This is equivalent to:
+    mid * mid <= x
+
+but avoids multiplication overflow in languages where integers have limits.
+
+Special Case:
+-------------
+mid == 0 prevents division by zero.
+
+Complexity:
+-----------
+Time:  O(log x)
+Space: O(1)
+
+Memory Trick:
+-------------
+VALID → SAVE → GO RIGHT
+TOO BIG → GO LEFT
+"""
+
+class Solution:
+    def mySqrt(self, x):
+
+        left = 0                         # Smallest possible answer
+        right = x                        # Largest possible answer
+        answer = 0                       # Stores best valid answer
+
+        while left <= right:             # Continue while search range exists
+
+            mid = (left + right) // 2    # Find middle value
+
+            # Check if mid² <= x
+            # x // mid avoids multiplication overflow
+            if mid == 0 or mid <= x // mid:
+
+                answer = mid              # mid is a valid answer
+
+                left = mid + 1            # Try to find a larger valid answer
+
+            else:
+
+                right = mid - 1           # mid is too large, go left
+
+        return answer                     # Largest integer whose square <= x
