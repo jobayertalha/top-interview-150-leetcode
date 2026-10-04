@@ -1,0 +1,114 @@
+"""
+Problem:
+--------
+Given an array of points, find the maximum number of points
+that lie on the same straight line.
+
+Example:
+    Input:  points = [[1,1], [2,2], [3,3]]
+    Output: 3
+
+Key Idea:
+---------
+Pick one point as an anchor.
+
+For every other point, calculate the slope between them.
+Points having the same slope from the same anchor lie on
+the same straight line.
+
+Instead of using floating-point slopes, normalize the slope
+using GCD so that equivalent slopes have the same representation.
+
+Example:
+    (dy, dx) = (2, 4)
+    GCD = 2
+    → (1, 2)
+
+    (dy, dx) = (1, 2)
+    → (1, 2)
+
+Both represent the same slope.
+
+Important:
+----------
+Vertical line:
+    dx == 0 → use (1, 0)
+
+Negative slopes:
+    Keep dx positive so equivalent slopes have one representation.
+
+Why GCD?
+--------
+Avoid floating-point precision problems.
+
+Complexity:
+-----------
+Time:  O(n² log C)
+       where C is the coordinate difference.
+
+Space: O(n)
+
+Memory Trick:
+-------------
+ANCHOR → CALCULATE SLOPE → NORMALIZE → COUNT
+"""
+
+class Solution:
+    def maxPoints(self, points):
+
+        # Find GCD of two numbers
+        def gcd(a, b):
+
+            a = abs(a)                 # Make a positive
+            b = abs(b)                 # Make b positive
+
+            # Euclidean algorithm
+            while b:
+                a, b = b, a % b
+
+            return a                   # Final value is GCD
+
+        # 0, 1, or 2 points are automatically on one line
+        if len(points) <= 2:
+            return len(points)
+
+        answer = 0                     # Stores maximum points found
+
+        # Choose every point as the anchor
+        for i in range(len(points)):
+
+            slopes = {}                # Count each slope from this anchor
+
+            # Compare anchor with every point after it
+            for j in range(i + 1, len(points)):
+
+                # Calculate coordinate differences
+                dy = points[j][1] - points[i][1]
+                dx = points[j][0] - points[i][0]
+
+                # Special case: vertical line
+                if dx == 0:
+                    slope = (1, 0)
+
+                else:
+                    # Reduce slope using GCD
+                    common = gcd(dy, dx)
+
+                    dy //= common
+                    dx //= common
+
+                    # Keep dx positive for consistency
+                    if dx < 0:
+                        dy = -dy
+                        dx = -dx
+
+                    # Store normalized slope
+                    slope = (dy, dx)
+
+                # Count this slope
+                slopes[slope] = slopes.get(slope, 0) + 1
+
+                # +1 because anchor is also on the line
+                answer = max(answer, slopes[slope] + 1)
+
+        return answer                   # Maximum points on one line
