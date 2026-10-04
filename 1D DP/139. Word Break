@@ -1,0 +1,84 @@
+"""
+Problem:
+--------
+Given a string s and a dictionary of words, determine whether s can be
+segmented into one or more dictionary words.
+
+Example:
+    Input:
+        s = "leetcode"
+        wordDict = ["leet", "code"]
+
+    Output:
+        True
+
+    Because:
+        "leetcode" = "leet" + "code"
+
+Key Idea:
+---------
+Use Dynamic Programming.
+
+dp[i] means:
+    Can the first i characters of s be segmented into dictionary words?
+
+For every ending position i, try every starting position j.
+
+If:
+    dp[j] == True
+    AND
+    s[j:i] is a dictionary word
+
+then:
+    dp[i] = True
+
+Base Case:
+----------
+dp[0] = True
+
+The empty string can always be considered successfully segmented.
+
+Why use a set?
+--------------
+A set gives fast average O(1) lookup when checking:
+    s[j:i] in wordSet
+
+Complexity:
+-----------
+Time:  O(n²)   # Try all start/end positions
+Space: O(n)    # DP array + word set
+
+Memory Trick:
+-------------
+VALID PREFIX + VALID WORD → VALID STRING
+"""
+
+class Solution:
+    def wordBreak(self, s, wordDict):
+
+        # Convert dictionary to a set for fast lookup
+        wordSet = set(wordDict)
+
+        # dp[i] = whether first i characters can be segmented
+        dp = [False] * (len(s) + 1)
+
+        # Empty string is always valid
+        dp[0] = True
+
+        # Try every ending position
+        for i in range(1, len(s) + 1):
+
+            # Try every possible starting position
+            for j in range(i):
+
+                # Check:
+                # 1. Prefix before j is valid
+                # 2. s[j:i] is a dictionary word
+                if dp[j] and s[j:i] in wordSet:
+
+                    dp[i] = True          # First i characters are valid
+
+                    break                 # No need to try more splits
+
+        # Check whether the entire string is valid
+        return dp[len(s)]
