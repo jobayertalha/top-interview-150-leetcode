@@ -1,0 +1,75 @@
+"""
+Problem:
+--------
+You are given an array where nums[i] is the money in house i.
+You cannot rob two adjacent houses.
+Return the maximum amount of money you can rob.
+
+Example:
+    Input:  nums = [2, 7, 9, 3, 1]
+    Output: 12
+
+    Rob houses:
+        2 + 9 + 1 = 12
+
+Key Idea:
+---------
+For every house, we have two choices:
+
+    1. Skip the house
+       → Keep the previous best amount.
+
+    2. Rob the house
+       → Add its money to the best amount from two houses ago.
+
+So:
+
+    current = max(prev1, prev2 + money)
+
+We only need the previous two values, so we use O(1) space.
+
+Important Variables:
+--------------------
+prev2 → best amount from two houses ago
+prev1 → best amount from previous house
+current → best amount including the current house
+
+Complexity:
+-----------
+Time:  O(n)
+Space: O(1)
+
+Memory Trick:
+-------------
+SKIP → prev1
+TAKE → prev2 + money
+MAX → current
+"""
+
+class Solution:
+    def rob(self, nums):
+
+        # Best amount from two houses ago
+        prev2 = 0
+
+        # Best amount from the previous house
+        prev1 = 0
+
+        # Check every house
+        for money in nums:
+
+            # Option 1: Skip this house
+            skip = prev1
+
+            # Option 2: Rob this house
+            # Cannot rob the previous house, so use prev2
+            take = prev2 + money
+
+            # Choose the better option
+            current = max(skip, take)
+
+            # Move values forward
+            prev2 = prev1
+            prev1 = current
+
+        return prev1                   # Maximum money we can rob
