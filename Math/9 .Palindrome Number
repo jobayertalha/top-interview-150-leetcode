@@ -1,0 +1,60 @@
+"""
+Problem:
+--------
+Given an integer x, return True if x reads the same forward and backward.
+Otherwise, return False.
+
+Example:
+    Input:  x = 121
+    Output: True
+
+    Input:  x = -121
+    Output: False
+
+Key Idea:
+---------
+Reverse the number digit by digit and compare it with the original.
+
+Important:
+----------
+Negative numbers are never palindromes because of the '-' sign.
+
+Expressions:
+------------
+x % 10
+    → Get the last digit.
+
+reverse * 10 + digit
+    → Add the digit to the reversed number.
+
+x // 10
+    → Remove the last digit.
+
+Complexity:
+-----------
+Time:  O(log x)   # Process each digit
+Space: O(1)
+
+Memory Trick:
+-------------
+GET LAST DIGIT → ADD TO REVERSE → REMOVE DIGIT → COMPARE
+"""
+
+class Solution:
+    def isPalindrome(self, x):
+
+        if x < 0:                         # Negative numbers are not palindromes
+            return False
+
+        original = x                      # Save the original number
+        reverse = 0                       # Stores the reversed number
+
+        while x > 0:                      # Process every digit
+
+            digit = x % 10                # Get the last digit
+
+            reverse = reverse * 10 + digit  # Add digit to reversed number
+
+            x = x // 10                   # Remove the last digit
+
+        return original == reverse        # Check if original == reversed
