@@ -1,0 +1,66 @@
+"""
+Problem:
+--------
+Implement pow(x, n), which calculates x raised to the power n.
+
+Example:
+    Input:  x = 2.0, n = 10
+    Output: 1024.0
+
+Key Idea:
+---------
+Use Binary Exponentiation instead of multiplying x, n times.
+
+For every step:
+- If n is odd → multiply result by x.
+- Square x → x becomes x².
+- Divide n by 2.
+
+Negative exponent:
+    x^(-n) = 1 / x^n
+
+Important:
+----------
+n % 2 == 1
+    → Current exponent is odd.
+
+x *= x
+    → Square the base.
+
+n //= 2
+    → Move to the next binary exponent.
+
+Complexity:
+-----------
+Time:  O(log n)
+Space: O(1)
+
+Memory Trick:
+-------------
+ODD → MULTIPLY
+SQUARE → DIVIDE BY 2
+NEGATIVE → RECIPROCAL
+"""
+
+class Solution:
+    def myPow(self, x, n):
+
+        negative = n < 0              # Remember if exponent is negative
+
+        n = abs(n)                    # Work with positive exponent
+
+        result = 1.0                  # Start multiplication from 1
+
+        while n > 0:                  # Process exponent bits
+
+            if n % 2 == 1:             # If exponent is odd
+                result *= x            # Include current x
+
+            x *= x                     # Square x for the next step
+
+            n //= 2                    # Reduce exponent by half
+
+        if negative:                   # If original n was negative
+            return 1 / result          # x^-n = 1 / x^n
+
+        return result                  # Return final answer
