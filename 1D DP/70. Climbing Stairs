@@ -1,0 +1,71 @@
+"""
+Problem:
+--------
+You can climb either 1 or 2 steps at a time.
+Return the number of distinct ways to reach the top of n steps.
+
+Example:
+    Input:  n = 3
+
+    Ways:
+        1 + 1 + 1
+        1 + 2
+        2 + 1
+
+    Output: 3
+
+Key Idea:
+---------
+To reach step n, the last move must be either:
+    1 step from n-1
+    2 steps from n-2
+
+Therefore:
+
+    ways(n) = ways(n-1) + ways(n-2)
+
+This is the Fibonacci pattern.
+
+Instead of storing a full DP array, keep only the
+previous two values.
+
+Base Cases:
+-----------
+n = 1 → 1 way
+n = 2 → 2 ways
+
+Complexity:
+-----------
+Time:  O(n)
+Space: O(1)
+
+Memory Trick:
+-------------
+LAST MOVE = 1 STEP OR 2 STEPS
+→ ADD THE PREVIOUS TWO
+"""
+
+class Solution:
+    def climbStairs(self, n):
+
+        # Base cases
+        if n <= 2:
+            return n
+
+        # Ways to reach step 1
+        prev1 = 1
+
+        # Ways to reach step 2
+        prev2 = 2
+
+        # Calculate ways from step 3 to n
+        for i in range(3, n + 1):
+
+            # Current ways = ways from previous 2 steps
+            current = prev1 + prev2
+
+            # Move the previous values forward
+            prev1 = prev2
+            prev2 = current
+
+        return prev2                   # Ways to reach step n
