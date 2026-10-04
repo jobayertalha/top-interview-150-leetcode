@@ -1,0 +1,68 @@
+"""
+Problem:
+--------
+Given an integer array nums, return the length of the longest
+strictly increasing subsequence.
+
+Example:
+    Input:  nums = [10, 9, 2, 5, 3, 7, 101, 18]
+    Output: 4
+
+    One LIS is:
+        [2, 3, 7, 101]
+
+Key Idea:
+---------
+Use Dynamic Programming.
+
+dp[i] = length of the longest increasing subsequence
+         that ends at nums[i].
+
+For every nums[i], check all previous nums[j].
+
+If:
+    nums[j] < nums[i]
+
+then nums[i] can be added after nums[j]:
+
+    dp[i] = max(dp[i], dp[j] + 1)
+
+Every number alone is already a subsequence of length 1.
+
+Important:
+----------
+The answer does NOT necessarily end at the last element.
+So return:
+
+    max(dp)
+
+Complexity:
+-----------
+Time:  O(n²)
+Space: O(n)
+
+Memory Trick:
+-------------
+PREVIOUS SMALLER → EXTEND → TAKE MAX
+"""
+
+class Solution:
+    def lengthOfLIS(self, nums):
+
+        # Every number alone has an increasing subsequence of length 1
+        dp = [1] * len(nums)
+
+        # Consider each number as the ending point
+        for i in range(len(nums)):
+
+            # Check every number before nums[i]
+            for j in range(i):
+
+                # If nums[j] is smaller, we can extend its subsequence
+                if nums[j] < nums[i]:
+
+                    # Add nums[i] after the subsequence ending at j
+                    dp[i] = max(dp[i], dp[j] + 1)
+
+        # LIS can end at any position
+        return max(dp)
