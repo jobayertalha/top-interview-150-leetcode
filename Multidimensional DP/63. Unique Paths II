@@ -1,0 +1,89 @@
+"""
+Problem:
+--------
+Count the number of unique paths from the top-left to the
+bottom-right of a grid.
+
+You can only move:
+    → Right
+    ↓ Down
+
+Some cells contain obstacles (1), so they cannot be used.
+
+Example:
+    obstacleGrid = [
+        [0, 0, 0],
+        [0, 1, 0],
+        [0, 0, 0]
+    ]
+
+    Output: 2
+
+Key Idea:
+---------
+Use 1D Dynamic Programming.
+
+dp[col] = number of ways to reach the current cell
+          in this column.
+
+For each normal cell:
+    dp[col] = dp[col] + dp[col - 1]
+
+Why?
+    dp[col]     → paths coming from ABOVE
+    dp[col - 1] → paths coming from LEFT
+
+If the cell is an obstacle:
+    dp[col] = 0
+
+Important:
+----------
+When we move to the next row, dp[col] still represents
+the paths from ABOVE, so we only need to add the LEFT paths.
+
+Starting:
+    dp[0] = 1
+
+Complexity:
+-----------
+Time:  O(rows × cols)
+Space: O(cols)
+
+Memory Trick:
+-------------
+"Obstacle → 0
+ Normal → TOP + LEFT"
+"""
+
+class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid):
+
+        # Number of rows
+        rows = len(obstacleGrid)
+
+        # Number of columns
+        cols = len(obstacleGrid[0])
+
+        # dp[col] = number of ways to reach current cell
+        dp = [0] * cols
+
+        # Initially, there is one way to start
+        dp[0] = 1
+
+        # Process each row
+        for row in range(rows):
+
+            # Process each column
+            for col in range(cols):
+
+                # Obstacle → this cell cannot be reached
+                if obstacleGrid[row][col] == 1:
+                    dp[col] = 0
+
+                # Normal cell:
+                # TOP (dp[col]) + LEFT (dp[col - 1])
+                elif col > 0:
+                    dp[col] += dp[col - 1]
+
+        # Last cell contains total number of paths
+        return dp[cols - 1]
