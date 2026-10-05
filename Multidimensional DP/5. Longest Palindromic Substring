@@ -1,0 +1,99 @@
+"""
+Problem:
+--------
+Find the longest substring of s that is a palindrome.
+
+A palindrome reads the same forward and backward.
+
+Example:
+    Input:  s = "babad"
+    Output: "bab"   # "aba" is also valid
+
+Key Idea:
+---------
+Every palindrome has a CENTER.
+
+There are two types of centers:
+
+1. Odd-length palindrome
+       "aba"
+        ↑
+      center
+
+   expand(i, i)
+
+2. Even-length palindrome
+       "abba"
+         ↑↑
+       center
+
+   expand(i, i + 1)
+
+For every position, try both types and keep the longest one.
+
+Important Logic:
+----------------
+While left and right characters are equal:
+    expand outward
+
+When expansion stops:
+    left and right are one position outside the palindrome.
+
+So:
+    s[left + 1:right]
+
+Complexity:
+-----------
+Time:  O(n²)
+Space: O(n)
+
+Memory Trick:
+-------------
+"Every palindrome has a CENTER.
+ Try ODD + EVEN → EXPAND → Keep LONGEST."
+"""
+
+class Solution:
+    def longestPalindrome(self, s):
+
+        # Store the longest palindrome found so far
+        longest = ""
+
+        # Expand outward from a given center
+        def expand(left, right):
+
+            # Continue while we are inside the string
+            # and both characters are equal
+            while left >= 0 and right < len(s) and s[left] == s[right]:
+
+                # Move left outward
+                left -= 1
+
+                # Move right outward
+                right += 1
+
+            # left and right are now outside the palindrome
+            # So take everything between them
+            return s[left + 1:right]
+
+        # Try every position as a possible center
+        for i in range(len(s)):
+
+            # Odd-length palindrome
+            # Example: "aba"
+            odd = expand(i, i)
+
+            # Even-length palindrome
+            # Example: "abba"
+            even = expand(i, i + 1)
+
+            # Keep the longer odd palindrome
+            if len(odd) > len(longest):
+                longest = odd
+
+            # Keep the longer even palindrome
+            if len(even) > len(longest):
+                longest = even
+
+        # Return the longest palindrome found
+        return longest
