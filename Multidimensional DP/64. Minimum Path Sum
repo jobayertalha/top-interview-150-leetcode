@@ -1,0 +1,88 @@
+"""
+Problem:
+--------
+Find the minimum sum of a path from the top-left to the
+bottom-right of a grid.
+
+You can only move:
+    → Right
+    ↓ Down
+
+Example:
+    grid = [
+        [1, 3, 1],
+        [1, 5, 1],
+        [4, 2, 1]
+    ]
+
+    Output: 7
+
+    Path: 1 → 3 → 1 → 1 → 1 = 7
+
+Key Idea:
+---------
+Use Dynamic Programming.
+
+For each cell, store the minimum path sum needed to reach it.
+
+A cell can come from:
+    - Above
+    - Left
+
+So:
+    grid[row][col] += min(above, left)
+
+Special cases:
+    - First row → only from the left
+    - First column → only from above
+    - Starting cell → no calculation needed
+
+Important:
+----------
+We modify the grid itself, so no extra DP array is needed.
+
+Complexity:
+-----------
+Time:  O(rows × cols)
+Space: O(1) extra space
+
+Memory Trick:
+-------------
+"Each cell = its value + minimum of TOP and LEFT."
+"""
+
+class Solution:
+    def minPathSum(self, grid):
+
+        # Number of rows
+        rows = len(grid)
+
+        # Number of columns
+        cols = len(grid[0])
+
+        # Visit every cell
+        for row in range(rows):
+            for col in range(cols):
+
+                # Starting cell already has its own value
+                if row == 0 and col == 0:
+                    continue
+
+                # First row → can only come from the LEFT
+                if row == 0:
+                    grid[row][col] += grid[row][col - 1]
+
+                # First column → can only come from ABOVE
+                elif col == 0:
+                    grid[row][col] += grid[row - 1][col]
+
+                # Other cells → choose cheaper path:
+                # TOP or LEFT
+                else:
+                    grid[row][col] += min(
+                        grid[row - 1][col],   # From above
+                        grid[row][col - 1]    # From left
+                    )
+
+        # Bottom-right now contains the minimum path sum
+        return grid[rows - 1][cols - 1]
