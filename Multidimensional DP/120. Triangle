@@ -1,0 +1,73 @@
+"""
+Problem:
+--------
+Given a triangle of numbers, find the minimum path sum from the top
+to the bottom.
+
+From each position, you can move to:
+    - the number directly below
+    - the number diagonally below-right
+
+Example:
+    Input:
+        [
+            [2],
+            [3, 4],
+            [6, 5, 7],
+            [4, 1, 8, 3]
+        ]
+
+    Minimum path:
+        2 → 3 → 5 → 1
+
+    Output:
+        11
+
+Key Idea:
+---------
+Use Bottom-Up Dynamic Programming.
+
+For each number, look at the two possible values directly below it.
+Choose the smaller one and add it to the current number.
+
+Formula:
+    triangle[row][col] += min(
+        triangle[row+1][col],
+        triangle[row+1][col+1]
+    )
+
+Why bottom-up?
+--------------
+At the bottom, the minimum path is already known.
+We then use those answers to calculate the row above.
+
+The triangle itself is updated, so no extra DP array is needed.
+
+Complexity:
+-----------
+Time:  O(n²)
+Space: O(1) extra space
+
+Memory Trick:
+-------------
+BOTTOM → TWO CHOICES → MIN → ADD → MOVE UP
+"""
+
+class Solution:
+    def minimumTotal(self, triangle):
+
+        # Start from the second-last row
+        for row in range(len(triangle) - 2, -1, -1):
+
+            # Process every number in the current row
+            for col in range(len(triangle[row])):
+
+                # Two possible paths from this position
+                left = triangle[row + 1][col]
+                right = triangle[row + 1][col + 1]
+
+                # Choose the smaller path and add it
+                triangle[row][col] += min(left, right)
+
+        # Top now contains the minimum path sum
+        return triangle[0][0]
