@@ -1,0 +1,103 @@
+"""
+Problem:
+--------
+Find the maximum profit with at most TWO transactions.
+
+One transaction =:
+    Buy → Sell
+
+You must sell before buying again.
+
+Example:
+    prices = [3,3,5,0,0,3,1,4]
+
+    Output: 6
+
+    Buy at 0 → Sell at 3  = 3
+    Buy at 1 → Sell at 4  = 3
+    Total = 6
+
+Key Idea:
+---------
+Track 4 states:
+
+    buy1  = best profit after first BUY
+    sell1 = best profit after first SELL
+
+    buy2  = best profit after second BUY
+    sell2 = best profit after second SELL
+
+For every price, update these states.
+
+Transitions:
+------------
+buy1  = max(buy1, -price)
+sell1 = max(sell1, buy1 + price)
+
+buy2  = max(buy2, sell1 - price)
+sell2 = max(sell2, buy2 + price)
+
+Why?
+----
+Each state represents the best result after performing
+a particular step of the two transactions.
+
+Important:
+----------
+buy1 starts at -infinity because buying costs money.
+
+sell1, sell2 start at 0 because doing no transaction
+gives profit 0.
+
+Complexity:
+-----------
+Time:  O(n)
+Space: O(1)
+
+Memory Trick:
+-------------
+"BUY → SELL → BUY → SELL"
+
+Keep the best value for each of these 4 states.
+"""
+
+class Solution:
+    def maxProfit(self, prices):
+
+        # Best profit after first BUY
+        buy1 = float("-inf")
+
+        # Best profit after first SELL
+        sell1 = 0
+
+        # Best profit after second BUY
+        buy2 = float("-inf")
+
+        # Best profit after second SELL
+        sell2 = 0
+
+        # Process each day's price
+        for price in prices:
+
+            # First BUY:
+            # Either keep previous buy
+            # or buy today
+            buy1 = max(buy1, -price)
+
+            # First SELL:
+            # Either keep previous profit
+            # or sell today
+            sell1 = max(sell1, buy1 + price)
+
+            # Second BUY:
+            # Use profit from first transaction
+            # and buy again today
+            buy2 = max(buy2, sell1 - price)
+
+            # Second SELL:
+            # Either keep previous profit
+            # or sell second stock today
+            sell2 = max(sell2, buy2 + price)
+
+        # Best profit after at most 2 transactions
+        return sell2
