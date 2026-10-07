@@ -1,0 +1,111 @@
+"""
+Problem:
+--------
+Given a binary matrix containing '0' and '1', find the area
+of the largest square containing only 1s.
+
+Example:
+    matrix = [
+        ["1","0","1","0","0"],
+        ["1","0","1","1","1"],
+        ["1","1","1","1","1"],
+        ["1","0","0","1","0"]
+    ]
+
+    Output: 4
+
+    Largest square = 2 × 2
+    Area = 2 × 2 = 4
+
+Key Idea:
+---------
+Use Dynamic Programming.
+
+dp[row][col] = largest SIDE LENGTH of a square of 1s
+                whose bottom-right corner is (row, col).
+
+If matrix[row][col] == "0":
+    dp[row][col] = 0
+
+If it is "1":
+    Look at three neighboring squares:
+
+        TOP       = dp[row-1][col]
+        LEFT      = dp[row][col-1]
+        TOP-LEFT  = dp[row-1][col-1]
+
+    The new square can only grow as large as the smallest
+    of these three.
+
+    dp[row][col] = 1 + min(TOP, LEFT, TOP-LEFT)
+
+Why minimum?
+-----------
+All three neighboring areas must support the larger square.
+
+Example:
+    top = 2
+    left = 2
+    top-left = 1
+
+    New side = 1 + min(2,2,1)
+             = 2
+
+Important:
+----------
+dp stores the SIDE LENGTH, not the area.
+
+At the end:
+    Area = max_side × max_side
+
+Complexity:
+-----------
+Time:  O(rows × cols)
+Space: O(rows × cols)
+
+Memory Trick:
+-------------
+"1 + MIN(TOP, LEFT, TOP-LEFT)"
+Then:
+"Area = SIDE²"
+"""
+
+class Solution:
+    def maximalSquare(self, matrix):
+
+        # Number of rows
+        rows = len(matrix)
+
+        # Number of columns
+        cols = len(matrix[0])
+
+        # dp[row][col] = largest square SIDE ending at this cell
+        dp = [[0] * cols for _ in range(rows)]
+
+        # Store the largest side length found
+        max_side = 0
+
+        # Visit every cell
+        for row in range(rows):
+            for col in range(cols):
+
+                # Only a '1' can be part of a square
+                if matrix[row][col] == "1":
+
+                    # First row/column → only 1×1 is possible
+                    if row == 0 or col == 0:
+                        dp[row][col] = 1
+
+                    # Other cells can build a larger square
+                    else:
+                        dp[row][col] = 1 + min(
+                            dp[row - 1][col],       # TOP
+                            dp[row][col - 1],       # LEFT
+                            dp[row - 1][col - 1]    # TOP-LEFT
+                        )
+
+                    # Update largest side found
+                    max_side = max(max_side, dp[row][col])
+
+        # Convert side length to area
+        return max_side * max_side
