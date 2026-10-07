@@ -1,0 +1,99 @@
+"""
+Problem:
+--------
+Find the maximum profit with at most k transactions.
+
+One transaction:
+    BUY → SELL
+
+You must sell before buying again.
+
+Example:
+    k = 2
+    prices = [2,4,1]
+
+    Buy at 2 → Sell at 4 = 2
+    Answer = 2
+
+Key Idea:
+---------
+Instead of creating separate variables for every transaction,
+use two arrays:
+
+    buy[t]  = best profit after buying for transaction t
+    sell[t] = best profit after selling for transaction t
+
+For every price:
+
+    BUY:
+    buy[t] = max(buy[t], sell[t-1] - price)
+
+    SELL:
+    sell[t] = max(sell[t], buy[t] + price)
+
+Why sell[t-1]?
+--------------
+Before starting transaction t, we must have completed
+transaction t-1.
+
+So:
+    Previous profit - current price = new BUY state.
+
+Important:
+----------
+t starts from 1 because transaction 0 means no completed
+transaction.
+
+Base:
+    sell[0] = 0
+    buy[t] = -infinity initially
+
+Complexity:
+-----------
+Time:  O(n × k)
+Space: O(k)
+
+Memory Trick:
+-------------
+"BUY from previous SELL → SELL from current BUY"
+
+    sell[t-1] → buy[t] → sell[t]
+"""
+
+class Solution:
+    def maxProfit(self, k, prices):
+
+        # No prices → no profit
+        if not prices:
+            return 0
+
+        # buy[t] = best result after buying for transaction t
+        buy = [float("-inf")] * (k + 1)
+
+        # sell[t] = best profit after completing transaction t
+        sell = [0] * (k + 1)
+
+        # Process every day's price
+        for price in prices:
+
+            # Try every transaction number
+            for t in range(1, k + 1):
+
+                # BUY:
+                # Either keep the previous buy
+                # or buy today using profit from transaction t-1
+                buy[t] = max(
+                    buy[t],
+                    sell[t - 1] - price
+                )
+
+                # SELL:
+                # Either keep the previous sell
+                # or sell today
+                sell[t] = max(
+                    sell[t],
+                    buy[t] + price
+                )
+
+        # Best profit using at most k transactions
+        return sell[k]
