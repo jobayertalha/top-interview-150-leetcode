@@ -1,0 +1,85 @@
+"""
+Problem:
+--------
+Connect each node's next pointer to its immediate right neighbor
+at the same level. If there is no right neighbor, next stays None.
+
+Unlike LeetCode 116, this tree is NOT necessarily perfect.
+
+Example:
+        1
+       / \
+      2   3
+     / \   \
+    4   5   7
+
+Connections:
+    1 → None
+    2 → 3 → None
+    4 → 5 → 7 → None
+
+Key Idea:
+---------
+Use BFS (level-order traversal).
+
+Process one level at a time:
+1. Save the number of nodes in the current level.
+2. Remove each node from the queue.
+3. Connect it to the next queued node if it is not last.
+4. Add its children for the next level.
+
+Important:
+----------
+queue[0] is the next node in the current level
+because we process exactly level_size nodes before moving on.
+
+The last node at each level needs no connection.
+Its next pointer remains None.
+
+Complexity:
+-----------
+Time:  O(n) — visit every node once.
+Space: O(n) — the queue can hold a level of nodes.
+
+Memory Trick:
+-------------
+"BFS → LEVEL SIZE → CONNECT NEXT → ADD CHILDREN"
+"""
+
+class Solution(object):
+    def connect(self, root):
+
+        # Empty tree → nothing to connect
+        if root is None:
+            return None
+
+        # Start BFS from the root
+        queue = deque([root])
+
+        # Process the tree level by level
+        while queue:
+
+            # Number of nodes in this level
+            level_size = len(queue)
+
+            # Process only the current level
+            for i in range(level_size):
+
+                # Remove the front node
+                current = queue.popleft()
+
+                # Connect to the next node if not the last
+                if i < level_size - 1:
+                    current.next = queue[0]
+
+                # Add children for the next level
+                if current.left:
+                    queue.append(current.left)
+
+                if current.right:
+                    queue.append(current.right)
+
+            # Last node's next remains None
+
+        # Return the connected tree
+        return root
